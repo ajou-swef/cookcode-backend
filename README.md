@@ -1,4 +1,4 @@
-# cookcode-backend
+# cookcode
 
 ## 2023-1학기 SW 캡스톤디자인
 
