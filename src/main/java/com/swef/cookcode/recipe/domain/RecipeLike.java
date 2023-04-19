@@ -31,7 +31,7 @@ public class RecipeLike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "review_like_id")
+    @Column(name = "recipe_like_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
