@@ -20,4 +20,7 @@ public class Fridge extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int fridgeId;
 
+    @OneToMany(mappedBy = "fridge")
+    private List<FridgeIngredient> ingredients = new ArrayList<>();
+
 }
