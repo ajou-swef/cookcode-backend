@@ -16,23 +16,25 @@ import java.util.Date;
 @Getter
 public class FridgeIngredient {
 
+    private static final int MAX_QUANTITY_LENGTH = 10;
+
     @Id
     @Column(name = "fridge_ingred_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int fridgeIngredId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fridge_id")
     private Fridge fridge;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ingred_id")
     private Ingredient ingred;
 
-    @Column(name = "quantity")
+    @Column(name = "quantity", nullable = false, length = MAX_QUANTITY_LENGTH)
     private String quantity;
 
-    @Column(name = "expired_at")
+    @Column(name = "expired_at", nullable = false)
     private Date expiredAt;
 
 }

@@ -1,6 +1,7 @@
 package com.swef.cookcode.fridge.domain;
 
 import com.swef.cookcode.common.entity.BaseEntity;
+import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,12 +16,14 @@ import java.util.List;
 @Getter
 public class Fridge extends BaseEntity {
 
+    private static final int MAX_TITLE_LENGTH = 30;
+
     @Id
     @Column(name = "fridge_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int fridgeId;
 
-    @OneToMany(mappedBy = "fridge")
-    private List<FridgeIngredient> ingredients = new ArrayList<>();
-
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User owner;
 }
