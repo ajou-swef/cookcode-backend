@@ -1,6 +1,8 @@
 package com.swef.cookcode.cookie.domain;
 
 import com.swef.cookcode.common.entity.BaseEntity;
+import com.swef.cookcode.recipe.domain.Recipe;
+import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,7 +21,7 @@ public class Cookie extends BaseEntity {
     @Id
     @Column(name = "cookie_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int cookieId;
+    private Long id;
 
     @Column(name = "title", nullable = false, length = MAX_TITLE_LENGTH)
     private String title;
@@ -29,5 +31,13 @@ public class Cookie extends BaseEntity {
 
     @Column(name = "video_url", nullable = false, length = MAX_VIDEO_URL_LENGTH)
     private String videoUrl;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cookie_id")
+    private Recipe recipe;
 
 }

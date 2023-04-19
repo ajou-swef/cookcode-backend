@@ -18,7 +18,7 @@ public class CookieReport extends BaseEntity {
     @Id
     @Column(name = "cookie_report_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int cookieReportId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

@@ -18,7 +18,7 @@ public class CookieComment extends BaseEntity {
     @Id
     @Column(name = "cookie_comment_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int cookieCommentId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

@@ -16,7 +16,7 @@ public class CookieLike extends BaseEntity {
     @Id
     @Column(name = "cookie_like_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int cookieLikeId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
