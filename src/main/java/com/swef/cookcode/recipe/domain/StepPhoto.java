@@ -32,5 +32,5 @@ public class StepPhoto extends BaseEntity {
     private Step step;
 
     @Column(nullable = false, length = 300)
-    private String url;
+    private String photoUrl;
 }

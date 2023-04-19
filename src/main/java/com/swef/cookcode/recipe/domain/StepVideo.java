@@ -33,5 +33,5 @@ public class StepVideo extends BaseEntity {
     private Step step;
 
     @Column(nullable = false, length = 300)
-    private String url;
+    private String videoUrl;
 }

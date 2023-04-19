@@ -1,6 +1,5 @@
 package com.swef.cookcode.user.domain;
 
-import com.swef.cookcode.recipe.domain.Recipe;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
