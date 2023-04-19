@@ -36,7 +36,7 @@ public class RecipeComment extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(length = MAX_COMMENT_LENGTH)
+    @Column(nullable = false, length = MAX_COMMENT_LENGTH)
     private String comment;
 
 }
