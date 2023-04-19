@@ -16,32 +16,27 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "recipe_comment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "recipe")
 @Getter
-public class Recipe extends BaseEntity {
+public class RecipeComment extends BaseEntity {
 
-    private static final int MAX_TITLE_LENGTH = 30;
-
-    private static final int MAX_DESCRIPTION_LENGTH = 500;
-
-    private static final int MAX_THUMBNAIL_LENGTH = 300;
+    private static final int MAX_COMMENT_LENGTH = 500;
 
     @Id
-    @Column(name = "recipe_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "recipe_comment_id")
     private Long id;
 
-    @Column(nullable = false, length = MAX_TITLE_LENGTH)
-    private String title;
-
-    @Column(nullable = false, length = MAX_DESCRIPTION_LENGTH)
-    private String description;
-
-    @Column(nullable = false, length = MAX_THUMBNAIL_LENGTH)
-    private String thumbnail;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipe_id")
+    private Recipe recipe;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User author;
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column(nullable = false, length = MAX_COMMENT_LENGTH)
+    private String comment;
+
 }

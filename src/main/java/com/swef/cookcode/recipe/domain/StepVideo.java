@@ -1,7 +1,7 @@
 package com.swef.cookcode.recipe.domain;
 
+
 import com.swef.cookcode.common.entity.BaseEntity;
-import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,31 +17,21 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "recipe")
+@Table(name = "step_video")
 @Getter
-public class Recipe extends BaseEntity {
+public class StepVideo extends BaseEntity {
 
-    private static final int MAX_TITLE_LENGTH = 30;
-
-    private static final int MAX_DESCRIPTION_LENGTH = 500;
-
-    private static final int MAX_THUMBNAIL_LENGTH = 300;
+    private static final int MAX_URL_LENGTH = 500;
 
     @Id
-    @Column(name = "recipe_id")
+    @Column(name = "step_video_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = MAX_TITLE_LENGTH)
-    private String title;
-
-    @Column(nullable = false, length = MAX_DESCRIPTION_LENGTH)
-    private String description;
-
-    @Column(nullable = false, length = MAX_THUMBNAIL_LENGTH)
-    private String thumbnail;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User author;
+    @JoinColumn(name = "step_id", nullable = false)
+    private Step step;
+
+    @Column(nullable = false, length = 300)
+    private String videoUrl;
 }

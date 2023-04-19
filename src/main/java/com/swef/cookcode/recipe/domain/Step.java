@@ -1,7 +1,6 @@
 package com.swef.cookcode.recipe.domain;
 
 import com.swef.cookcode.common.entity.BaseEntity;
-import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,20 +16,21 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "recipe")
+@Table(name = "recipe_steps")
 @Getter
-public class Recipe extends BaseEntity {
+public class Step extends BaseEntity {
 
     private static final int MAX_TITLE_LENGTH = 30;
 
     private static final int MAX_DESCRIPTION_LENGTH = 500;
 
-    private static final int MAX_THUMBNAIL_LENGTH = 300;
-
     @Id
-    @Column(name = "recipe_id")
+    @Column(name = "step_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
+    private Long seq;
 
     @Column(nullable = false, length = MAX_TITLE_LENGTH)
     private String title;
@@ -38,10 +38,7 @@ public class Recipe extends BaseEntity {
     @Column(nullable = false, length = MAX_DESCRIPTION_LENGTH)
     private String description;
 
-    @Column(nullable = false, length = MAX_THUMBNAIL_LENGTH)
-    private String thumbnail;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User author;
+    @JoinColumn(name = "recipe_id", nullable = false)
+    private Recipe recipe;
 }
