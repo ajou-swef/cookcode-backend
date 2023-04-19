@@ -1,5 +1,6 @@
 package com.swef.cookcode.recipe.domain;
 
+import com.swef.cookcode.common.entity.BaseEntity;
 import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "recipe")
 @Getter
-public class Recipe {
+public class Recipe extends BaseEntity {
 
     private static final int MAX_TITLE_LENGTH = 30;
 
