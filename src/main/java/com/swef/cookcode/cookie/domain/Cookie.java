@@ -37,7 +37,7 @@ public class Cookie extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cookie_id")
+    @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
 }
