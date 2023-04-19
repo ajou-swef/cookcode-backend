@@ -21,7 +21,7 @@ public class Fridge extends BaseEntity {
     @Id
     @Column(name = "fridge_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int fridgeId;
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

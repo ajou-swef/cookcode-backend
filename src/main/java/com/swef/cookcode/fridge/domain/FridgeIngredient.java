@@ -21,7 +21,7 @@ public class FridgeIngredient {
     @Id
     @Column(name = "fridge_ingred_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int fridgeIngredId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fridge_id")
