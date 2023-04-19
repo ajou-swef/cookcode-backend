@@ -1,8 +1,6 @@
 package com.swef.cookcode.fridge.domain;
 
 
-import com.swef.cookcode.cookie.domain.Cookie;
-import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
