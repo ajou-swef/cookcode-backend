@@ -19,4 +19,9 @@ public class UserSimpleService {
     public User getUserById(Long userId) {
         return userRepository.findByIdAndIsQuit(userId, false).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
     }
+
+    @Transactional(readOnly = true)
+    public boolean checkNicknameUnique(String nickname) {
+        return !userRepository.existsByNicknameAndIsQuit(nickname, false);
+    }
 }

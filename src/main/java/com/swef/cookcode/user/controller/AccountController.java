@@ -12,11 +12,14 @@ import com.swef.cookcode.user.dto.request.UserSignInRequest;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
 import com.swef.cookcode.user.dto.response.SignInResponse;
 import com.swef.cookcode.user.dto.response.SignUpResponse;
+import com.swef.cookcode.user.dto.response.UniqueCheckResponse;
 import com.swef.cookcode.user.dto.response.UserDetailResponse;
 import com.swef.cookcode.user.service.UserService;
 import com.swef.cookcode.user.service.UserSimpleService;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -75,6 +79,18 @@ public class AccountController {
                 .data(SignUpResponse.from(newUser))
                 .build();
         return ResponseEntity.created(URI.create("/signup")).body(response);
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<ApiResponse<UniqueCheckResponse>> checkNicknameValid(
+            @RequestParam(value = "nickname") String nickname) {
+        UniqueCheckResponse response = new UniqueCheckResponse(userSimpleService.checkNicknameUnique(nickname));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("중복 검사가 완료되었습니다.")
+                .status(OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     @GetMapping("/{userId}")
