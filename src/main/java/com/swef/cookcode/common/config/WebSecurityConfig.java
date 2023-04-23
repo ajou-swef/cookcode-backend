@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.ErrorResponse;
 import com.swef.cookcode.common.filter.ExceptionHandlerFilter;
+import com.swef.cookcode.common.jwt.JwtAuthenticationFilter;
 import java.io.PrintWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -68,6 +69,7 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(
             HttpSecurity http,
+            JwtAuthenticationFilter jwtAuthenticationFilter,
             AccessDeniedHandler accessDeniedHandler,
             AuthenticationEntryPoint authenticationEntryPoint
     ) throws Exception {
@@ -80,13 +82,15 @@ public class WebSecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests()
-                .anyRequest().permitAll()
+                .requestMatchers("/api/v1/account/signin", "/api/v1/account/signup").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler)
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .and()
-                .addFilterBefore(exceptionHandlerFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(exceptionHandlerFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
