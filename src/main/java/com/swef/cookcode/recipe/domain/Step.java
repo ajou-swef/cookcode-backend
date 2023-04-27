@@ -9,7 +9,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,6 +46,12 @@ public class Step extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipe_id", nullable = false)
     private Recipe recipe;
+
+    @OneToMany(mappedBy = "step")
+    private List<StepPhoto> photos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "step")
+    private List<StepVideo> videos = new ArrayList<>();
 
     // TODO : Step Field Validation
     @Builder
