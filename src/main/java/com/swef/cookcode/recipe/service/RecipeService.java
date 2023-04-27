@@ -40,13 +40,15 @@ public class RecipeService {
         Recipe savedRecipe = recipeRepository.save(newRecipe);
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
-        saveIngredientsOfRecipe(savedRecipe, requiredIngredients, true);
-        saveIngredientsOfRecipe(savedRecipe, optionalIngredients, false);
-        List<StepResponse> stepResponses = stepService.saveStepsForRecipe(savedRecipe, request.getSteps());
         List<IngredientSimpleResponse> ingredResponses = requiredIngredients.stream().map(
                 IngredientSimpleResponse::from).toList();
         List<IngredientSimpleResponse> optionalIngredResponses = optionalIngredients.stream().map(
                 IngredientSimpleResponse::from).toList();
+
+        saveIngredientsOfRecipe(savedRecipe, requiredIngredients, true);
+        saveIngredientsOfRecipe(savedRecipe, optionalIngredients, false);
+
+        List<StepResponse> stepResponses = stepService.saveStepsForRecipe(savedRecipe, request.getSteps());
 
         return RecipeResponse.builder()
                 .recipeId(savedRecipe.getId())

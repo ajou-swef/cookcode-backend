@@ -39,7 +39,7 @@ public class RecipeIngred {
     private Recipe recipe;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ingredient_id")
+    @JoinColumn(name = "ingred_id")
     private Ingredient ingredient;
 
     private Boolean isNecessary = true;
