@@ -1,7 +1,6 @@
 package com.swef.cookcode.recipe.service;
 
 import com.swef.cookcode.recipe.domain.Recipe;
-import com.swef.cookcode.recipe.domain.RecipeIngred;
 import com.swef.cookcode.recipe.domain.Step;
 import com.swef.cookcode.recipe.domain.StepPhoto;
 import com.swef.cookcode.recipe.domain.StepVideo;
@@ -11,9 +10,7 @@ import com.swef.cookcode.recipe.repository.StepPhotoRepository;
 import com.swef.cookcode.recipe.repository.StepRepository;
 import com.swef.cookcode.recipe.repository.StepVideoRepository;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

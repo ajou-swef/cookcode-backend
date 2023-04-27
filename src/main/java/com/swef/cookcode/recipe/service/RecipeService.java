@@ -1,10 +1,7 @@
 package com.swef.cookcode.recipe.service;
 
-import com.swef.cookcode.common.ErrorCode;
-import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.dto.IngredientSimpleResponse;
-import com.swef.cookcode.fridge.repository.IngredientRepository;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
@@ -15,9 +12,7 @@ import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.service.UserSimpleService;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
