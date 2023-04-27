@@ -20,6 +20,7 @@ public enum ErrorCode {
   RESOURCE_PERMISSION_DENIED(400, "C009", "해당 리소스에 대한 작업 권한이 없습니다."),
   ACCESS_DENIED(403, "C010", "요청 권한이 없습니다."),
   UNAUTHENTICATED_USER(401, "C011", "인증되지 않은 사용자입니다."),
+  DUPLICATED(400, "C012", "두 개체에 중복된 요소가 존재합니다."),
 
   /**
    * User Domain
@@ -47,7 +48,6 @@ public enum ErrorCode {
    */
 
   INGREDIENT_NOT_FOUND(400, "I001", "존재하지 않는 재료입니다.");
-
 
   private final int status;
   private final String code;

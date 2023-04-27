@@ -1,5 +1,8 @@
 package com.swef.cookcode.recipe.service;
 
+import com.swef.cookcode.common.ErrorCode;
+import com.swef.cookcode.common.Util;
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.dto.IngredientSimpleResponse;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
@@ -13,7 +16,9 @@ import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.service.UserSimpleService;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,17 +45,18 @@ public class RecipeService {
                 .build();
         Recipe savedRecipe = recipeRepository.save(newRecipe);
 
-        // TODO : 필수 재료이면서 선택 재료인 것들에 대해 예외 처리하는 비즈니스 로직 추가 필요
+        Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
+
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
-        List<IngredientSimpleResponse> ingredResponses = requiredIngredients.stream().map(
-                IngredientSimpleResponse::from).toList();
-        List<IngredientSimpleResponse> optionalIngredResponses = optionalIngredients.stream().map(
-                IngredientSimpleResponse::from).toList();
 
         saveIngredientsOfRecipe(savedRecipe, requiredIngredients, true);
         saveIngredientsOfRecipe(savedRecipe, optionalIngredients, false);
 
+        List<IngredientSimpleResponse> ingredResponses = requiredIngredients.stream().map(
+                IngredientSimpleResponse::from).toList();
+        List<IngredientSimpleResponse> optionalIngredResponses = optionalIngredients.stream().map(
+                IngredientSimpleResponse::from).toList();
         List<StepResponse> stepResponses = stepService.saveStepsForRecipe(savedRecipe, request.getSteps());
 
         return RecipeResponse.builder()
