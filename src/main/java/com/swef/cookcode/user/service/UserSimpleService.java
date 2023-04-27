@@ -24,4 +24,9 @@ public class UserSimpleService {
     public boolean checkNicknameUnique(String nickname) {
         return !userRepository.existsByNicknameAndIsQuit(nickname, false);
     }
+
+    @Transactional(readOnly = true)
+    public boolean checkUserExists(Long userId) {
+        return userRepository.existsByIdAndIsQuit(userId, false);
+    }
 }

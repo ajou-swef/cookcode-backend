@@ -1,5 +1,6 @@
 package com.swef.cookcode.recipe.dto.request;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,11 +14,11 @@ public class StepCreateRequest {
 
     private String description;
 
-    private String[] videos;
+    private List<String> videos;
 
-    private String[] photos;
+    private List<String> photos;
 
-    private String[] deletedVideos;
+    private List<String> deletedVideos;
 
-    private String[] deletedPhotos;
+    private List<String> deletedPhotos;
 }

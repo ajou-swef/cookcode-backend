@@ -40,7 +40,13 @@ public enum ErrorCode {
   TOKEN_USER_ID_NOT_MATCHED(400, "U016", "액세스 토큰과 유저 아이디가 매치되지 않습니다."),
   BLACKLIST_TOKEN_REQUEST(400, "U017", "로그아웃 처리된 토큰으로 요청할 수 없습니다."),
   OAUTH_EMAIL_REQUIRED(500, "U019", "OAuth email을 수집하는데 실패하였습니다."),
-  USER_NOT_ALLOWED(400, "U020", "해당 유저는 권한이 없습니다.");
+  USER_NOT_ALLOWED(400, "U020", "해당 유저는 권한이 없습니다."),
+
+  /*
+  Ingredient Domain
+   */
+
+  INGREDIENT_NOT_FOUND(400, "I001", "존재하지 않는 재료입니다.");
 
 
   private final int status;

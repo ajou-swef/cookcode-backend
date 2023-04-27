@@ -14,4 +14,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByNicknameAndIsQuit(@Param("nickname") String nickname, @Param("isQuit") Boolean isQuit);
 
+    boolean existsByIdAndIsQuit(@Param("userId") Long userId, @Param("isQuit") Boolean isQuit);
 }

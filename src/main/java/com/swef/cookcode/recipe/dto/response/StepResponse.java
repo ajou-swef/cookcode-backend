@@ -3,7 +3,7 @@ package com.swef.cookcode.recipe.dto.response;
 import com.swef.cookcode.recipe.domain.Step;
 import com.swef.cookcode.recipe.domain.StepPhoto;
 import com.swef.cookcode.recipe.domain.StepVideo;
-import java.util.Arrays;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,11 +18,11 @@ public class StepResponse {
 
     private String description;
 
-    private PhotoResponse[] photos;
+    private List<PhotoResponse> photos;
 
-    private VideoResponse[] videos;
+    private List<VideoResponse> videos;
 
-    public static StepResponse from(Step step, StepPhoto[] photos, StepVideo[] videos) {
+    public static StepResponse from(Step step, List<StepPhoto> photos, List<StepVideo> videos) {
         return StepResponse.builder()
                 .stepId(step.getId())
                 .seq(step.getSeq())
@@ -34,19 +34,20 @@ public class StepResponse {
     }
 
     // TODO : 중복코드 refactor
-    public static PhotoResponse[] photoFrom(StepPhoto[] photos) {
-        return (PhotoResponse[]) Arrays.stream(photos).map(photo ->
+    public static List<PhotoResponse> photoFrom(List<StepPhoto> photos) {
+        return photos.stream().map(photo ->
                         PhotoResponse.builder()
                                 .stepPhotoId(photo.getId())
-                                .photoUrl(photo.getPhotoUrl()))
-                .toArray();
+                                .photoUrl(photo.getPhotoUrl())
+                                .build())
+                .toList();
     }
 
-    public static VideoResponse[] videoFrom(StepVideo[] videos) {
-        return (VideoResponse[]) Arrays.stream(videos).map(video ->
+    public static List<VideoResponse> videoFrom(List<StepVideo> videos) {
+        return videos.stream().map(video ->
                         VideoResponse.builder()
                                 .stepVideoId(video.getId())
-                                .videoUrl(video.getVideoUrl()))
-                .toArray();
+                                .videoUrl(video.getVideoUrl()).build())
+                .toList();
     }
 }

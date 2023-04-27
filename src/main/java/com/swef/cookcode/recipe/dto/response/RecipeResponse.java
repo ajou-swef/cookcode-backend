@@ -3,6 +3,7 @@ package com.swef.cookcode.recipe.dto.response;
 import com.swef.cookcode.fridge.dto.IngredientSimpleResponse;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,11 +18,11 @@ public class RecipeResponse {
 
     private String description;
 
-    private IngredientSimpleResponse[] ingredients;
+    private List<IngredientSimpleResponse> ingredients;
 
-    private IngredientSimpleResponse[] optionalIngredients;
+    private List<IngredientSimpleResponse> optionalIngredients;
 
-    private StepResponse[] steps;
+    private List<StepResponse> steps;
 
     private LocalDateTime createdAt;
 
