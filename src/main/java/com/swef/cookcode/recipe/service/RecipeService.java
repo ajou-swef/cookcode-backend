@@ -2,7 +2,7 @@ package com.swef.cookcode.recipe.service;
 
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.Util;
-import com.swef.cookcode.common.error.exception.InvalidRequestException;
+import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.dto.IngredientSimpleResponse;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
@@ -16,9 +16,7 @@ import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.service.UserSimpleService;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,6 +69,13 @@ public class RecipeService {
                 .steps(stepResponses)
                 .user(UserSimpleResponse.from(currentUser))
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public Recipe getRecipeById(Long recipeId) {
+        return recipeRepository.findById(recipeId).orElseThrow(() -> new NotFoundException(
+                ErrorCode.RECIPE_NOT_FOUND));
+
     }
 
     @Transactional

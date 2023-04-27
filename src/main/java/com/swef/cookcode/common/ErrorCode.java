@@ -47,7 +47,12 @@ public enum ErrorCode {
   Ingredient Domain
    */
 
-  INGREDIENT_NOT_FOUND(400, "I001", "존재하지 않는 재료입니다.");
+  INGREDIENT_NOT_FOUND(400, "I001", "존재하지 않는 재료입니다."),
+
+  /*
+  Recipe Domain
+   */
+  RECIPE_NOT_FOUND(400, "I001", "존재하지 않는 레시피입니다.");
 
   private final int status;
   private final String code;
