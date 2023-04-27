@@ -20,5 +20,5 @@ public class RecipeCreateRequest {
 
     private String thumbnail;
 
-    private String deletedThumbnails;
+    private List<String> deletedThumbnails;
 }

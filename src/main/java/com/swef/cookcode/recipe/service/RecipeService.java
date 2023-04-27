@@ -11,6 +11,7 @@ import com.swef.cookcode.recipe.dto.response.StepResponse;
 import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.service.UserSimpleService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,8 @@ public class RecipeService {
                 .thumbnail(request.getThumbnail())
                 .build();
         Recipe savedRecipe = recipeRepository.save(newRecipe);
+
+        // TODO : 필수 재료이면서 선택 재료인 것들에 대해 예외 처리하는 비즈니스 로직 추가 필요
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
         List<IngredientSimpleResponse> ingredResponses = requiredIngredients.stream().map(
@@ -60,10 +63,10 @@ public class RecipeService {
                 .ingredients(ingredResponses)
                 .optionalIngredients(optionalIngredResponses)
                 .steps(stepResponses)
+                .user(UserSimpleResponse.from(currentUser))
                 .build();
     }
 
-    // validation 해당 서비스에서만 사용하는 함수로 만듦으로써 validation은 호출부에서 한다고 가정
     @Transactional
     void saveIngredientsOfRecipe(Recipe recipe, List<Ingredient> ingredients, Boolean isNecessary) {
         List<RecipeIngred> recipeIngredList = ingredients.stream()

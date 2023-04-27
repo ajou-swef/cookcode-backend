@@ -4,7 +4,6 @@ import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.repository.IngredientRepository;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
