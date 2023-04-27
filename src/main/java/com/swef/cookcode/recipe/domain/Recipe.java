@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -44,4 +45,13 @@ public class Recipe extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
+
+    // TODO : Recipe Field Validation
+    @Builder
+    public Recipe(String title, String description, String thumbnail, User user) {
+        this.title = title;
+        this.description = description;
+        this.thumbnail = thumbnail;
+        this.author = user;
+    }
 }

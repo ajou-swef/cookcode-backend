@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,4 +35,10 @@ public class StepVideo extends BaseEntity {
 
     @Column(nullable = false, length = 300)
     private String videoUrl;
+
+    @Builder
+    public StepVideo(Step step, String videoUrl){
+        this.step = step;
+        this.videoUrl = videoUrl;
+    }
 }

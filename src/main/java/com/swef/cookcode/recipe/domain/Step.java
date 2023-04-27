@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -41,4 +42,13 @@ public class Step extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipe_id", nullable = false)
     private Recipe recipe;
+
+    // TODO : Step Field Validation
+    @Builder
+    public Step(Recipe recipe, Long seq, String title, String description) {
+        this.recipe = recipe;
+        this.seq = seq;
+        this.title = title;
+        this.description = description;
+    }
 }
