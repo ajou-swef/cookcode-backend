@@ -1,6 +1,6 @@
 package com.swef.cookcode.recipe.dto.response;
 
-import com.swef.cookcode.fridge.dto.IngredientSimpleResponse;
+import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,9 +18,9 @@ public class RecipeResponse {
 
     private String description;
 
-    private List<IngredientSimpleResponse> ingredients;
+    private List<IngredSimpleResponse> ingredients;
 
-    private List<IngredientSimpleResponse> optionalIngredients;
+    private List<IngredSimpleResponse> optionalIngredients;
 
     private List<StepResponse> steps;
 

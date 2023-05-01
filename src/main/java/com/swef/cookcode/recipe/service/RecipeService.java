@@ -1,7 +1,7 @@
 package com.swef.cookcode.recipe.service;
 
 import com.swef.cookcode.fridge.domain.Ingredient;
-import com.swef.cookcode.fridge.dto.IngredientSimpleResponse;
+import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
@@ -43,10 +43,10 @@ public class RecipeService {
         // TODO : 필수 재료이면서 선택 재료인 것들에 대해 예외 처리하는 비즈니스 로직 추가 필요
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
-        List<IngredientSimpleResponse> ingredResponses = requiredIngredients.stream().map(
-                IngredientSimpleResponse::from).toList();
-        List<IngredientSimpleResponse> optionalIngredResponses = optionalIngredients.stream().map(
-                IngredientSimpleResponse::from).toList();
+        List<IngredSimpleResponse> ingredResponses = requiredIngredients.stream().map(
+                IngredSimpleResponse::from).toList();
+        List<IngredSimpleResponse> optionalIngredResponses = optionalIngredients.stream().map(
+                IngredSimpleResponse::from).toList();
 
         saveIngredientsOfRecipe(savedRecipe, requiredIngredients, true);
         saveIngredientsOfRecipe(savedRecipe, optionalIngredients, false);

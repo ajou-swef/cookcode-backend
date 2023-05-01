@@ -1,4 +1,4 @@
-package com.swef.cookcode.fridge.dto;
+package com.swef.cookcode.fridge.dto.response;
 
 import com.swef.cookcode.fridge.domain.Ingredient;
 import lombok.Builder;
@@ -6,13 +6,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class IngredientSimpleResponse {
+public class IngredSimpleResponse {
     private Long ingredientId;
 
     private String name;
 
-    public static IngredientSimpleResponse from(Ingredient ingredient) {
-        return IngredientSimpleResponse.builder()
+    public static IngredSimpleResponse from(Ingredient ingredient) {
+        return IngredSimpleResponse.builder()
                 .ingredientId(ingredient.getId())
                 .name(ingredient.getName())
                 .build();

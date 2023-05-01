@@ -1,4 +1,4 @@
-package com.swef.cookcode.fridge.dto;
+package com.swef.cookcode.fridge.dto.response;
 
 import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public class FridgeResponse {
 
-    private List<FridgeIngredientResponse> ingreds;
+    private List<FridgeIngredResponse> ingreds;
 
     public static FridgeResponse from(List<FridgeIngredient> ingreds){
         return FridgeResponse.builder()
@@ -18,9 +18,9 @@ public class FridgeResponse {
                 .build();
     }
 
-    private static List<FridgeIngredientResponse> ingredFrom(List<FridgeIngredient> ingreds) {
+    private static List<FridgeIngredResponse> ingredFrom(List<FridgeIngredient> ingreds) {
         return ingreds.stream()
-                .map(FridgeIngredientResponse::from)
+                .map(FridgeIngredResponse::from)
                 .toList();
     }
 }

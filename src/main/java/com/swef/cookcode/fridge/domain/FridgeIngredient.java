@@ -3,6 +3,7 @@ package com.swef.cookcode.fridge.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,4 +36,11 @@ public class FridgeIngredient {
     @Column(name = "expired_at", nullable = false)
     private Date expiredAt;
 
+    @Builder
+    public FridgeIngredient(Fridge fridge, Ingredient ingred, String quantity, Date expiredAt) {
+        this.fridge = fridge;
+        this.ingred = ingred;
+        this.quantity = quantity;
+        this.expiredAt = expiredAt;
+    }
 }

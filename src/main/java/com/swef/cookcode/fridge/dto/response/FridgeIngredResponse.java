@@ -1,4 +1,4 @@
-package com.swef.cookcode.fridge.dto;
+package com.swef.cookcode.fridge.dto.response;
 
 import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import lombok.Builder;
@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Getter
 @Builder
-public class FridgeIngredientResponse {
+public class FridgeIngredResponse {
     private Long ingredId;
 
     private String name;
@@ -19,8 +19,8 @@ public class FridgeIngredientResponse {
 
     private String quantity;
 
-    public static FridgeIngredientResponse from(FridgeIngredient fridgeIngred){
-        return FridgeIngredientResponse.builder()
+    public static FridgeIngredResponse from(FridgeIngredient fridgeIngred){
+        return FridgeIngredResponse.builder()
                 .ingredId(fridgeIngred.getId())
                 .name(fridgeIngred.getIngred().getName())
                 .expiredAt(fridgeIngred.getExpiredAt())
