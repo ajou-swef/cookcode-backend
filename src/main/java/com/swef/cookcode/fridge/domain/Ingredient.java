@@ -3,6 +3,7 @@ package com.swef.cookcode.fridge.domain;
 import com.swef.cookcode.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,5 +30,12 @@ public class Ingredient extends BaseEntity {
 
     @Column(name = "category", nullable = false, length = MAX_CATEGORY_LENGTH)
     private String category;
+
+    @Builder
+    Ingredient(String name, String thumbnail, String category) {
+        this.name = name;
+        this.thumbnail = thumbnail;
+        this.category = category;
+    }
 
 }
