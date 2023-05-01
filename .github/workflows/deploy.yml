@@ -34,7 +34,7 @@ jobs:
 
       - name: Build With Gradle
         run: |
-          ./gradlew clean build --args='--spring.profiles.active=dev' --stacktrace
+          ./gradlew clean build --project-prop spring.profiles.active=dev --stacktrace
       
       - name: Current Time
         uses: gerred/current-time@v1.0.0
