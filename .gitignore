@@ -6,6 +6,8 @@ build/
 !**/src/test/**/build/
 
 application-local.yml
+application-dev.yml
+./cookcode-secret/*
 
 ### STS ###
 .apt_generated
