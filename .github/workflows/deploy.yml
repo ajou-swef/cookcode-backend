@@ -32,9 +32,9 @@ jobs:
         run: chmod +x gradlew
         shell: bash
 
-      - name: Build with Gradle
-        run: ./gradlew build --args='--spring.profiles.active=dev'
-        shell: bash
+      - name: Build With Gradle
+        run: |
+          ./gradlew clean build --args='--spring.profiles.active=dev' --stacktrace
       
       - name: Current Time
         uses: gerred/current-time@v1.0.0
