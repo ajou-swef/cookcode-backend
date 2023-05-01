@@ -7,6 +7,7 @@ import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.common.jwt.JwtAuthenticationToken;
 import com.swef.cookcode.common.jwt.JwtPrincipal;
+import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.request.UserSignInRequest;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
@@ -45,6 +46,8 @@ public class AccountController {
 
     private final UserService userService;
 
+    private final FridgeService fridgeService;
+
     private final UserSimpleService userSimpleService;
 
     @PostMapping("/signin")
@@ -73,6 +76,9 @@ public class AccountController {
     public ResponseEntity<ApiResponse<SignUpResponse>> signUp(@RequestBody @Valid
                                                               UserSignUpRequest request) {
         User newUser = userService.signUp(request);
+
+        fridgeService.signUpFridge(newUser);
+
         ApiResponse response = ApiResponse.builder()
                 .message("회원가입 성공하였습니다.")
                 .status(CREATED.value())
