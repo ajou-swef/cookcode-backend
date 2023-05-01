@@ -33,7 +33,7 @@ jobs:
         shell: bash
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build --args='--spring.profiles.active=dev'
         shell: bash
       
       - name: Current Time
