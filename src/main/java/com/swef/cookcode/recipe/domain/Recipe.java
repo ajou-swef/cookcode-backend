@@ -1,7 +1,9 @@
 package com.swef.cookcode.recipe.domain;
 
 import com.swef.cookcode.common.entity.BaseEntity;
+import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.user.domain.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -49,8 +51,14 @@ public class Recipe extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Step> steps = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RecipeIngred> ingredients = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RecipeIngred> optionalIngredients = new ArrayList<>();
 
     // TODO : Recipe Field Validation
     @Builder

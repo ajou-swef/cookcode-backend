@@ -35,6 +35,13 @@ public class RecipeService {
 
     @Transactional
     public RecipeResponse createRecipe(User currentUser, RecipeCreateRequest request) {
+        //Ingredient
+        Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
+
+        List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
+        List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
+
+        //Recipe 생성
         Recipe newRecipe = Recipe.builder()
                 .user(currentUser)
                 .title(request.getTitle())
@@ -43,11 +50,7 @@ public class RecipeService {
                 .build();
         Recipe savedRecipe = recipeRepository.save(newRecipe);
 
-        Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
-
-        List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
-        List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
-
+        //Recipe의 Ingredients 생성
         saveIngredientsOfRecipe(savedRecipe, requiredIngredients, true);
         saveIngredientsOfRecipe(savedRecipe, optionalIngredients, false);
 
@@ -55,6 +58,8 @@ public class RecipeService {
                 IngredientSimpleResponse::from).toList();
         List<IngredientSimpleResponse> optionalIngredResponses = optionalIngredients.stream().map(
                 IngredientSimpleResponse::from).toList();
+
+        //Recipe의 Steps 생성
         List<StepResponse> stepResponses = stepService.saveStepsForRecipe(savedRecipe, request.getSteps());
 
         return RecipeResponse.builder()
@@ -71,11 +76,23 @@ public class RecipeService {
                 .build();
     }
 
+    // TODO : Ingredients, OptionalIngredients fix needed
     @Transactional(readOnly = true)
-    public Recipe getRecipeById(Long recipeId) {
-        return recipeRepository.findById(recipeId).orElseThrow(() -> new NotFoundException(
+    public RecipeResponse getRecipeById(Long recipeId) {
+        Recipe retrievedRecipe = recipeRepository.findById(recipeId).orElseThrow(() -> new NotFoundException(
                 ErrorCode.RECIPE_NOT_FOUND));
-
+        return RecipeResponse.builder()
+                .recipeId(retrievedRecipe.getId())
+                .title(retrievedRecipe.getTitle())
+                .thumbnail(retrievedRecipe.getThumbnail())
+                .description(retrievedRecipe.getDescription())
+                .steps(retrievedRecipe.getSteps().stream().map(step -> StepResponse.from(step, step.getPhotos(), step.getVideos())).toList())
+                .createdAt(retrievedRecipe.getCreatedAt())
+                .updatedAt(retrievedRecipe.getUpdatedAt())
+                .user(UserSimpleResponse.from(retrievedRecipe.getAuthor()))
+                .ingredients(retrievedRecipe.getIngredients().stream().map(stepIngred -> IngredientSimpleResponse.from(stepIngred.getIngredient())).toList())
+                .optionalIngredients(retrievedRecipe.getOptionalIngredients().stream().map(stepIngred -> IngredientSimpleResponse.from(stepIngred.getIngredient())).toList())
+                .build();
     }
 
     @Transactional

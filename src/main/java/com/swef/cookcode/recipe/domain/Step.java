@@ -1,6 +1,7 @@
 package com.swef.cookcode.recipe.domain;
 
 import com.swef.cookcode.common.entity.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -47,10 +48,10 @@ public class Step extends BaseEntity {
     @JoinColumn(name = "recipe_id", nullable = false)
     private Recipe recipe;
 
-    @OneToMany(mappedBy = "step")
+    @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StepPhoto> photos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "step")
+    @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StepVideo> videos = new ArrayList<>();
 
     // TODO : Step Field Validation
