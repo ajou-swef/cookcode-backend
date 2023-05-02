@@ -9,6 +9,8 @@ import java.util.Date;
 @Getter
 @Builder
 public class FridgeIngredResponse {
+    private final Long fridgeIngredId;
+
     private final Long ingredId;
 
     private final String name;
@@ -21,7 +23,8 @@ public class FridgeIngredResponse {
 
     public static FridgeIngredResponse from(FridgeIngredient fridgeIngred){
         return FridgeIngredResponse.builder()
-                .ingredId(fridgeIngred.getId())
+                .fridgeIngredId(fridgeIngred.getId())
+                .ingredId(fridgeIngred.getIngred().getId())
                 .name(fridgeIngred.getIngred().getName())
                 .expiredAt(fridgeIngred.getExpiredAt())
                 .category(fridgeIngred.getIngred().getCategory())
