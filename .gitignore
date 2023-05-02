@@ -8,6 +8,7 @@ build/
 application-local.yml
 application-dev.yml
 ./cookcode-secret/*
+/logs
 
 ### STS ###
 .apt_generated

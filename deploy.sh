@@ -19,4 +19,4 @@ else
 fi
 
 echo "> $JAR_PATH 배포"
-nohup java -Dspring.profiles.active=dev -jar $JAR_PATH --logging.file.path=/home/ubuntu/logs --logging.level.org.hibernate.SQL=DEBUG >> /home/ubuntu/logs/deploy.log 2>/home/ubuntu/logs/deploy_err.log &
+nohup java -Dspring.profiles.active=dev -jar $JAR_PATH
