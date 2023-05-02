@@ -9,15 +9,15 @@ import java.util.Date;
 @Getter
 @Builder
 public class FridgeIngredResponse {
-    private Long ingredId;
+    private final Long ingredId;
 
-    private String name;
+    private final String name;
 
-    private Date expiredAt;
+    private final Date expiredAt;
 
-    private String category;
+    private final String category;
 
-    private String quantity;
+    private final String quantity;
 
     public static FridgeIngredResponse from(FridgeIngredient fridgeIngred){
         return FridgeIngredResponse.builder()

@@ -7,9 +7,9 @@ import lombok.Getter;
 @Getter
 @Builder
 public class IngredSimpleResponse {
-    private Long ingredientId;
+    private final Long ingredientId;
 
-    private String name;
+    private final String name;
 
     public static IngredSimpleResponse from(Ingredient ingredient) {
         return IngredSimpleResponse.builder()

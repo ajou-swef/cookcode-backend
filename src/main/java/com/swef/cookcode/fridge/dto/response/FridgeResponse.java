@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public class FridgeResponse {
 
-    private List<FridgeIngredResponse> ingreds;
+    private final List<FridgeIngredResponse> ingreds;
 
     public static FridgeResponse from(List<FridgeIngredient> ingreds){
         return FridgeResponse.builder()

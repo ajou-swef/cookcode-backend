@@ -10,19 +10,19 @@ import java.util.Date;
 @Builder
 public class IngredCreateResponse {
 
-    private Long fridgeIngredId;
+    private final Long fridgeIngredId;
 
-    private Long fridgeId;
+    private final Long fridgeId;
 
-    private Long ingredId;
+    private final Long ingredId;
 
-    private String name;
+    private final String name;
 
-    private Date expiredAt;
+    private final Date expiredAt;
 
-    private String category;
+    private final String category;
 
-    private String quantity;
+    private final String quantity;
 
     public static IngredCreateResponse from(FridgeIngredient fridgeIngred){
         return IngredCreateResponse.builder()

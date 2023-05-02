@@ -7,6 +7,7 @@ import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import com.swef.cookcode.fridge.dto.request.IngredCreateRequest;
 import com.swef.cookcode.fridge.dto.response.IngredCreateResponse;
 import com.swef.cookcode.fridge.dto.response.FridgeResponse;
+import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +31,11 @@ public class FridgeController {
         Fridge fridge = fridgeService.getFridge(user);
 
         List<FridgeIngredient> ingredsOfFridge = fridgeService.getIngedsOfFridge(fridge);
-        FridgeResponse data = FridgeResponse.from(ingredsOfFridge);
 
         ApiResponse response = ApiResponse.builder()
                 .message("냉장고 조회 성공")
                 .status(OK.value())
-                .data(data)
+                .data(FridgeResponse.from(ingredsOfFridge))
                 .build();
 
         return ResponseEntity.ok(response);
@@ -55,6 +55,21 @@ public class FridgeController {
                 .message("식재료 등록 성공")
                 .status(OK.value())
                 .data(data)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/ingred/{fridgeIngredId}")
+    public ResponseEntity<ApiResponse> deleteFridgeIngred(@CurrentUser User user,
+                                                          @PathVariable Long fridgeIngredId) {
+        Fridge fridgeOfUser = fridgeService.getFridge(user);
+
+        fridgeService.deleteIngredOfFridge(fridgeOfUser, fridgeIngredId);
+
+        ApiResponse response = ApiResponse.builder()
+                .message("식재료 삭제 성공")
+                .status(OK.value())
                 .build();
 
         return ResponseEntity.ok(response);
