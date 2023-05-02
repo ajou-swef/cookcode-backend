@@ -19,4 +19,4 @@ else
 fi
 
 echo "> $JAR_PATH 배포"
-nohup java -Dspring.profiles.active=dev -jar $JAR_PATH &
+nohup java -Dspring.profiles.active=dev -jar $JAR_PATH > /output/stdout.txt 2> /output/stderr.txt < /output/stdin.txt &
