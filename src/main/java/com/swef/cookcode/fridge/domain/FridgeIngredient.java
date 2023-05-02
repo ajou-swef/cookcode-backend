@@ -43,4 +43,8 @@ public class FridgeIngredient {
         this.quantity = quantity;
         this.expiredAt = expiredAt;
     }
+
+    public void updateQuantity(String quantity){ this.quantity = quantity; }
+    public void updateExpiredAt(Date expiredAt){ this.expiredAt = expiredAt; }
+
 }

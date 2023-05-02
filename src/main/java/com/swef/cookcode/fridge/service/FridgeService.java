@@ -5,7 +5,7 @@ import com.swef.cookcode.fridge.domain.Fridge;
 import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.dto.request.IngredCreateRequest;
-import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
+import com.swef.cookcode.fridge.dto.request.IngredUpdateRequest;
 import com.swef.cookcode.fridge.repository.FridgeIngredientRepository;
 import com.swef.cookcode.fridge.repository.FridgeRepository;
 import com.swef.cookcode.fridge.repository.IngerdientRepository;
@@ -13,12 +13,10 @@ import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.swef.cookcode.common.ErrorCode.*;
 
@@ -34,6 +32,7 @@ public class FridgeService {
 
     private final EntityManager entityManager;
 
+    @Transactional
     public Fridge signUpFridge(User user){
         Fridge newFridge = Fridge.builder()
                 .owner(user)
@@ -41,11 +40,13 @@ public class FridgeService {
         return fridgeRepository.save(newFridge);
     }
 
-    public Fridge getFridge(User user) {
+    @Transactional(readOnly = true)
+    public Fridge getFridgeOfUser(User user) {
         return fridgeRepository.findByOwner(user)
                 .orElseThrow(() -> new NotFoundException(FRIDGE_NOT_FOUND));
     }
 
+    @Transactional
     public List<FridgeIngredient> getIngedsOfFridge(Fridge fridge) {
 
         String jpql = "SELECT fi FROM FridgeIngredient fi JOIN FETCH fi.ingred WHERE fi.fridge.id = :fridgeId";
@@ -56,6 +57,7 @@ public class FridgeService {
         return query.getResultList();
     }
 
+    @Transactional
     public FridgeIngredient addIngredToFridge(IngredCreateRequest ingredCreateRequest, Fridge fridge) {
 
         Ingredient ingred = ingerdientRepository.findById(ingredCreateRequest.getIngredId())
@@ -71,12 +73,31 @@ public class FridgeService {
         return fridgeIngredientRepository.save(fridgeIngredient);
     }
 
-    public void deleteIngredOfFridge(Fridge fridgeOfUser, Long fridgeIngredId) {
+    @Transactional
+    public void deleteIngredOfFridge(Long fridgeIngredId) {
+        fridgeIngredientRepository.deleteById(fridgeIngredId);
+    }
+
+    @Transactional
+    public void updateFridgeIngred(Long fridgeIngredId, IngredUpdateRequest ingredUpdateRequest) {
+        FridgeIngredient fridgeIngredient = fridgeIngredientRepository.findById(fridgeIngredId)
+                .orElseThrow(() -> new NotFoundException(FRIDGE_INGRED_NOT_FOUND));
+
+        System.out.println(ingredUpdateRequest.getExpiredAt());
+
+        fridgeIngredient.updateQuantity(ingredUpdateRequest.getQuantity());
+        fridgeIngredient.updateExpiredAt(ingredUpdateRequest.getExpiredAt());
+
+
+        fridgeIngredientRepository.save(fridgeIngredient);
+    }
+
+    public void validateIngredIsInFridge(User user, Long fridgeIngredId) {
+        Fridge fridgeOfUser = getFridgeOfUser(user);
+
         Fridge fridgeOfIngred = getFridgeOfIngredient(fridgeIngredId);
 
         checkSameFridge(fridgeOfUser, fridgeOfIngred);
-
-        fridgeIngredientRepository.deleteById(fridgeIngredId);
     }
 
     private void checkSameFridge(Fridge fridgeOfUser, Fridge fridgeOfIngred) {
@@ -90,4 +111,5 @@ public class FridgeService {
                 .orElseThrow(() -> new NotFoundException(FRIDGE_INGRED_NOT_FOUND))
                 .getFridge();
     }
+
 }
