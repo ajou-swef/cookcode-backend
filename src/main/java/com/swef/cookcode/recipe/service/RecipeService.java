@@ -80,8 +80,10 @@ public class RecipeService {
     }
 
     // TODO : recipe repository에서 ingredients까지 한번에 가져올 방법 없을지
+    // TODO : Recipe fetch 할 때 validation 안되서 임의로 추가.
     @Transactional(readOnly = true)
     public RecipeResponse getRecipeResponseById(Long recipeId) {
+        validateRecipeById(recipeId);
         Recipe retrievedRecipe = recipeRepository.findAllById(recipeId).orElseThrow(() -> new NotFoundException(
                 ErrorCode.RECIPE_NOT_FOUND));
         List<Ingredient> ingredients = recipeIngredRepository.findByRecipeIdAndIsNecessary(recipeId, true);
@@ -115,6 +117,11 @@ public class RecipeService {
     @Transactional(readOnly = true)
     Recipe getRecipeById(Long recipeId) {
         return recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    void validateRecipeById(Long recipeId) {
+        recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
     }
 
     //TODO : Refactor : 여러 스텝, 여러 비디오, 사진들 한번에 삭제. 일일히 hibernate가 delete 쿼리 보내고 있음. 개선할 방법은?
