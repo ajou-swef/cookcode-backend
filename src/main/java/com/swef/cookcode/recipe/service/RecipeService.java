@@ -33,6 +33,7 @@ public class RecipeService {
     private final StepService stepService;
     private final IngredientSimpleService ingredientSimpleService;
 
+    // TODO : JPA List 사용으로 refactoring
     @Transactional
     public RecipeResponse createRecipe(User currentUser, RecipeCreateRequest request) {
         //Ingredient
