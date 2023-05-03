@@ -42,6 +42,7 @@ public enum ErrorCode {
   BLACKLIST_TOKEN_REQUEST(400, "U017", "로그아웃 처리된 토큰으로 요청할 수 없습니다."),
   OAUTH_EMAIL_REQUIRED(500, "U019", "OAuth email을 수집하는데 실패하였습니다."),
   USER_NOT_ALLOWED(400, "U020", "해당 유저는 권한이 없습니다."),
+  USER_IS_NOT_AUTHOR(400, "U021", "해당 유저는 컨텐츠의 작성자가 아닙니다."),
 
   /*
   Ingredient Domain

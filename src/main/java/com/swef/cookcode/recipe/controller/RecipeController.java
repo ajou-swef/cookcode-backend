@@ -13,6 +13,7 @@ import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,7 +49,21 @@ public class RecipeController {
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 세부 조회 성공")
                 .status(HttpStatus.CREATED.value())
-                .data(recipeService.getRecipeById(recipeId))
+                .data(recipeService.getRecipeResponseById(recipeId))
+                .build();
+
+        return ResponseEntity.ok()
+                .body(apiResponse);
+    }
+
+    @DeleteMapping("/{recipeId}")
+    public ResponseEntity<ApiResponse<RecipeResponse>> deleteRecipeById(@CurrentUser User user, @PathVariable("recipeId") Long recipeId) {
+
+        recipeService.deleteRecipeById(user, recipeId);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("레시피 삭제 성공")
+                .status(HttpStatus.CREATED.value())
                 .build();
 
         return ResponseEntity.ok()

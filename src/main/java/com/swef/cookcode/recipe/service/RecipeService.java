@@ -3,6 +3,7 @@ package com.swef.cookcode.recipe.service;
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.error.exception.NotFoundException;
+import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.dto.IngredientSimpleResponse;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
@@ -17,6 +18,7 @@ import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.service.UserSimpleService;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,8 +81,8 @@ public class RecipeService {
 
     // TODO : recipe repository에서 ingredients까지 한번에 가져올 방법 없을지
     @Transactional(readOnly = true)
-    public RecipeResponse getRecipeById(Long recipeId) {
-        Recipe retrievedRecipe = recipeRepository.findById(recipeId).orElseThrow(() -> new NotFoundException(
+    public RecipeResponse getRecipeResponseById(Long recipeId) {
+        Recipe retrievedRecipe = recipeRepository.findAllById(recipeId).orElseThrow(() -> new NotFoundException(
                 ErrorCode.RECIPE_NOT_FOUND));
         List<Ingredient> ingredients = recipeIngredRepository.findByRecipeIdAndIsNecessary(recipeId, true);
         List<Ingredient> optionalIngredient = recipeIngredRepository.findByRecipeIdAndIsNecessary(recipeId, false);
@@ -104,4 +106,25 @@ public class RecipeService {
                 .map(ingredient -> new RecipeIngred(recipe, ingredient, isNecessary)).toList();
         recipeIngredRepository.saveAll(recipeIngredList);
     }
+
+    @Transactional
+    public void validateCurrentUserIsAuthor(Recipe recipe, User user) {
+        if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) throw new PermissionDeniedException(ErrorCode.USER_IS_NOT_AUTHOR);
+    }
+
+    @Transactional(readOnly = true)
+    Recipe getRecipeById(Long recipeId) {
+        return recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
+    }
+
+    //TODO : Refactor : 여러 스텝, 여러 비디오, 사진들 한번에 삭제. 일일히 hibernate가 delete 쿼리 보내고 있음. 개선할 방법은?
+    // batch query or 비동기 처리.
+    @Transactional
+    public void deleteRecipeById(User currentUser, Long recipeId) {
+        // TODO : 레시피 영상, 사진 s3에서 삭제
+        Recipe retrivedRecipe = getRecipeById(recipeId);
+        validateCurrentUserIsAuthor(retrivedRecipe, currentUser);
+        recipeRepository.delete(retrivedRecipe);
+    }
+
 }
