@@ -8,7 +8,6 @@ import static org.springframework.util.StringUtils.hasText;
 import com.swef.cookcode.common.error.exception.AlreadyExistsException;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
-import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.user.domain.Authority;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;

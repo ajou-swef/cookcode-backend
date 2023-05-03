@@ -8,7 +8,6 @@ import com.swef.cookcode.fridge.dto.request.IngredCreateRequest;
 import com.swef.cookcode.fridge.dto.request.IngredUpdateRequest;
 import com.swef.cookcode.fridge.dto.response.IngredCreateResponse;
 import com.swef.cookcode.fridge.dto.response.FridgeResponse;
-import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.user.domain.User;
 import lombok.RequiredArgsConstructor;

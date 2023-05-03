@@ -8,7 +8,7 @@ import com.swef.cookcode.fridge.dto.request.IngredCreateRequest;
 import com.swef.cookcode.fridge.dto.request.IngredUpdateRequest;
 import com.swef.cookcode.fridge.repository.FridgeIngredientRepository;
 import com.swef.cookcode.fridge.repository.FridgeRepository;
-import com.swef.cookcode.fridge.repository.IngerdientRepository;
+import com.swef.cookcode.fridge.repository.IngredientRepository;
 import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -26,7 +26,7 @@ public class FridgeService {
 
     private final FridgeRepository fridgeRepository;
 
-    private final IngerdientRepository ingerdientRepository;
+    private final IngredientRepository ingredientRepository;
 
     private final FridgeIngredientRepository fridgeIngredientRepository;
 
@@ -60,7 +60,7 @@ public class FridgeService {
     @Transactional
     public FridgeIngredient addIngredToFridge(IngredCreateRequest ingredCreateRequest, Fridge fridge) {
 
-        Ingredient ingred = ingerdientRepository.findById(ingredCreateRequest.getIngredId())
+        Ingredient ingred = ingredientRepository.findById(ingredCreateRequest.getIngredId())
                 .orElseThrow(() -> new NotFoundException(INGREDIENT_NOT_FOUND));
 
         FridgeIngredient fridgeIngredient = FridgeIngredient.builder()
@@ -83,11 +83,8 @@ public class FridgeService {
         FridgeIngredient fridgeIngredient = fridgeIngredientRepository.findById(fridgeIngredId)
                 .orElseThrow(() -> new NotFoundException(FRIDGE_INGRED_NOT_FOUND));
 
-        System.out.println(ingredUpdateRequest.getExpiredAt());
-
         fridgeIngredient.updateQuantity(ingredUpdateRequest.getQuantity());
         fridgeIngredient.updateExpiredAt(ingredUpdateRequest.getExpiredAt());
-
 
         fridgeIngredientRepository.save(fridgeIngredient);
     }
