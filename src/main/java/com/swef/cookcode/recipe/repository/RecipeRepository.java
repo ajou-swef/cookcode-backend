@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     @EntityGraph(
-            attributePaths = {"author", "steps", "steps.photos", "steps.videos", "ingredients", "ingredients.ingredient", "optionalIngredients", "optionalIngredients.ingredient"}
+            attributePaths = {"author", "steps", "steps.photos", "steps.videos"}
     )
     Optional<Recipe> findById(Long id);
 

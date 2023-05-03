@@ -68,4 +68,12 @@ public class Recipe extends BaseEntity {
         this.thumbnail = thumbnail;
         this.author = user;
     }
+
+    public void setIngredients(List<RecipeIngred> ingredients) {
+        this.ingredients = ingredients;
+    }
+
+    public void setOptionalIngredients(List<RecipeIngred> optionalIngredients) {
+        this.optionalIngredients = optionalIngredients;
+    }
 }
