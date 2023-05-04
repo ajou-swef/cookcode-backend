@@ -4,7 +4,7 @@ import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Builder
@@ -18,7 +18,7 @@ public class IngredCreateResponse {
 
     private final String name;
 
-    private final Date expiredAt;
+    private final LocalDate expiredAt;
 
     private final String category;
 

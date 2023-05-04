@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface FridgeRepository extends JpaRepository<Fridge, Long> {
-    Optional<Fridge> findByOwner(@Param("userId") User user);
+    Optional<Fridge> findByOwner(User user);
 
 }

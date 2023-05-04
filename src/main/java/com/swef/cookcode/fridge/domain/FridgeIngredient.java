@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "fridge_ingred")
@@ -34,10 +34,10 @@ public class FridgeIngredient {
     private String quantity;
 
     @Column(name = "expired_at", nullable = false)
-    private Date expiredAt;
+    private LocalDate expiredAt;
 
     @Builder
-    public FridgeIngredient(Fridge fridge, Ingredient ingred, String quantity, Date expiredAt) {
+    public FridgeIngredient(Fridge fridge, Ingredient ingred, String quantity, LocalDate expiredAt) {
         this.fridge = fridge;
         this.ingred = ingred;
         this.quantity = quantity;
@@ -45,6 +45,6 @@ public class FridgeIngredient {
     }
 
     public void updateQuantity(String quantity){ this.quantity = quantity; }
-    public void updateExpiredAt(Date expiredAt){ this.expiredAt = expiredAt; }
+    public void updateExpiredAt(LocalDate expiredAt){ this.expiredAt = expiredAt; }
 
 }
