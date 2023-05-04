@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+application-aws.yml
 application-local.yml
 application-dev.yml
 ./cookcode-secret/*
