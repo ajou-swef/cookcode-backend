@@ -31,20 +31,20 @@ public class FridgeIngredient {
     private Ingredient ingred;
 
     @Column(name = "quantity", nullable = false, length = MAX_QUANTITY_LENGTH)
-    private String quantity;
+    private int quantity;
 
     @Column(name = "expired_at", nullable = false)
     private LocalDate expiredAt;
 
     @Builder
-    public FridgeIngredient(Fridge fridge, Ingredient ingred, String quantity, LocalDate expiredAt) {
+    public FridgeIngredient(Fridge fridge, Ingredient ingred, int quantity, LocalDate expiredAt) {
         this.fridge = fridge;
         this.ingred = ingred;
         this.quantity = quantity;
         this.expiredAt = expiredAt;
     }
 
-    public void updateQuantity(String quantity){ this.quantity = quantity; }
+    public void updateQuantity(int quantity){ this.quantity = quantity; }
     public void updateExpiredAt(LocalDate expiredAt){ this.expiredAt = expiredAt; }
 
 }

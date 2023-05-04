@@ -12,5 +12,5 @@ public class IngredCreateRequest {
 
     private LocalDate expiredAt;
 
-    private String quantity;
+    private int quantity;
 }

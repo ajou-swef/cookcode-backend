@@ -30,8 +30,6 @@ public class FridgeService {
 
     private final FridgeIngredientRepository fridgeIngredientRepository;
 
-    private final EntityManager entityManager;
-
     @Transactional
     public Fridge createFridgeOfUser(User user){
         Fridge newFridge = Fridge.builder()
