@@ -42,7 +42,7 @@ public class FridgeController {
     }
 
     @PostMapping("/ingred")
-    public ResponseEntity<ApiResponse<IngredCreateResponse>> createIngredient(
+    public ResponseEntity<ApiResponse<IngredCreateResponse>> addIngredToFridge(
             @CurrentUser User user, @RequestBody IngredCreateRequest ingredCreateRequest) {
 
         Fridge fridge = fridgeService.getFridgeOfUser(user);

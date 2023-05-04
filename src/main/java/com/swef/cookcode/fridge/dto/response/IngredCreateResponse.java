@@ -1,5 +1,6 @@
 package com.swef.cookcode.fridge.dto.response;
 
+import com.swef.cookcode.fridge.domain.Category;
 import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +21,7 @@ public class IngredCreateResponse {
 
     private final LocalDate expiredAt;
 
-    private final String category;
+    private final Category category;
 
     private final String quantity;
 

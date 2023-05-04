@@ -52,7 +52,10 @@ public enum ErrorCode {
   FRIDGE_Domain
    */
   FRIDGE_NOT_FOUND(400, "F001", "존재하지 않는 냉장고입니다."),
-  FRIDGE_INGRED_NOT_FOUND(400, "F002", "냉장고에 존재하지 않는 식재료입니다.");
+  FRIDGE_INGRED_NOT_FOUND(400, "F002", "냉장고에 존재하지 않는 식재료입니다."),
+  CATEGORY_NOT_FOUND(400,"F003","존재하지 않는 식재료 카테고리");
+
+
   private final int status;
   private final String code;
   private final String message;

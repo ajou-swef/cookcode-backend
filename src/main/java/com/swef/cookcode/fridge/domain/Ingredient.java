@@ -1,5 +1,6 @@
 package com.swef.cookcode.fridge.domain;
 
+import com.swef.cookcode.common.entity.CategoryConverter;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,7 +27,8 @@ public class Ingredient{
     @Column(name = "thumbnail", nullable = false, length = MAX_THUMBNAIL_LENGTH)
     private String thumbnail;
 
+    @Convert(converter = CategoryConverter.class)
     @Column(name = "category", nullable = false, length = MAX_CATEGORY_LENGTH)
-    private String category;
+    private Category category;
 
 }
