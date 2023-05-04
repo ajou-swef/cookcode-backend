@@ -23,7 +23,7 @@ public class IngredCreateResponse {
 
     private final Category category;
 
-    private final String quantity;
+    private final int quantity;
 
     public static IngredCreateResponse from(FridgeIngredient fridgeIngred){
         return IngredCreateResponse.builder()

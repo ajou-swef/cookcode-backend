@@ -20,7 +20,7 @@ public class FridgeIngredResponse {
 
     private final Category category;
 
-    private final String quantity;
+    private final int quantity;
 
     public static FridgeIngredResponse from(FridgeIngredient fridgeIngred){
         return FridgeIngredResponse.builder()
