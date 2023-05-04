@@ -77,7 +77,7 @@ public class AccountController {
                                                               UserSignUpRequest request) {
         User newUser = userService.signUp(request);
 
-        fridgeService.signUpFridge(newUser);
+        fridgeService.createFridgeOfUser(newUser);
 
         ApiResponse response = ApiResponse.builder()
                 .message("회원가입 성공하였습니다.")

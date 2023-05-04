@@ -33,7 +33,7 @@ public class FridgeService {
     private final EntityManager entityManager;
 
     @Transactional
-    public Fridge signUpFridge(User user){
+    public Fridge createFridgeOfUser(User user){
         Fridge newFridge = Fridge.builder()
                 .owner(user)
                 .build();
@@ -48,13 +48,7 @@ public class FridgeService {
 
     @Transactional
     public List<FridgeIngredient> getIngedsOfFridge(Fridge fridge) {
-
-        String jpql = "SELECT fi FROM FridgeIngredient fi JOIN FETCH fi.ingred WHERE fi.fridge.id = :fridgeId";
-
-        TypedQuery<FridgeIngredient> query = entityManager.createQuery(jpql, FridgeIngredient.class);
-        query.setParameter("fridgeId", fridge.getId());
-
-        return query.getResultList();
+        return fridgeIngredientRepository.findByFridgeId(fridge.getId());
     }
 
     @Transactional
