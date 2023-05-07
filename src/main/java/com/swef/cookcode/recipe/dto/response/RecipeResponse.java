@@ -48,8 +48,8 @@ public class RecipeResponse {
                 .user(UserSimpleResponse.from(recipe.getAuthor()))
                 .title(recipe.getTitle())
                 .description(recipe.getDescription())
-                .ingredients(recipe.getIngredients().stream().map(i -> IngredientSimpleResponse.from(i.getIngredient())).toList())
-                .optionalIngredients(recipe.getOptionalIngredients().stream().map(i -> IngredientSimpleResponse.from(i.getIngredient())).toList())
+                .ingredients(filterIngredient(recipe.getIngredients(), true))
+                .optionalIngredients(filterIngredient(recipe.getIngredients(), false))
                 .steps(recipe.getSteps().stream().map(s -> StepResponse.from(s, s.getPhotos(), s.getVideos())).toList())
                 .createdAt(recipe.getCreatedAt())
                 .updatedAt(recipe.getUpdatedAt())
@@ -63,11 +63,15 @@ public class RecipeResponse {
                 .user(UserSimpleResponse.from(recipe.getAuthor()))
                 .title(recipe.getTitle())
                 .description(recipe.getDescription())
-                .ingredients(recipe.getIngredients().stream().filter(RecipeIngred::getIsNecessary).map(i -> IngredientSimpleResponse.from(i.getIngredient())).toList())
-                .optionalIngredients(recipe.getOptionalIngredients().stream().filter(i -> !i.getIsNecessary()).map(i -> IngredientSimpleResponse.from(i.getIngredient())).toList())
+                .ingredients(filterIngredient(recipe.getIngredients(), true))
+                .optionalIngredients(filterIngredient(recipe.getIngredients(), false))
                 .createdAt(recipe.getCreatedAt())
                 .updatedAt(recipe.getUpdatedAt())
                 .thumbnail(recipe.getThumbnail())
                 .build();
+    }
+
+    private static List<IngredientSimpleResponse> filterIngredient(List<RecipeIngred> ingreds, boolean isNecessary) {
+        return ingreds.stream().filter(i -> i.getIsNecessary() == isNecessary).map(i -> IngredientSimpleResponse.from(i.getIngredient())).toList();
     }
 }

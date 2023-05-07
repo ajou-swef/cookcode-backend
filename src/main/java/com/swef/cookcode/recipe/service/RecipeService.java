@@ -100,14 +100,12 @@ public class RecipeService {
                 .build();
     }
 
-    // TODO : recipe repository에서 ingredients까지 한번에 가져올 방법 없을지
     // TODO : Recipe fetch 할 때 validation 안되서 임의로 추가.
     @Transactional(readOnly = true)
     public RecipeResponse getRecipeResponseById(Long recipeId) {
         validateRecipeById(recipeId);
         Recipe retrievedRecipe = recipeRepository.findAllElementsById(recipeId).orElseThrow(() -> new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
-        List<Ingredient> ingredients = recipeIngredRepository.findByRecipeIdAndIsNecessary(recipeId, true);
-        List<Ingredient> optionalIngredient = recipeIngredRepository.findByRecipeIdAndIsNecessary(recipeId, false);
+        List<RecipeIngred> ingredients = recipeIngredRepository.findByRecipeId(recipeId);
         return RecipeResponse.builder()
                 .recipeId(retrievedRecipe.getId())
                 .title(retrievedRecipe.getTitle())
@@ -117,8 +115,8 @@ public class RecipeService {
                 .createdAt(retrievedRecipe.getCreatedAt())
                 .updatedAt(retrievedRecipe.getUpdatedAt())
                 .user(UserSimpleResponse.from(retrievedRecipe.getAuthor()))
-                .ingredients(ingredients.stream().map(IngredientSimpleResponse::from).toList())
-                .optionalIngredients(optionalIngredient.stream().map(IngredientSimpleResponse::from).toList())
+                .ingredients(ingredients.stream().filter(RecipeIngred::getIsNecessary).map(i -> IngredientSimpleResponse.from(i.getIngredient())).toList())
+                .optionalIngredients(ingredients.stream().filter(i -> !i.getIsNecessary()).map(i -> IngredientSimpleResponse.from(i.getIngredient())).toList())
                 .build();
     }
 

@@ -11,9 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface RecipeIngredRepository extends JpaRepository<RecipeIngred, Long> {
 
-    @Query("select i from RecipeIngred r join fetch Ingredient i on i.id = r.ingredient.id where r.recipe.id = :recipeId and r.isNecessary = :isNecessary")
-    List<Ingredient> findByRecipeIdAndIsNecessary(@Param("recipeId") Long recipeId, @Param("isNecessary") Boolean isNecessary);
-
+    @Query("select r from RecipeIngred r join fetch Ingredient i on i.id = r.ingredient.id where r.recipe.id = :recipeId")
+    List<RecipeIngred> findByRecipeId(@Param("recipeId") Long recipeId);
 
     @Modifying
     @Query("delete from RecipeIngred r where r.recipe.id = :recipeId")

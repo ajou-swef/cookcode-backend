@@ -57,8 +57,6 @@ public class Recipe extends BaseEntity {
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.LAZY)
     private List<RecipeIngred> ingredients = new ArrayList<>();
 
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.LAZY)
-    private List<RecipeIngred> optionalIngredients = new ArrayList<>();
 
     // TODO : Recipe Field Validation
     @Builder
@@ -92,11 +90,4 @@ public class Recipe extends BaseEntity {
         this.steps.clear();
     }
 
-    public void setIngredients(List<RecipeIngred> ingredients) {
-        this.ingredients = ingredients;
-    }
-
-    public void setOptionalIngredients(List<RecipeIngred> optionalIngredients) {
-        this.optionalIngredients = optionalIngredients;
-    }
 }
