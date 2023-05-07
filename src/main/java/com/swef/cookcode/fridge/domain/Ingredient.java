@@ -1,6 +1,6 @@
 package com.swef.cookcode.fridge.domain;
 
-import com.swef.cookcode.common.entity.BaseEntity;
+import com.swef.cookcode.common.entity.CategoryConverter;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "ingredient")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Ingredient extends BaseEntity {
+public class Ingredient{
 
     private static final int MAX_NAME_LENGTH = 10;
     private static final int MAX_CATEGORY_LENGTH = 10;
@@ -27,7 +27,8 @@ public class Ingredient extends BaseEntity {
     @Column(name = "thumbnail", nullable = false, length = MAX_THUMBNAIL_LENGTH)
     private String thumbnail;
 
+    @Convert(converter = CategoryConverter.class)
     @Column(name = "category", nullable = false, length = MAX_CATEGORY_LENGTH)
-    private String category;
+    private Category category;
 
 }
