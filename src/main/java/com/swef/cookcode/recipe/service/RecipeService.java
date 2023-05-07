@@ -1,6 +1,7 @@
 package com.swef.cookcode.recipe.service;
 
 import com.swef.cookcode.common.ErrorCode;
+import com.swef.cookcode.common.PageResponse;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
@@ -17,12 +18,13 @@ import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
-import com.swef.cookcode.user.service.UserSimpleService;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -152,4 +154,9 @@ public class RecipeService {
         recipeRepository.delete(retrivedRecipe);
     }
 
+    @Transactional(readOnly = true)
+    public Page<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
+        Page<Recipe> recipes = recipeRepository.findRecipes(pageable);
+        return recipes.map(RecipeResponse::getMeta);
+    }
 }
