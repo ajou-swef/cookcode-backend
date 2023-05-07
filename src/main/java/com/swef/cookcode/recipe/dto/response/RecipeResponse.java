@@ -1,5 +1,8 @@
 package com.swef.cookcode.recipe.dto.response;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.swef.cookcode.fridge.dto.IngredientSimpleResponse;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import java.time.LocalDateTime;
@@ -9,6 +12,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
+@JsonInclude(NON_NULL)
 public class RecipeResponse {
     private Long recipeId;
 

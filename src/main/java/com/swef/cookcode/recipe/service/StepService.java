@@ -5,6 +5,7 @@ import com.swef.cookcode.recipe.domain.Step;
 import com.swef.cookcode.recipe.domain.StepPhoto;
 import com.swef.cookcode.recipe.domain.StepVideo;
 import com.swef.cookcode.recipe.dto.request.StepCreateRequest;
+import com.swef.cookcode.recipe.dto.request.StepUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.StepResponse;
 import com.swef.cookcode.recipe.repository.StepPhotoRepository;
 import com.swef.cookcode.recipe.repository.StepRepository;
@@ -18,11 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class StepService {
-    private final StepRepository stepRepository;
-
-    private final StepPhotoRepository stepPhotoRepository;
-
-    private final StepVideoRepository stepVideoRepository;
 
     @Transactional
     public List<StepResponse> saveStepsForRecipe(Recipe recipe, List<StepCreateRequest> stepRequests) {
@@ -34,33 +30,35 @@ public class StepService {
                     .seq(request.getSeq())
                     .recipe(recipe)
                     .build();
-            Step savedStep = stepRepository.save(step);
-            List<StepPhoto> savedPhotos = savePhotoUrlsForStep(savedStep, request.getPhotos());
-            List<StepVideo> savedVideos = saveVideoUrlsForStep(savedStep, request.getVideos());
-            responses.add(StepResponse.from(savedStep, savedPhotos, savedVideos));
+            recipe.addStep(step);
+            List<StepPhoto> savedPhotos = savePhotoUrlsForStep(step, request.getPhotos());
+            List<StepVideo> savedVideos = saveVideoUrlsForStep(step, request.getVideos());
+            responses.add(StepResponse.from(step, savedPhotos, savedVideos));
         });
         return responses;
     }
 
     @Transactional
     List<StepPhoto> savePhotoUrlsForStep(Step step, List<String> photos) {
-        List<StepPhoto> stepPhotos = photos.stream().map(url ->
-                StepPhoto.builder()
-                .step(step)
-                .photoUrl(url)
-                .build()
-        ).toList();
-        return stepPhotoRepository.saveAll(stepPhotos);
+        photos.forEach(url -> {
+            StepPhoto photo = StepPhoto.builder()
+                    .step(step)
+                    .photoUrl(url)
+                    .build();
+            step.addPhoto(photo);
+        });
+        return step.getPhotos();
     }
 
     @Transactional
     List<StepVideo> saveVideoUrlsForStep(Step step, List<String> videos) {
-        List<StepVideo> stepVideos = videos.stream().map(url ->
-                StepVideo.builder()
-                        .step(step)
-                        .videoUrl(url)
-                        .build()
-        ).toList();
-        return stepVideoRepository.saveAll(stepVideos);
+        videos.forEach(url -> {
+            StepVideo video = StepVideo.builder()
+                    .step(step)
+                    .videoUrl(url)
+                    .build();
+            step.addVideo(video);
+        });
+        return step.getVideos();
     }
 }

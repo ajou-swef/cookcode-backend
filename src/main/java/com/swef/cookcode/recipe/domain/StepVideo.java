@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,5 +41,15 @@ public class StepVideo extends BaseEntity {
     public StepVideo(Step step, String videoUrl){
         this.step = step;
         this.videoUrl = videoUrl;
+    }
+
+    public void setStep(Step step) {
+        if (Objects.nonNull(this.step)) {
+            this.step.getVideos().remove(this);
+        }
+        this.step = step;
+        if (!this.step.getVideos().contains(this)) {
+            this.step.addVideo(this);
+        }
     }
 }

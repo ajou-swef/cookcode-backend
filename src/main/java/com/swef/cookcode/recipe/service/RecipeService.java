@@ -10,6 +10,7 @@ import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
+import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import com.swef.cookcode.recipe.dto.response.StepResponse;
 import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
@@ -20,6 +21,8 @@ import com.swef.cookcode.user.service.UserSimpleService;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +30,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RecipeService {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final RecipeRepository recipeRepository;
 
     private final RecipeIngredRepository recipeIngredRepository;
-    private final UserSimpleService userSimpleService;
 
     private final StepService stepService;
     private final IngredientSimpleService ingredientSimpleService;
 
-    // TODO : JPA List 사용으로 refactoring
+    // TODO : JPA List 연관관계 사용으로 refactoring
     @Transactional
     public RecipeResponse createRecipe(User currentUser, RecipeCreateRequest request) {
         //Ingredient
@@ -57,25 +61,40 @@ public class RecipeService {
         saveIngredientsOfRecipe(savedRecipe, requiredIngredients, true);
         saveIngredientsOfRecipe(savedRecipe, optionalIngredients, false);
 
-        List<IngredientSimpleResponse> ingredResponses = requiredIngredients.stream().map(
-                IngredientSimpleResponse::from).toList();
-        List<IngredientSimpleResponse> optionalIngredResponses = optionalIngredients.stream().map(
-                IngredientSimpleResponse::from).toList();
-
         //Recipe의 Steps 생성
         List<StepResponse> stepResponses = stepService.saveStepsForRecipe(savedRecipe, request.getSteps());
 
         return RecipeResponse.builder()
                 .recipeId(savedRecipe.getId())
-                .title(savedRecipe.getTitle())
-                .description(savedRecipe.getDescription())
-                .thumbnail(savedRecipe.getThumbnail())
-                .createdAt(savedRecipe.getCreatedAt())
-                .updatedAt(savedRecipe.getUpdatedAt())
-                .ingredients(ingredResponses)
-                .optionalIngredients(optionalIngredResponses)
-                .steps(stepResponses)
-                .user(UserSimpleResponse.from(currentUser))
+                .build();
+    }
+
+    @Transactional
+    public RecipeResponse updateRecipe(User currentUser, Long recipeId, RecipeUpdateRequest request) {
+        //Ingredient
+        Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
+
+        List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
+        List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
+
+        //Recipe 조회
+        Recipe retrivedRecipe = getRecipeById(recipeId);
+        retrivedRecipe.setTitle(request.getTitle());
+        retrivedRecipe.setDescription(request.getDescription());
+        retrivedRecipe.setThumbnail(request.getThumbnail());
+
+        //Recipe의 Ingredients 수정
+        recipeIngredRepository.deleteByRecipeId(retrivedRecipe.getId());
+        saveIngredientsOfRecipe(retrivedRecipe, requiredIngredients, true);
+        saveIngredientsOfRecipe(retrivedRecipe, optionalIngredients, false);
+
+        //Recipe의 Steps 수정
+        // TODO : jpa를 통한 delete query 단건 조회로 발생 추후 성능
+        retrivedRecipe.clearSteps();
+        stepService.saveStepsForRecipe(retrivedRecipe, request.getSteps());
+
+        return RecipeResponse.builder()
+                .recipeId(retrivedRecipe.getId())
                 .build();
     }
 
@@ -84,8 +103,7 @@ public class RecipeService {
     @Transactional(readOnly = true)
     public RecipeResponse getRecipeResponseById(Long recipeId) {
         validateRecipeById(recipeId);
-        Recipe retrievedRecipe = recipeRepository.findAllById(recipeId).orElseThrow(() -> new NotFoundException(
-                ErrorCode.RECIPE_NOT_FOUND));
+        Recipe retrievedRecipe = recipeRepository.findAllElementsById(recipeId).orElseThrow(() -> new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
         List<Ingredient> ingredients = recipeIngredRepository.findByRecipeIdAndIsNecessary(recipeId, true);
         List<Ingredient> optionalIngredient = recipeIngredRepository.findByRecipeIdAndIsNecessary(recipeId, false);
         return RecipeResponse.builder()
@@ -110,7 +128,7 @@ public class RecipeService {
     }
 
     @Transactional
-    public void validateCurrentUserIsAuthor(Recipe recipe, User user) {
+    void validateCurrentUserIsAuthor(Recipe recipe, User user) {
         if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) throw new PermissionDeniedException(ErrorCode.USER_IS_NOT_AUTHOR);
     }
 

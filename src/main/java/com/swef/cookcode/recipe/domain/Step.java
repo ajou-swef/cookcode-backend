@@ -48,10 +48,10 @@ public class Step extends BaseEntity {
     @JoinColumn(name = "recipe_id", nullable = false)
     private Recipe recipe;
 
-    @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.LAZY)
     private List<StepPhoto> photos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.LAZY)
     private List<StepVideo> videos = new ArrayList<>();
 
     // TODO : Step Field Validation
@@ -61,5 +61,29 @@ public class Step extends BaseEntity {
         this.seq = seq;
         this.title = title;
         this.description = description;
+    }
+
+    public void setRecipe(Recipe recipe) {
+        if (Objects.nonNull(this.recipe)) {
+            this.recipe.getSteps().remove(this);
+        }
+        this.recipe = recipe;
+        if (!this.recipe.getSteps().contains(this)) {
+            this.recipe.addStep(this);
+        }
+    }
+
+    public void addPhoto(StepPhoto photo) {
+        this.getPhotos().add(photo);
+        if (!photo.getStep().equals(this)) {
+            photo.setStep(this);
+        }
+    }
+
+    public void addVideo(StepVideo video) {
+        this.getVideos().add(video);
+        if (!video.getStep().equals(this)) {
+            video.setStep(this);
+        }
     }
 }

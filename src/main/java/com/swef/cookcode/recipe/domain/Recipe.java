@@ -51,13 +51,13 @@ public class Recipe extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Step> steps = new ArrayList<>();
 
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.LAZY)
     private List<RecipeIngred> ingredients = new ArrayList<>();
 
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.LAZY)
     private List<RecipeIngred> optionalIngredients = new ArrayList<>();
 
     // TODO : Recipe Field Validation
@@ -67,6 +67,29 @@ public class Recipe extends BaseEntity {
         this.description = description;
         this.thumbnail = thumbnail;
         this.author = user;
+    }
+
+    public void addStep(Step step) {
+        this.getSteps().add(step);
+        if (!step.getRecipe().equals(this)) {
+            step.setRecipe(this);
+        }
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void clearSteps() {
+        this.steps.clear();
     }
 
     public void setIngredients(List<RecipeIngred> ingredients) {

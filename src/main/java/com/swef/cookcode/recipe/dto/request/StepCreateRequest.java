@@ -8,17 +8,17 @@ import lombok.NoArgsConstructor;
 @Getter
 public class StepCreateRequest {
 
-    private Long seq;
+    protected Long seq;
 
-    private String title;
+    protected String title;
 
-    private String description;
+    protected String description;
 
-    private List<String> videos;
+    protected List<String> videos;
 
-    private List<String> photos;
+    protected List<String> photos;
 
-    private List<String> deletedVideos;
+    protected List<String> deletedVideos;
 
-    private List<String> deletedPhotos;
+    protected List<String> deletedPhotos;
 }
