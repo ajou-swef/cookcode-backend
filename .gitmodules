@@ -1,0 +1,4 @@
+[submodule "cookcode-secret"]
+	path = cookcode-secret
+	url = https://github.com/ajou-swef/cookcode-secret.git
+	branch = main

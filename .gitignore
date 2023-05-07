@@ -6,7 +6,9 @@ build/
 !**/src/test/**/build/
 
 application-local.yml
-ingredient_init.sql
+application-dev.yml
+./cookcode-secret/*
+/logs
 
 ### STS ###
 .apt_generated
