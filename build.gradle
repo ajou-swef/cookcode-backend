@@ -48,10 +48,7 @@ task copyPrivate(type: Copy) {
         include "ingredient_init.sql"
         into 'src/main/resources'
     }
-}
 
-
-task copyPrivate(type: Copy) {
     copy {
         from './cookcode-secret'
         include "application-dev.yml"
