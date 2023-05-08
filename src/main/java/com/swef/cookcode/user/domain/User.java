@@ -131,4 +131,9 @@ public class User extends BaseEntity {
         this.isQuit = true;
         this.status = Status.QUIT;
     }
+
+    public void rejoin() {
+        this.isQuit = false;
+        this.status = Status.VALID;
+    }
 }

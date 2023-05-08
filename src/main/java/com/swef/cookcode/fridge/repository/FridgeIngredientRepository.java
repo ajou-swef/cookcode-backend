@@ -2,6 +2,7 @@ package com.swef.cookcode.fridge.repository;
 
 import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -11,4 +12,8 @@ public interface FridgeIngredientRepository extends JpaRepository<FridgeIngredie
 
     @Query("SELECT fi FROM FridgeIngredient fi JOIN FETCH fi.ingred WHERE fi.fridge.id = :fridgeId")
     List<FridgeIngredient> findByFridgeId(@Param("fridgeId") Long fridgeId);
+
+    @Modifying
+    @Query("delete from FridgeIngredient fi where fi.fridge.id = :fridgeId")
+    void deleteByFridgeId(@Param("fridgeId") Long fridgeId);
 }

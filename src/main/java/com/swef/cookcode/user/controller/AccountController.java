@@ -116,6 +116,7 @@ public class AccountController {
     @PatchMapping
     public ResponseEntity<ApiResponse<UserDetailResponse>> quit(@CurrentUser User user) {
         User returnedUser = userService.quit(user);
+        fridgeService.deleteFridgeOfUser(returnedUser);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("계정 삭제 성공")
                 .status(OK.value())

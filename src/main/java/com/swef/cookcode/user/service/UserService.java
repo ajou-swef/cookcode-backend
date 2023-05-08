@@ -37,8 +37,15 @@ public class UserService {
 
     @Transactional
     public User signUp(UserSignUpRequest request) {
-        if (userRepository.existsByEmailAndIsQuit(request.getEmail(), false)) {
-            throw new AlreadyExistsException(USER_ALREADY_EXISTS);
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            User existUser = userRepository.findByEmail(request.getEmail()).get();
+            if (existUser.getIsQuit()) {
+                existUser.rejoin();
+                return userRepository.save(existUser);
+            }
+            else {
+                throw new AlreadyExistsException(USER_ALREADY_EXISTS);
+            }
         }
 
         //TODO: 이메일 인증 로직
@@ -58,6 +65,7 @@ public class UserService {
     @Transactional
     public User quit(User user) {
         user.quit();
+        userRepository.save(user);
         return user;
     }
 

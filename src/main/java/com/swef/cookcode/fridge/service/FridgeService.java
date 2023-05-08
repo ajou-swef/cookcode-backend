@@ -1,5 +1,7 @@
 package com.swef.cookcode.fridge.service;
 
+import com.swef.cookcode.common.ErrorCode;
+import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.fridge.domain.Fridge;
 import com.swef.cookcode.fridge.domain.FridgeIngredient;
@@ -13,6 +15,7 @@ import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.NotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +71,13 @@ public class FridgeService {
     @Transactional
     public void deleteIngredOfFridge(Long fridgeIngredId) {
         fridgeIngredientRepository.deleteById(fridgeIngredId);
+    }
+
+    @Transactional
+    public void deleteFridgeOfUser(User user) {
+        Fridge fridge = fridgeRepository.findByOwner(user).orElseThrow(() -> new NotFoundException(FRIDGE_NOT_FOUND));
+        fridgeIngredientRepository.deleteByFridgeId(fridge.getId());
+        fridgeRepository.deleteById(fridge.getId());
     }
 
     @Transactional
