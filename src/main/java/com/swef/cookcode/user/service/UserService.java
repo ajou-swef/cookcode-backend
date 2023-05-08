@@ -55,4 +55,10 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
+    @Transactional
+    public User quit(User user) {
+        user.quit();
+        return user;
+    }
+
 }
