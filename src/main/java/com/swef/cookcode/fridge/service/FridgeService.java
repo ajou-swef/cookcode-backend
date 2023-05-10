@@ -31,11 +31,11 @@ public class FridgeService {
     private final FridgeIngredientRepository fridgeIngredientRepository;
 
     @Transactional
-    public Fridge createFridgeOfUser(User user){
+    public void createFridgeOfUser(User user){
         Fridge newFridge = Fridge.builder()
                 .owner(user)
                 .build();
-        return fridgeRepository.save(newFridge);
+        fridgeRepository.save(newFridge);
     }
 
     @Transactional(readOnly = true)
@@ -50,7 +50,7 @@ public class FridgeService {
     }
 
     @Transactional
-    public FridgeIngredient addIngredToFridge(IngredCreateRequest ingredCreateRequest, Fridge fridge) {
+    public void addIngredToFridge(IngredCreateRequest ingredCreateRequest, Fridge fridge) {
 
         Ingredient ingred = ingredientRepository.findById(ingredCreateRequest.getIngredId())
                 .orElseThrow(() -> new NotFoundException(INGREDIENT_NOT_FOUND));
@@ -62,7 +62,7 @@ public class FridgeService {
                 .expiredAt(ingredCreateRequest.getExpiredAt())
                 .build();
 
-        return fridgeIngredientRepository.save(fridgeIngredient);
+        fridgeIngredientRepository.save(fridgeIngredient);
     }
 
     @Transactional

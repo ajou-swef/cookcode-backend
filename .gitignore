@@ -7,6 +7,7 @@ build/
 
 application-local.yml
 application-dev.yml
+application-aws.yml
 ingredient_init.sql
 ./cookcode-secret/*
 /logs

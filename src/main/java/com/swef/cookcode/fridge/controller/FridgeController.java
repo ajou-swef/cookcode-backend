@@ -6,7 +6,6 @@ import com.swef.cookcode.fridge.domain.Fridge;
 import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import com.swef.cookcode.fridge.dto.request.IngredCreateRequest;
 import com.swef.cookcode.fridge.dto.request.IngredUpdateRequest;
-import com.swef.cookcode.fridge.dto.response.IngredCreateResponse;
 import com.swef.cookcode.fridge.dto.response.FridgeResponse;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.user.domain.User;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -42,19 +42,16 @@ public class FridgeController {
     }
 
     @PostMapping("/ingred")
-    public ResponseEntity<ApiResponse<IngredCreateResponse>> addIngredToFridge(
+    public ResponseEntity<ApiResponse> addIngredToFridge(
             @CurrentUser User user, @RequestBody IngredCreateRequest ingredCreateRequest) {
 
         Fridge fridge = fridgeService.getFridgeOfUser(user);
 
-        FridgeIngredient fridgeIngredient = fridgeService.addIngredToFridge(ingredCreateRequest, fridge);
-
-        IngredCreateResponse data = IngredCreateResponse.from(fridgeIngredient);
+        fridgeService.addIngredToFridge(ingredCreateRequest, fridge);
 
         ApiResponse response = ApiResponse.builder()
                 .message("식재료 등록 성공")
-                .status(OK.value())
-                .data(data)
+                .status(CREATED.value())
                 .build();
 
         return ResponseEntity.ok(response);
