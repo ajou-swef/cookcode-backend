@@ -94,7 +94,7 @@ public class RecipeController {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 삭제 성공")
-                .status(HttpStatus.CREATED.value())
+                .status(HttpStatus.OK.value())
                 .build();
 
         return ResponseEntity.ok()
