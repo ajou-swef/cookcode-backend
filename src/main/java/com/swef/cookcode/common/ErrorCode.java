@@ -20,6 +20,7 @@ public enum ErrorCode {
   RESOURCE_PERMISSION_DENIED(400, "C009", "해당 리소스에 대한 작업 권한이 없습니다."),
   ACCESS_DENIED(403, "C010", "요청 권한이 없습니다."),
   UNAUTHENTICATED_USER(401, "C011", "인증되지 않은 사용자입니다."),
+  DUPLICATED(400, "C012", "두 개체에 중복된 요소가 존재합니다."),
 
   /**
    * User Domain
@@ -41,6 +42,7 @@ public enum ErrorCode {
   BLACKLIST_TOKEN_REQUEST(400, "U017", "로그아웃 처리된 토큰으로 요청할 수 없습니다."),
   OAUTH_EMAIL_REQUIRED(500, "U019", "OAuth email을 수집하는데 실패하였습니다."),
   USER_NOT_ALLOWED(400, "U020", "해당 유저는 권한이 없습니다."),
+  USER_IS_NOT_AUTHOR(400, "U021", "해당 유저는 컨텐츠의 작성자가 아닙니다."),
 
   /*
   Ingredient Domain
@@ -53,8 +55,12 @@ public enum ErrorCode {
    */
   FRIDGE_NOT_FOUND(400, "F001", "존재하지 않는 냉장고입니다."),
   FRIDGE_INGRED_NOT_FOUND(400, "F002", "냉장고에 존재하지 않는 식재료입니다."),
-  CATEGORY_NOT_FOUND(400,"F003","존재하지 않는 식재료 카테고리");
+  CATEGORY_NOT_FOUND(400,"F003","존재하지 않는 식재료 카테고리"),
 
+  /*
+  Recipe Domain
+   */
+  RECIPE_NOT_FOUND(400, "I001", "존재하지 않는 레시피입니다.");
 
   private final int status;
   private final String code;

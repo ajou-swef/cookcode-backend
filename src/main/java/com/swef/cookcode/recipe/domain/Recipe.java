@@ -1,7 +1,9 @@
 package com.swef.cookcode.recipe.domain;
 
 import com.swef.cookcode.common.entity.BaseEntity;
+import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.user.domain.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,7 +12,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,6 +51,13 @@ public class Recipe extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Step> steps = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.LAZY)
+    private List<RecipeIngred> ingredients = new ArrayList<>();
+
+
     // TODO : Recipe Field Validation
     @Builder
     public Recipe(String title, String description, String thumbnail, User user) {
@@ -54,4 +66,28 @@ public class Recipe extends BaseEntity {
         this.thumbnail = thumbnail;
         this.author = user;
     }
+
+    public void addStep(Step step) {
+        this.getSteps().add(step);
+        if (!step.getRecipe().equals(this)) {
+            step.setRecipe(this);
+        }
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void clearSteps() {
+        this.steps.clear();
+    }
+
 }

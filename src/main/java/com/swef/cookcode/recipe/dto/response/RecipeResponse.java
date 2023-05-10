@@ -1,6 +1,11 @@
 package com.swef.cookcode.recipe.dto.response;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
+import com.swef.cookcode.recipe.domain.Recipe;
+import com.swef.cookcode.recipe.domain.RecipeIngred;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,6 +14,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
+@JsonInclude(NON_NULL)
 public class RecipeResponse {
     private Long recipeId;
 
@@ -35,4 +41,37 @@ public class RecipeResponse {
     private Long commentCount;
 
     private String thumbnail;
+
+    public static RecipeResponse from(Recipe recipe) {
+        return RecipeResponse.builder()
+                .recipeId(recipe.getId())
+                .user(UserSimpleResponse.from(recipe.getAuthor()))
+                .title(recipe.getTitle())
+                .description(recipe.getDescription())
+                .ingredients(filterIngredient(recipe.getIngredients(), true))
+                .optionalIngredients(filterIngredient(recipe.getIngredients(), false))
+                .steps(recipe.getSteps().stream().map(s -> StepResponse.from(s, s.getPhotos(), s.getVideos())).toList())
+                .createdAt(recipe.getCreatedAt())
+                .updatedAt(recipe.getUpdatedAt())
+                .thumbnail(recipe.getThumbnail())
+                .build();
+    }
+
+    public static RecipeResponse getMeta(Recipe recipe) {
+        return RecipeResponse.builder()
+                .recipeId(recipe.getId())
+                .user(UserSimpleResponse.from(recipe.getAuthor()))
+                .title(recipe.getTitle())
+                .description(recipe.getDescription())
+                .ingredients(filterIngredient(recipe.getIngredients(), true))
+                .optionalIngredients(filterIngredient(recipe.getIngredients(), false))
+                .createdAt(recipe.getCreatedAt())
+                .updatedAt(recipe.getUpdatedAt())
+                .thumbnail(recipe.getThumbnail())
+                .build();
+    }
+
+    private static List<IngredSimpleResponse> filterIngredient(List<RecipeIngred> ingreds, boolean isNecessary) {
+        return ingreds.stream().filter(i -> i.getIsNecessary() == isNecessary).map(i -> IngredSimpleResponse.from(i.getIngredient())).toList();
+    }
 }

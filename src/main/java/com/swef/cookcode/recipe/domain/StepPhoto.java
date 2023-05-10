@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,5 +40,15 @@ public class StepPhoto extends BaseEntity {
     public StepPhoto(Step step, String photoUrl){
         this.step = step;
         this.photoUrl = photoUrl;
+    }
+
+    public void setStep(Step step) {
+        if (Objects.nonNull(this.step)) {
+            this.step.getPhotos().remove(this);
+        }
+        this.step = step;
+        if (!this.step.getPhotos().contains(this)) {
+            this.step.addPhoto(this);
+        }
     }
 }

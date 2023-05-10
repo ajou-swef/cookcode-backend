@@ -3,22 +3,21 @@ package com.swef.cookcode.recipe.dto.request;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
 public class RecipeCreateRequest {
 
-    private String title;
+    protected String title;
 
-    private String description;
+    protected String description;
 
-    private List<Long> ingredients;
+    protected List<Long> ingredients;
 
-    private List<Long> optionalIngredients;
+    protected List<Long> optionalIngredients;
 
-    private List<StepCreateRequest> steps;
+    protected List<StepCreateRequest> steps;
 
-    private String thumbnail;
-
-    private List<String> deletedThumbnails;
+    protected String thumbnail;
 }
