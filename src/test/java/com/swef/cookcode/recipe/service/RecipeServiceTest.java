@@ -2,6 +2,7 @@ package com.swef.cookcode.recipe.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.swef.cookcode.fridge.domain.Category;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
@@ -29,11 +30,11 @@ class RecipeServiceTest {
 
     private Ingredient ingredient = Ingredient.builder()
             .name("삼겹살")
-            .category("육류")
+            .category(Category.MEAT)
             .build();
     private Ingredient optionalIngredient = Ingredient.builder()
             .name("목살")
-            .category("육류")
+            .category(Category.MEAT)
             .build();
 
     private User user = User.builder()

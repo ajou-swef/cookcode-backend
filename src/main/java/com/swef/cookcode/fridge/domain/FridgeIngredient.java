@@ -3,10 +3,11 @@ package com.swef.cookcode.fridge.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "fridge_ingred")
@@ -30,9 +31,20 @@ public class FridgeIngredient {
     private Ingredient ingred;
 
     @Column(name = "quantity", nullable = false, length = MAX_QUANTITY_LENGTH)
-    private String quantity;
+    private int quantity;
 
     @Column(name = "expired_at", nullable = false)
-    private Date expiredAt;
+    private LocalDate expiredAt;
+
+    @Builder
+    public FridgeIngredient(Fridge fridge, Ingredient ingred, int quantity, LocalDate expiredAt) {
+        this.fridge = fridge;
+        this.ingred = ingred;
+        this.quantity = quantity;
+        this.expiredAt = expiredAt;
+    }
+
+    public void updateQuantity(int quantity){ this.quantity = quantity; }
+    public void updateExpiredAt(LocalDate expiredAt){ this.expiredAt = expiredAt; }
 
 }

@@ -1,12 +1,11 @@
 package com.swef.cookcode.recipe.service;
 
 import com.swef.cookcode.common.ErrorCode;
-import com.swef.cookcode.common.PageResponse;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.fridge.domain.Ingredient;
-import com.swef.cookcode.fridge.dto.IngredientSimpleResponse;
+import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
@@ -115,8 +114,8 @@ public class RecipeService {
                 .createdAt(retrievedRecipe.getCreatedAt())
                 .updatedAt(retrievedRecipe.getUpdatedAt())
                 .user(UserSimpleResponse.from(retrievedRecipe.getAuthor()))
-                .ingredients(ingredients.stream().filter(RecipeIngred::getIsNecessary).map(i -> IngredientSimpleResponse.from(i.getIngredient())).toList())
-                .optionalIngredients(ingredients.stream().filter(i -> !i.getIsNecessary()).map(i -> IngredientSimpleResponse.from(i.getIngredient())).toList())
+                .ingredients(ingredients.stream().filter(RecipeIngred::getIsNecessary).map(i -> IngredSimpleResponse.from(i.getIngredient())).toList())
+                .optionalIngredients(ingredients.stream().filter(i -> !i.getIsNecessary()).map(i -> IngredSimpleResponse.from(i.getIngredient())).toList())
                 .build();
     }
 
@@ -147,9 +146,9 @@ public class RecipeService {
     @Transactional
     public void deleteRecipeById(User currentUser, Long recipeId) {
         // TODO : 레시피 영상, 사진 s3에서 삭제
-        Recipe retrivedRecipe = getRecipeById(recipeId);
-        validateCurrentUserIsAuthor(retrivedRecipe, currentUser);
-        recipeRepository.delete(retrivedRecipe);
+        Recipe retrievedRecipe = getRecipeById(recipeId);
+        validateCurrentUserIsAuthor(retrievedRecipe, currentUser);
+        recipeRepository.delete(retrievedRecipe);
     }
 
     @Transactional(readOnly = true)

@@ -3,7 +3,7 @@ package com.swef.cookcode.recipe.dto.response;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.swef.cookcode.fridge.dto.IngredientSimpleResponse;
+import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
@@ -24,9 +24,9 @@ public class RecipeResponse {
 
     private String description;
 
-    private List<IngredientSimpleResponse> ingredients;
+    private List<IngredSimpleResponse> ingredients;
 
-    private List<IngredientSimpleResponse> optionalIngredients;
+    private List<IngredSimpleResponse> optionalIngredients;
 
     private List<StepResponse> steps;
 
@@ -71,7 +71,7 @@ public class RecipeResponse {
                 .build();
     }
 
-    private static List<IngredientSimpleResponse> filterIngredient(List<RecipeIngred> ingreds, boolean isNecessary) {
-        return ingreds.stream().filter(i -> i.getIsNecessary() == isNecessary).map(i -> IngredientSimpleResponse.from(i.getIngredient())).toList();
+    private static List<IngredSimpleResponse> filterIngredient(List<RecipeIngred> ingreds, boolean isNecessary) {
+        return ingreds.stream().filter(i -> i.getIsNecessary() == isNecessary).map(i -> IngredSimpleResponse.from(i.getIngredient())).toList();
     }
 }

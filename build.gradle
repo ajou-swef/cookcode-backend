@@ -45,6 +45,12 @@ tasks.named('test') {
 task copyPrivate(type: Copy) {
     copy {
         from './cookcode-secret'
+        include "ingredient_init.sql"
+        into 'src/main/resources'
+    }
+
+    copy {
+        from './cookcode-secret'
         include "application-dev.yml"
         into 'src/main/resources'
     }
