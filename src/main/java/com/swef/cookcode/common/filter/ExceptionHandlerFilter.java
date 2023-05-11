@@ -1,5 +1,6 @@
 package com.swef.cookcode.common.filter;
 
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swef.cookcode.common.ErrorCode;
@@ -31,6 +32,8 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
       setErrorResponse(HttpStatus.UNAUTHORIZED, response, ErrorCode.TOKEN_EXPIRED);
     } catch (AuthErrorException e) {
       setErrorResponse(HttpStatus.BAD_REQUEST, response, ErrorCode.BLACKLIST_TOKEN_REQUEST);
+    } catch (SignatureVerificationException e) {
+      setErrorResponse(HttpStatus.UNAUTHORIZED, response, ErrorCode.INVALID_TOKEN_SIGN);
     } catch (RuntimeException e) {
       setErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, response, ErrorCode.INTERNAL_SERVER_ERROR);
     }
