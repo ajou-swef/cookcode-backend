@@ -136,4 +136,8 @@ public class User extends BaseEntity {
         this.isQuit = false;
         this.status = Status.VALID;
     }
+
+    public boolean isValid(){
+        return this.status.equals(Status.VALID) || this.status.equals(Status.INF_REQUESTED);
+    }
 }

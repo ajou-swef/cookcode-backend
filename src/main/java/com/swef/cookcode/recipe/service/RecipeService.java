@@ -42,52 +42,47 @@ public class RecipeService {
 
     // TODO : JPA List 연관관계 사용으로 refactoring
     @Transactional
-    public RecipeResponse createRecipe(User currentUser, RecipeCreateRequest request) {
+    public RecipeResponse createRecipe(User user, RecipeCreateRequest request) {
         Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
 
-        Recipe newRecipe = Recipe.builder()
-                .user(currentUser)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .thumbnail(request.getThumbnail())
-                .build();
-        Recipe savedRecipe = recipeRepository.save(newRecipe);
+        Recipe recipe = recipeRepository.save(createRecipeEntity(user, request));
 
-        saveIngredientsOfRecipe(savedRecipe, requiredIngredients, true);
-        saveIngredientsOfRecipe(savedRecipe, optionalIngredients, false);
+        saveNecessaryIngredientsOfRecipe(recipe, requiredIngredients);
+        saveOptionalIngredientsOfRecipe(recipe, optionalIngredients);
 
-        List<StepResponse> stepResponses = stepService.saveStepsForRecipe(savedRecipe, request.getSteps());
+        List<StepResponse> stepResponses = stepService.saveStepsForRecipe(recipe, request.getSteps());
 
         return RecipeResponse.builder()
-                .recipeId(savedRecipe.getId())
+                .recipeId(recipe.getId())
                 .build();
     }
 
     @Transactional
-    public RecipeResponse updateRecipe(User currentUser, Long recipeId, RecipeUpdateRequest request) {
+    public RecipeResponse updateRecipe(User user, Long recipeId, RecipeUpdateRequest request) {
         Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
 
-        Recipe retrivedRecipe = getRecipeById(recipeId);
-        retrivedRecipe.setTitle(request.getTitle());
-        retrivedRecipe.setDescription(request.getDescription());
-        retrivedRecipe.setThumbnail(request.getThumbnail());
+        Recipe recipe = getRecipeById(recipeId);
+        if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) {
+            throw new PermissionDeniedException(ErrorCode.ACCESS_DENIED);
+        }
+        recipe = updateRecipeEntity(recipe, request);
 
-        recipeIngredRepository.deleteByRecipeId(retrivedRecipe.getId());
-        saveIngredientsOfRecipe(retrivedRecipe, requiredIngredients, true);
-        saveIngredientsOfRecipe(retrivedRecipe, optionalIngredients, false);
+        recipeIngredRepository.deleteByRecipeId(recipe.getId());
+        saveNecessaryIngredientsOfRecipe(recipe, requiredIngredients);
+        saveOptionalIngredientsOfRecipe(recipe, optionalIngredients);
 
         // TODO : jpa를 통한 delete query 단건 조회로 발생 추후 성능
-        retrivedRecipe.clearSteps();
-        stepService.saveStepsForRecipe(retrivedRecipe, request.getSteps());
+        recipe.clearSteps();
+        stepService.saveStepsForRecipe(recipe, request.getSteps());
 
         return RecipeResponse.builder()
-                .recipeId(retrivedRecipe.getId())
+                .recipeId(recipe.getId())
                 .build();
     }
 
@@ -111,10 +106,37 @@ public class RecipeService {
                 .build();
     }
 
-    @Transactional
-    void saveIngredientsOfRecipe(Recipe recipe, List<Ingredient> ingredients, Boolean isNecessary) {
+    void saveNecessaryIngredientsOfRecipe(Recipe recipe, List<Ingredient> ingredients) {
         List<RecipeIngred> recipeIngredList = ingredients.stream()
-                .map(ingredient -> new RecipeIngred(recipe, ingredient, isNecessary)).toList();
+                .map(ingredient -> new RecipeIngred(recipe, ingredient, true)).toList();
+        recipeIngredRepository.saveAll(recipeIngredList);
+    }
+
+    void saveOptionalIngredientsOfRecipe(Recipe recipe, List<Ingredient> ingredients) {
+        List<RecipeIngred> recipeIngredList = ingredients.stream()
+                .map(ingredient -> new RecipeIngred(recipe, ingredient, false)).toList();
+        recipeIngredRepository.saveAll(recipeIngredList);
+    }
+
+    Recipe createRecipeEntity(User user, RecipeCreateRequest request) {
+        return  Recipe.builder()
+                .user(user)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .thumbnail(request.getThumbnail())
+                .build();
+    }
+
+    Recipe updateRecipeEntity(Recipe recipe, RecipeUpdateRequest request) {
+        recipe.setTitle(request.getTitle());
+        recipe.setDescription(request.getDescription());
+        recipe.setThumbnail(request.getThumbnail());
+        return  recipe;
+    }
+
+    void save(Recipe recipe, List<Ingredient> ingredients) {
+        List<RecipeIngred> recipeIngredList = ingredients.stream()
+                .map(ingredient -> new RecipeIngred(recipe, ingredient, true)).toList();
         recipeIngredRepository.saveAll(recipeIngredList);
     }
 
