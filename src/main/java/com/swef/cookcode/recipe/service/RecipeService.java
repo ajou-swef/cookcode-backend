@@ -43,13 +43,11 @@ public class RecipeService {
     // TODO : JPA List 연관관계 사용으로 refactoring
     @Transactional
     public RecipeResponse createRecipe(User currentUser, RecipeCreateRequest request) {
-        //Ingredient
         Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
 
-        //Recipe 생성
         Recipe newRecipe = Recipe.builder()
                 .user(currentUser)
                 .title(request.getTitle())
@@ -58,11 +56,9 @@ public class RecipeService {
                 .build();
         Recipe savedRecipe = recipeRepository.save(newRecipe);
 
-        //Recipe의 Ingredients 생성
         saveIngredientsOfRecipe(savedRecipe, requiredIngredients, true);
         saveIngredientsOfRecipe(savedRecipe, optionalIngredients, false);
 
-        //Recipe의 Steps 생성
         List<StepResponse> stepResponses = stepService.saveStepsForRecipe(savedRecipe, request.getSteps());
 
         return RecipeResponse.builder()
@@ -72,24 +68,20 @@ public class RecipeService {
 
     @Transactional
     public RecipeResponse updateRecipe(User currentUser, Long recipeId, RecipeUpdateRequest request) {
-        //Ingredient
         Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
 
-        //Recipe 조회
         Recipe retrivedRecipe = getRecipeById(recipeId);
         retrivedRecipe.setTitle(request.getTitle());
         retrivedRecipe.setDescription(request.getDescription());
         retrivedRecipe.setThumbnail(request.getThumbnail());
 
-        //Recipe의 Ingredients 수정
         recipeIngredRepository.deleteByRecipeId(retrivedRecipe.getId());
         saveIngredientsOfRecipe(retrivedRecipe, requiredIngredients, true);
         saveIngredientsOfRecipe(retrivedRecipe, optionalIngredients, false);
 
-        //Recipe의 Steps 수정
         // TODO : jpa를 통한 delete query 단건 조회로 발생 추후 성능
         retrivedRecipe.clearSteps();
         stepService.saveStepsForRecipe(retrivedRecipe, request.getSteps());
