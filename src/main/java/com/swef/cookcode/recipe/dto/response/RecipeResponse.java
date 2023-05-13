@@ -48,8 +48,8 @@ public class RecipeResponse {
                 .user(UserSimpleResponse.from(recipe.getAuthor()))
                 .title(recipe.getTitle())
                 .description(recipe.getDescription())
-                .ingredients(filterIngredient(recipe.getIngredients(), true))
-                .optionalIngredients(filterIngredient(recipe.getIngredients(), false))
+                .ingredients(filterNecessaryIngredient(recipe.getIngredients()))
+                .optionalIngredients(filterOptionalIngredient(recipe.getIngredients()))
                 .steps(recipe.getSteps().stream().map(s -> StepResponse.from(s, s.getPhotos(), s.getVideos())).toList())
                 .createdAt(recipe.getCreatedAt())
                 .updatedAt(recipe.getUpdatedAt())
@@ -63,15 +63,19 @@ public class RecipeResponse {
                 .user(UserSimpleResponse.from(recipe.getAuthor()))
                 .title(recipe.getTitle())
                 .description(recipe.getDescription())
-                .ingredients(filterIngredient(recipe.getIngredients(), true))
-                .optionalIngredients(filterIngredient(recipe.getIngredients(), false))
+                .ingredients(filterNecessaryIngredient(recipe.getIngredients()))
+                .optionalIngredients(filterOptionalIngredient(recipe.getIngredients()))
                 .createdAt(recipe.getCreatedAt())
                 .updatedAt(recipe.getUpdatedAt())
                 .thumbnail(recipe.getThumbnail())
                 .build();
     }
 
-    private static List<IngredSimpleResponse> filterIngredient(List<RecipeIngred> ingreds, boolean isNecessary) {
-        return ingreds.stream().filter(i -> i.getIsNecessary() == isNecessary).map(i -> IngredSimpleResponse.from(i.getIngredient())).toList();
+    private static List<IngredSimpleResponse> filterNecessaryIngredient(List<RecipeIngred> ingreds) {
+        return ingreds.stream().filter(RecipeIngred::getIsNecessary).map(i -> IngredSimpleResponse.from(i.getIngredient())).toList();
+    }
+
+    private static List<IngredSimpleResponse> filterOptionalIngredient(List<RecipeIngred> ingreds) {
+        return ingreds.stream().filter(i -> !i.getIsNecessary()).map(i -> IngredSimpleResponse.from(i.getIngredient())).toList();
     }
 }
