@@ -4,6 +4,7 @@ import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
+import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
