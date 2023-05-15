@@ -4,10 +4,13 @@ import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
+import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
+import com.swef.cookcode.recipe.domain.StepPhoto;
+import com.swef.cookcode.recipe.domain.StepVideo;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
@@ -36,6 +39,8 @@ public class RecipeService {
 
     private final StepService stepService;
     private final IngredientSimpleService ingredientSimpleService;
+
+    private final Util util;
 
     // TODO : JPA List 연관관계 사용으로 refactoring
     @Transactional
@@ -81,6 +86,14 @@ public class RecipeService {
         return RecipeResponse.builder()
                 .recipeId(recipe.getId())
                 .build();
+    }
+
+    public void deleteUnusedFiles(RecipeCreateRequest request) {
+        util.deleteFilesInS3(request.getDeletedThumbnails());
+        request.getSteps().forEach(step -> {
+            util.deleteFilesInS3(step.getDeletedPhotos());
+            util.deleteFilesInS3(step.getDeletedVideos());
+        });
     }
 
     // TODO : Recipe fetch 할 때 validation 안되서 임의로 추가.
@@ -144,10 +157,16 @@ public class RecipeService {
     // batch query or 비동기 처리.
     @Transactional
     public void deleteRecipeById(User currentUser, Long recipeId) {
-        // TODO : 레시피 영상, 사진 s3에서 삭제
-        Recipe retrievedRecipe = getRecipeById(recipeId);
-        validateCurrentUserIsAuthor(retrievedRecipe, currentUser);
-        recipeRepository.delete(retrievedRecipe);
+        Recipe recipe = getRecipeById(recipeId);
+        validateCurrentUserIsAuthor(recipe, currentUser);
+        util.deleteFilesInS3(List.of(recipe.getThumbnail()));
+        recipe.getSteps().forEach(step -> {
+            List<String> deletedPhotos = step.getPhotos().stream().map(StepPhoto::getPhotoUrl).toList();
+            List<String> deletedVideos = step.getVideos().stream().map(StepVideo::getVideoUrl).toList();
+            util.deleteFilesInS3(deletedPhotos);
+            util.deleteFilesInS3(deletedVideos);
+        });
+        recipeRepository.delete(recipe);
     }
 
     @Transactional(readOnly = true)
