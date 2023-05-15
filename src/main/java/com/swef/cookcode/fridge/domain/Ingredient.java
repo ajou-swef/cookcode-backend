@@ -1,8 +1,8 @@
 package com.swef.cookcode.fridge.domain;
 
-import com.swef.cookcode.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "ingredient")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Ingredient extends BaseEntity {
+public class Ingredient{
 
     private static final int MAX_NAME_LENGTH = 10;
     private static final int MAX_CATEGORY_LENGTH = 10;
@@ -27,7 +27,15 @@ public class Ingredient extends BaseEntity {
     @Column(name = "thumbnail", nullable = false, length = MAX_THUMBNAIL_LENGTH)
     private String thumbnail;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = MAX_CATEGORY_LENGTH)
-    private String category;
+    private Category category;
+
+    @Builder
+    Ingredient(String name, String thumbnail, Category category) {
+        this.name = name;
+        this.thumbnail = thumbnail;
+        this.category = category;
+    }
 
 }

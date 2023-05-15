@@ -16,7 +16,9 @@ public class IngredientSimpleService {
 
     public List<Ingredient> getIngredientsByIds(List<Long> ids) {
         try{
-            return ingredientRepository.findAllById(ids);
+            List<Ingredient> ingredients = ingredientRepository.findAllById(ids);
+            if (ingredients.size() != ids.size()) throw new IllegalArgumentException();
+            return ingredients;
         } catch(IllegalArgumentException exception) {
             throw new NotFoundException(ErrorCode.INGREDIENT_NOT_FOUND);
         }

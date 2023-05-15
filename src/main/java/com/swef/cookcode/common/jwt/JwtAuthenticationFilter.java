@@ -6,6 +6,7 @@ import static org.springframework.util.StringUtils.hasText;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.swef.cookcode.common.error.exception.AuthErrorException;
+import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.jwt.claims.AccessClaim;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.service.UserSimpleService;
@@ -56,6 +57,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
           }
+        } catch (NotFoundException e) {
+          log.warn("탈퇴한 유저의 토큰입니다. token: {}", token);
+          throw e;
         } catch (TokenExpiredException e) {
           log.warn("토큰이 만료된 요청입니다. token: {}", token);
           throw e;
