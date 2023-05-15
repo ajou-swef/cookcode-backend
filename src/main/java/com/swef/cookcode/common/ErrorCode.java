@@ -54,7 +54,6 @@ public enum ErrorCode {
   S3
    */
   MULTIPART_CONVERT_FAILED(400,"S001", "MultipartFile 변환 실패"),
-  INGREDIENT_NOT_FOUND(400, "I001", "존재하지 않는 재료입니다."),
 
   /*
   FRIDGE_Domain
