@@ -4,7 +4,6 @@ import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
-import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
@@ -42,7 +41,6 @@ public class RecipeService {
 
     private final Util util;
 
-    // TODO : JPA List 연관관계 사용으로 refactoring
     @Transactional
     public RecipeResponse createRecipe(User user, RecipeCreateRequest request) {
         Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
@@ -88,7 +86,7 @@ public class RecipeService {
                 .build();
     }
 
-    public void deleteUnusedFiles(RecipeCreateRequest request) {
+    public void deleteTemporaryFiles(RecipeCreateRequest request) {
         util.deleteFilesInS3(request.getDeletedThumbnails());
         request.getSteps().forEach(step -> {
             util.deleteFilesInS3(step.getDeletedPhotos());
