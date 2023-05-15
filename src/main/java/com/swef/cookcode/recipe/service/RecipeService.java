@@ -5,18 +5,15 @@ import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.fridge.domain.Ingredient;
-import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
-import com.swef.cookcode.recipe.dto.response.StepResponse;
 import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.User;
-import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -42,60 +39,47 @@ public class RecipeService {
 
     // TODO : JPA List 연관관계 사용으로 refactoring
     @Transactional
-    public RecipeResponse createRecipe(User currentUser, RecipeCreateRequest request) {
-        //Ingredient
+    public RecipeResponse createRecipe(User user, RecipeCreateRequest request) {
         Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
 
-        //Recipe 생성
-        Recipe newRecipe = Recipe.builder()
-                .user(currentUser)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .thumbnail(request.getThumbnail())
-                .build();
-        Recipe savedRecipe = recipeRepository.save(newRecipe);
+        Recipe recipe = recipeRepository.save(createRecipeEntity(user, request));
 
-        //Recipe의 Ingredients 생성
-        saveIngredientsOfRecipe(savedRecipe, requiredIngredients, true);
-        saveIngredientsOfRecipe(savedRecipe, optionalIngredients, false);
+        saveNecessaryIngredientsOfRecipe(recipe, requiredIngredients);
+        saveOptionalIngredientsOfRecipe(recipe, optionalIngredients);
 
-        //Recipe의 Steps 생성
-        List<StepResponse> stepResponses = stepService.saveStepsForRecipe(savedRecipe, request.getSteps());
+        stepService.saveStepsForRecipe(recipe, request.getSteps());
 
         return RecipeResponse.builder()
-                .recipeId(savedRecipe.getId())
+                .recipeId(recipe.getId())
                 .build();
     }
 
     @Transactional
-    public RecipeResponse updateRecipe(User currentUser, Long recipeId, RecipeUpdateRequest request) {
-        //Ingredient
+    public RecipeResponse updateRecipe(User user, Long recipeId, RecipeUpdateRequest request) {
         Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
 
-        //Recipe 조회
-        Recipe retrivedRecipe = getRecipeById(recipeId);
-        retrivedRecipe.setTitle(request.getTitle());
-        retrivedRecipe.setDescription(request.getDescription());
-        retrivedRecipe.setThumbnail(request.getThumbnail());
+        Recipe recipe = getRecipeById(recipeId);
+        if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) {
+            throw new PermissionDeniedException(ErrorCode.ACCESS_DENIED);
+        }
+        recipe = updateRecipeEntity(recipe, request);
 
-        //Recipe의 Ingredients 수정
-        recipeIngredRepository.deleteByRecipeId(retrivedRecipe.getId());
-        saveIngredientsOfRecipe(retrivedRecipe, requiredIngredients, true);
-        saveIngredientsOfRecipe(retrivedRecipe, optionalIngredients, false);
+        recipeIngredRepository.deleteByRecipeId(recipe.getId());
+        saveNecessaryIngredientsOfRecipe(recipe, requiredIngredients);
+        saveOptionalIngredientsOfRecipe(recipe, optionalIngredients);
 
-        //Recipe의 Steps 수정
         // TODO : jpa를 통한 delete query 단건 조회로 발생 추후 성능
-        retrivedRecipe.clearSteps();
-        stepService.saveStepsForRecipe(retrivedRecipe, request.getSteps());
+        recipe.clearSteps();
+        stepService.saveStepsForRecipe(recipe, request.getSteps());
 
         return RecipeResponse.builder()
-                .recipeId(retrivedRecipe.getId())
+                .recipeId(recipe.getId())
                 .build();
     }
 
@@ -103,26 +87,41 @@ public class RecipeService {
     @Transactional(readOnly = true)
     public RecipeResponse getRecipeResponseById(Long recipeId) {
         validateRecipeById(recipeId);
-        Recipe retrievedRecipe = recipeRepository.findAllElementsById(recipeId).orElseThrow(() -> new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
-        List<RecipeIngred> ingredients = recipeIngredRepository.findByRecipeId(recipeId);
-        return RecipeResponse.builder()
-                .recipeId(retrievedRecipe.getId())
-                .title(retrievedRecipe.getTitle())
-                .thumbnail(retrievedRecipe.getThumbnail())
-                .description(retrievedRecipe.getDescription())
-                .steps(retrievedRecipe.getSteps().stream().map(step -> StepResponse.from(step, step.getPhotos(), step.getVideos())).toList())
-                .createdAt(retrievedRecipe.getCreatedAt())
-                .updatedAt(retrievedRecipe.getUpdatedAt())
-                .user(UserSimpleResponse.from(retrievedRecipe.getAuthor()))
-                .ingredients(ingredients.stream().filter(RecipeIngred::getIsNecessary).map(i -> IngredSimpleResponse.from(i.getIngredient())).toList())
-                .optionalIngredients(ingredients.stream().filter(i -> !i.getIsNecessary()).map(i -> IngredSimpleResponse.from(i.getIngredient())).toList())
+        Recipe recipe = recipeRepository.findAllElementsById(recipeId).orElseThrow(() -> new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
+        return RecipeResponse.from(recipe);
+    }
+
+    void saveNecessaryIngredientsOfRecipe(Recipe recipe, List<Ingredient> ingredients) {
+        List<RecipeIngred> recipeIngredList = ingredients.stream()
+                .map(ingredient -> new RecipeIngred(recipe, ingredient, true)).toList();
+        recipeIngredRepository.saveAll(recipeIngredList);
+    }
+
+    void saveOptionalIngredientsOfRecipe(Recipe recipe, List<Ingredient> ingredients) {
+        List<RecipeIngred> recipeIngredList = ingredients.stream()
+                .map(ingredient -> new RecipeIngred(recipe, ingredient, false)).toList();
+        recipeIngredRepository.saveAll(recipeIngredList);
+    }
+
+    Recipe createRecipeEntity(User user, RecipeCreateRequest request) {
+        return  Recipe.builder()
+                .user(user)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .thumbnail(request.getThumbnail())
                 .build();
     }
 
-    @Transactional
-    void saveIngredientsOfRecipe(Recipe recipe, List<Ingredient> ingredients, Boolean isNecessary) {
+    Recipe updateRecipeEntity(Recipe recipe, RecipeUpdateRequest request) {
+        recipe.setTitle(request.getTitle());
+        recipe.setDescription(request.getDescription());
+        recipe.setThumbnail(request.getThumbnail());
+        return  recipe;
+    }
+
+    void save(Recipe recipe, List<Ingredient> ingredients) {
         List<RecipeIngred> recipeIngredList = ingredients.stream()
-                .map(ingredient -> new RecipeIngred(recipe, ingredient, isNecessary)).toList();
+                .map(ingredient -> new RecipeIngred(recipe, ingredient, true)).toList();
         recipeIngredRepository.saveAll(recipeIngredList);
     }
 
