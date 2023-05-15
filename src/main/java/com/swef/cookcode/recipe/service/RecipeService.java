@@ -86,7 +86,7 @@ public class RecipeService {
                 .build();
     }
 
-    public void deleteTemporaryFiles(RecipeCreateRequest request) {
+    public void deleteCancelledFiles(RecipeCreateRequest request) {
         util.deleteFilesInS3(request.getDeletedThumbnails());
         request.getSteps().forEach(step -> {
             util.deleteFilesInS3(step.getDeletedPhotos());

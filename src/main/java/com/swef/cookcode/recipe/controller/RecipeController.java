@@ -43,7 +43,7 @@ public class RecipeController {
     @PostMapping
     public ResponseEntity<ApiResponse<RecipeResponse>> createRecipe(@CurrentUser User user, @RequestBody RecipeCreateRequest recipeCreateRequest){
 
-        recipeService.deleteTemporaryFiles(recipeCreateRequest);
+        recipeService.deleteCancelledFiles(recipeCreateRequest);
         RecipeResponse response = recipeService.createRecipe(user, recipeCreateRequest);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -71,7 +71,7 @@ public class RecipeController {
     @PatchMapping("/{recipeId}")
     public ResponseEntity<ApiResponse<RecipeResponse>> updateRecipe(@CurrentUser User user, @PathVariable("recipeId") Long recipeId, @RequestBody RecipeUpdateRequest recipeUpdateRequest){
 
-        recipeService.deleteTemporaryFiles(recipeUpdateRequest);
+        recipeService.deleteCancelledFiles(recipeUpdateRequest);
         RecipeResponse response = recipeService.updateRecipe(user, recipeId, recipeUpdateRequest);
 
         ApiResponse apiResponse = ApiResponse.builder()
