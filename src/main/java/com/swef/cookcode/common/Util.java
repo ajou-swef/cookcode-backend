@@ -27,7 +27,6 @@ public class Util {
             throw new InvalidRequestException(ErrorCode.DUPLICATED);
         }
     }
-
     public UrlResponse uploadFilesToS3(String directory, List<MultipartFile> files) {
         List<String> urls = new ArrayList<>();
         files.forEach(file -> {
@@ -41,5 +40,8 @@ public class Util {
         return UrlResponse.builder()
                 .urls(urls)
                 .build();
+    }
+    public void deleteFilesInS3(List<String> urls) {
+        urls.forEach(s3Util::deleteFile);
     }
 }

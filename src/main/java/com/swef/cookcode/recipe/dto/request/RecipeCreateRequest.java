@@ -20,4 +20,6 @@ public class RecipeCreateRequest {
     protected List<StepCreateRequest> steps;
 
     protected String thumbnail;
+
+    protected List<String> deletedThumbnails;
 }

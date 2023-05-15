@@ -38,6 +38,8 @@ public class RecipeService {
     private final StepService stepService;
     private final IngredientSimpleService ingredientSimpleService;
 
+    private final Util util;
+
     // TODO : JPA List 연관관계 사용으로 refactoring
     @Transactional
     public RecipeResponse createRecipe(User user, RecipeCreateRequest request) {
@@ -82,6 +84,14 @@ public class RecipeService {
         return RecipeResponse.builder()
                 .recipeId(recipe.getId())
                 .build();
+    }
+
+    public void deleteUnusedFiles(RecipeCreateRequest request) {
+        util.deleteFilesInS3(request.getDeletedThumbnails());
+        request.getSteps().forEach(step -> {
+            util.deleteFilesInS3(step.getDeletedPhotos());
+            util.deleteFilesInS3(step.getDeletedVideos());
+        });
     }
 
     // TODO : Recipe fetch 할 때 validation 안되서 임의로 추가.
