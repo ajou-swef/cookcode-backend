@@ -1,4 +1,7 @@
 spring:
+  profiles:
+    include:
+      - aws
   application:
     name: cookcode
   jpa:

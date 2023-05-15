@@ -52,6 +52,11 @@ public enum ErrorCode {
   INGREDIENT_NOT_FOUND(400, "I001", "존재하지 않는 재료입니다."),
 
   /*
+  S3
+   */
+  MULTIPART_CONVERT_FAILED(400,"S001", "MultipartFile 변환 실패"),
+
+  /*
   FRIDGE_Domain
    */
   FRIDGE_NOT_FOUND(400, "F001", "존재하지 않는 냉장고입니다."),

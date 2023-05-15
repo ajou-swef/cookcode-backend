@@ -36,6 +36,9 @@ dependencies {
     implementation 'com.auth0:java-jwt:4.3.0'
 
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //aws
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 tasks.named('test') {
@@ -52,6 +55,11 @@ task copyPrivate(type: Copy) {
     copy {
         from './cookcode-secret'
         include "application-dev.yml"
+        into 'src/main/resources'
+    }
+    copy {
+        from './cookcode-secret'
+        include "application-aws.yml"
         into 'src/main/resources'
     }
 }
