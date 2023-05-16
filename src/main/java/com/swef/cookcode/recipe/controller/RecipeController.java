@@ -56,8 +56,8 @@ public class RecipeController {
                 .body(apiResponse);
     }
 
-    @PostMapping("/photos")
-    public ResponseEntity<ApiResponse<UrlResponse>> uploadRecipePhotos(@RequestPart(value = "stepImages") List<MultipartFile> files) {
+    @PostMapping("/files")
+    public ResponseEntity<ApiResponse<UrlResponse>> uploadRecipePhotos(@RequestPart(value = "stepFiles") List<MultipartFile> files) {
         UrlResponse response = util.uploadFilesToS3(Recipe.RECIPE_DIRECTORY_NAME, files);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 파일 업로드 성공")
