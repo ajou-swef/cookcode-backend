@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class Util {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final S3Util s3Util;
 
     public static <T> void validateDuplication(List<T> list1, List<T> list2) {
@@ -29,9 +32,10 @@ public class Util {
     }
     public UrlResponse uploadFilesToS3(String directory, List<MultipartFile> files) {
         List<String> urls = new ArrayList<>();
+        logger.info("msg : {0}, files[0] : {1}", directory, files.get(0).getName());
         files.forEach(file -> {
             try {
-                String path = s3Util.upload(file, Recipe.RECIPE_DIRECTORY_NAME);
+                String path = s3Util.upload(file, directory);
                 urls.add(path);
             } catch (IOException e) {
                 throw new RuntimeException(e);
