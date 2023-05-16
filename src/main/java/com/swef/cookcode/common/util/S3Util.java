@@ -3,6 +3,7 @@ package com.swef.cookcode.common.util;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.swef.cookcode.common.ErrorCode;
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.S3Exception;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,6 +72,7 @@ public class S3Util {
 
     public void deleteFile(String url){
         String[] tokens = url.split("/");
+        if (tokens.length <= KEY_DELIMITER) throw new InvalidRequestException(ErrorCode.INVALID_URL);
         String key = String.join("/", Arrays.asList(tokens).subList(KEY_DELIMITER, tokens.length));
 
         amazonS3Client.deleteObject(bucket, key);

@@ -55,7 +55,7 @@ public enum ErrorCode {
   S3
    */
   MULTIPART_CONVERT_FAILED(400,"S001", "MultipartFile 변환 실패"),
-
+  INVALID_URL(400, "S002", "올바르지 않은 url이 반환되었습니다."),
   /*
   FRIDGE_Domain
    */
