@@ -31,11 +31,7 @@ public class Util {
         }
     }
     public UrlResponse uploadFilesToS3(String directory, List<MultipartFile> files) {
-        List<String> urls = new ArrayList<>();
-        files.forEach(file -> {
-            String path = s3Util.upload(file, directory);
-            urls.add(path);
-        });
+        List<String> urls = files.stream().map(file -> s3Util.upload(file, directory)).toList();
         return UrlResponse.builder()
                 .urls(urls)
                 .build();
