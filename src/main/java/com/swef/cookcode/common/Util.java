@@ -30,6 +30,15 @@ public class Util {
             throw new InvalidRequestException(ErrorCode.DUPLICATED);
         }
     }
+
+    public static <T> boolean includesAll(List<T> list1, List<T> list2) {
+        if (list1.size() < list2.size()) return false;
+        for (T t : list2) {
+            if (!list1.contains(t)) return false;
+        }
+        return true;
+    }
+
     public UrlResponse uploadFilesToS3(String directory, List<MultipartFile> files) {
         List<String> urls = files.stream().map(file -> s3Util.upload(file, directory)).toList();
         return UrlResponse.builder()
