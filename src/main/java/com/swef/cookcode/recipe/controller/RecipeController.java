@@ -4,7 +4,6 @@ import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.PageResponse;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.entity.CurrentUser;
-import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
@@ -44,12 +43,13 @@ public class RecipeController {
     @PostMapping
     public ResponseEntity<ApiResponse<RecipeResponse>> createRecipe(@CurrentUser User user, @RequestBody RecipeCreateRequest recipeCreateRequest){
 
-        recipeService.deleteUnusedFiles(recipeCreateRequest);
+        recipeService.deleteCancelledFiles(recipeCreateRequest);
+        RecipeResponse response = recipeService.createRecipe(user, recipeCreateRequest);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 생성 성공")
                 .status(HttpStatus.CREATED.value())
-                .data(recipeService.createRecipe(user, recipeCreateRequest))
+                .data(response)
                 .build();
 
         return ResponseEntity.ok()
@@ -71,12 +71,13 @@ public class RecipeController {
     @PatchMapping("/{recipeId}")
     public ResponseEntity<ApiResponse<RecipeResponse>> updateRecipe(@CurrentUser User user, @PathVariable("recipeId") Long recipeId, @RequestBody RecipeUpdateRequest recipeUpdateRequest){
 
-        recipeService.deleteUnusedFiles(recipeUpdateRequest);
+        recipeService.deleteCancelledFiles(recipeUpdateRequest);
+        RecipeResponse response = recipeService.updateRecipe(user, recipeId, recipeUpdateRequest);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 수정 성공")
                 .status(HttpStatus.OK.value())
-                .data(recipeService.updateRecipe(user, recipeId, recipeUpdateRequest))
+                .data(response)
                 .build();
 
         return ResponseEntity.ok()
