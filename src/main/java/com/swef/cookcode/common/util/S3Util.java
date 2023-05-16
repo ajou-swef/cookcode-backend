@@ -12,9 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Component
@@ -27,9 +26,8 @@ public class S3Util {
     @Value("${aws.s3.bucketName}")
     private String bucket;
 
-    public String upload(MultipartFile multipartFile, String dirName) throws IOException {
-        File uploadFile = convert(multipartFile)
-                .orElseThrow(()->new S3Exception(ErrorCode.MULTIPART_CONVERT_FAILED));
+    public String upload(MultipartFile multipartFile, String dirName){
+        File uploadFile = convert(multipartFile);
         return upload(uploadFile, dirName);
     }
 
@@ -53,15 +51,22 @@ public class S3Util {
         targetFile.delete();
     }
 
-    private Optional<File> convert(MultipartFile file) throws IOException {
-        File convertFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
-        if(convertFile.createNewFile()) {
-            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
-                fos.write(file.getBytes());
+    private File convert(MultipartFile file) {
+        try {
+            String originalFilename = new SimpleDateFormat("yyyyMMddHmsS").format(new Date()) + UUID.randomUUID();
+            File convertFile = new File(originalFilename);
+
+            if(!convertFile.createNewFile()){
+                throw new S3Exception(ErrorCode.MULTIPART_CONVERT_FAILED);
             }
-            return Optional.of(convertFile);
+
+            FileOutputStream fos = new FileOutputStream(convertFile);
+            fos.write(file.getBytes());
+
+            return convertFile;
+        } catch (IOException e) {
+            throw new S3Exception(ErrorCode.MULTIPART_CONVERT_FAILED);
         }
-        return Optional.empty();
     }
 
     public void deleteFile(String url){
