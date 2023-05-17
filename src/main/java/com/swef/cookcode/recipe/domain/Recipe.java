@@ -92,4 +92,12 @@ public class Recipe extends BaseEntity {
         this.steps.clear();
     }
 
+    public List<RecipeIngred> getNecessaryIngredients() {
+        return ingredients.stream().filter(RecipeIngred::getIsNecessary).toList();
+    }
+
+    public List<RecipeIngred> getOptionalIngredients() {
+        return ingredients.stream().filter(ri -> !ri.getIsNecessary()).toList();
+    }
+
 }
