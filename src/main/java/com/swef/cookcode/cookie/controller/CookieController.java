@@ -18,7 +18,7 @@ public class CookieController {
 
     private final CookieService cookieService;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ApiResponse> createCookie(
             @CurrentUser User user,
             @ModelAttribute CookieCreateRequest cookieCreateRequest){
