@@ -56,6 +56,7 @@ public enum ErrorCode {
    */
   MULTIPART_CONVERT_FAILED(400,"S001", "MultipartFile 변환 실패"),
   INVALID_URL(400, "S002", "올바르지 않은 url이 반환되었습니다."),
+  STREAM_CONVERT_FAILED(400, "S003", "File 스트림으로 변경 실패"),
   /*
   FRIDGE_Domain
    */
