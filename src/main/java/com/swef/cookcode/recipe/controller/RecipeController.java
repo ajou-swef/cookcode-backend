@@ -2,12 +2,16 @@ package com.swef.cookcode.recipe.controller;
 
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.PageResponse;
+import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.entity.CurrentUser;
+import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
+import com.swef.cookcode.common.UrlResponse;
 import com.swef.cookcode.recipe.service.RecipeService;
 import com.swef.cookcode.user.domain.User;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,7 +26,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/v1/recipe")
@@ -32,26 +38,46 @@ public class RecipeController {
 
     private final RecipeService recipeService;
 
+    private final Util util;
+
     @PostMapping
     public ResponseEntity<ApiResponse<RecipeResponse>> createRecipe(@CurrentUser User user, @RequestBody RecipeCreateRequest recipeCreateRequest){
-        // TODO : s3에 deleted url 삭제, thumbnail 등록
+
+        recipeService.deleteCancelledFiles(recipeCreateRequest);
+        RecipeResponse response = recipeService.createRecipe(user, recipeCreateRequest);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 생성 성공")
                 .status(HttpStatus.CREATED.value())
-                .data(recipeService.createRecipe(user, recipeCreateRequest))
+                .data(response)
                 .build();
 
         return ResponseEntity.ok()
                 .body(apiResponse);
     }
 
+    @PostMapping("/files")
+    public ResponseEntity<ApiResponse<UrlResponse>> uploadRecipePhotos(@RequestPart(value = "stepFiles") List<MultipartFile> files) {
+        UrlResponse response = util.uploadFilesToS3(Recipe.RECIPE_DIRECTORY_NAME, files);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("레시피 파일 업로드 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok()
+                .body(apiResponse);
+    }
+
     @PatchMapping("/{recipeId}")
     public ResponseEntity<ApiResponse<RecipeResponse>> updateRecipe(@CurrentUser User user, @PathVariable("recipeId") Long recipeId, @RequestBody RecipeUpdateRequest recipeUpdateRequest){
-        // TODO : s3에 deleted url 삭제, thumbnail 등록
+
+        recipeService.deleteCancelledFiles(recipeUpdateRequest);
+        RecipeResponse response = recipeService.updateRecipe(user, recipeId, recipeUpdateRequest);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 수정 성공")
                 .status(HttpStatus.OK.value())
-                .data(recipeService.updateRecipe(user, recipeId, recipeUpdateRequest))
+                .data(response)
                 .build();
 
         return ResponseEntity.ok()

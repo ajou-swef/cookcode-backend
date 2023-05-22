@@ -1,13 +1,21 @@
 package com.swef.cookcode.recipe.service;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
+import com.swef.cookcode.fridge.domain.Fridge;
+import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import com.swef.cookcode.fridge.domain.Ingredient;
+import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
+import com.swef.cookcode.recipe.domain.StepPhoto;
+import com.swef.cookcode.recipe.domain.StepVideo;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
@@ -20,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +46,10 @@ public class RecipeService {
     private final StepService stepService;
     private final IngredientSimpleService ingredientSimpleService;
 
-    // TODO : JPA List 연관관계 사용으로 refactoring
+    private final FridgeService fridgeService;
+
+    private final Util util;
+
     @Transactional
     public RecipeResponse createRecipe(User user, RecipeCreateRequest request) {
         Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
@@ -81,6 +93,14 @@ public class RecipeService {
         return RecipeResponse.builder()
                 .recipeId(recipe.getId())
                 .build();
+    }
+
+    public void deleteCancelledFiles(RecipeCreateRequest request) {
+        util.deleteFilesInS3(request.getDeletedThumbnails());
+        request.getSteps().forEach(step -> {
+            util.deleteFilesInS3(step.getDeletedPhotos());
+            util.deleteFilesInS3(step.getDeletedVideos());
+        });
     }
 
     // TODO : Recipe fetch 할 때 validation 안되서 임의로 추가.
@@ -144,15 +164,45 @@ public class RecipeService {
     // batch query or 비동기 처리.
     @Transactional
     public void deleteRecipeById(User currentUser, Long recipeId) {
-        // TODO : 레시피 영상, 사진 s3에서 삭제
-        Recipe retrievedRecipe = getRecipeById(recipeId);
-        validateCurrentUserIsAuthor(retrievedRecipe, currentUser);
-        recipeRepository.delete(retrievedRecipe);
+        Recipe recipe = getRecipeById(recipeId);
+        validateCurrentUserIsAuthor(recipe, currentUser);
+        util.deleteFilesInS3(List.of(recipe.getThumbnail()));
+        recipe.getSteps().forEach(step -> {
+            List<String> deletedPhotos = step.getPhotos().stream().map(StepPhoto::getPhotoUrl).toList();
+            List<String> deletedVideos = step.getVideos().stream().map(StepVideo::getVideoUrl).toList();
+            util.deleteFilesInS3(deletedPhotos);
+            util.deleteFilesInS3(deletedVideos);
+        });
+        recipeRepository.delete(recipe);
     }
 
     @Transactional(readOnly = true)
     public Page<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
+        Fridge fridge;
+        List<Long> ingredientIds;
+
         Page<Recipe> recipes = recipeRepository.findRecipes(pageable);
-        return recipes.map(RecipeResponse::getMeta);
+
+        fridge = fridgeService.getFridgeOfUser(user);
+        ingredientIds = fridgeService.getIngedsOfFridge(fridge).stream().map(fi -> fi.getIngred().getId()).toList();
+
+         Page<RecipeResponse> responses = recipes.map(recipe -> {
+             boolean isIncludingAll = isIncludingNecessaryIngredients(ingredientIds, recipe);
+            RecipeResponse response = RecipeResponse.getMeta(recipe);
+            response.setIsCookable(isIncludingAll);
+            return response;
+        });
+
+         if (nonNull(isCookable) && isCookable) {
+             List<RecipeResponse> filteredResponses = responses.stream().filter(RecipeResponse::getIsCookable).toList();
+             return new PageImpl<>(filteredResponses, responses.getPageable(), filteredResponses.size());
+         }
+         return responses;
+    }
+
+    // TODO : id 외의 부분은 사용하지 않으므로 projection 관련 성능 최적화 가능
+    private boolean isIncludingNecessaryIngredients(List<Long> fridgeIngredients, Recipe recipe) {
+        List<Long> necessaryIngredIds = recipe.getNecessaryIngredients().stream().map(ri -> ri.getIngredient().getId()).toList();
+        return Util.includesAll(fridgeIngredients, necessaryIngredIds);
     }
 }

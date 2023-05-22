@@ -1,17 +1,17 @@
 package com.swef.cookcode.common.util;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.swef.cookcode.common.ErrorCode;
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.S3Exception;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -27,22 +27,28 @@ public class S3Util {
     private String bucket;
 
     public String upload(MultipartFile multipartFile, String dirName){
+        String contentType = multipartFile.getContentType();
         File uploadFile = convert(multipartFile);
-        return upload(uploadFile, dirName);
+
+        try {
+            FileInputStream uploadFileStream = new FileInputStream(uploadFile);
+
+            String fileName = dirName + "/" + uploadFile.getName();
+            String uploadImageUrl = putS3(uploadFileStream, fileName, contentType);
+
+            removeNewFile(uploadFile);
+
+            return uploadImageUrl;
+        } catch (FileNotFoundException e) {
+            throw new S3Exception(ErrorCode.STREAM_CONVERT_FAILED);
+        }
     }
 
-    private String upload(File uploadFile, String dirName) {
-        String fileName = dirName + "/" + uploadFile.getName();
-        String uploadImageUrl = putS3(uploadFile, fileName);
-
-        removeNewFile(uploadFile);
-
-        return uploadImageUrl;
-    }
-
-    private String putS3(File uploadFile, String fileName) {
+    private String putS3(FileInputStream uploadFileStream, String fileName, String contentType) {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(contentType);
         amazonS3Client.putObject(
-                new PutObjectRequest(bucket, fileName, uploadFile)
+                new PutObjectRequest(bucket, fileName, uploadFileStream, objectMetadata)
         );
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
@@ -71,6 +77,7 @@ public class S3Util {
 
     public void deleteFile(String url){
         String[] tokens = url.split("/");
+        if (tokens.length <= KEY_DELIMITER) throw new InvalidRequestException(ErrorCode.INVALID_URL);
         String key = String.join("/", Arrays.asList(tokens).subList(KEY_DELIMITER, tokens.length));
 
         amazonS3Client.deleteObject(bucket, key);

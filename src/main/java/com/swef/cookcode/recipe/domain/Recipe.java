@@ -27,6 +27,8 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Recipe extends BaseEntity {
 
+    public static final String RECIPE_DIRECTORY_NAME = "recipe";
+
     private static final int MAX_TITLE_LENGTH = 30;
 
     private static final int MAX_DESCRIPTION_LENGTH = 500;
@@ -88,6 +90,14 @@ public class Recipe extends BaseEntity {
 
     public void clearSteps() {
         this.steps.clear();
+    }
+
+    public List<RecipeIngred> getNecessaryIngredients() {
+        return ingredients.stream().filter(RecipeIngred::getIsNecessary).toList();
+    }
+
+    public List<RecipeIngred> getOptionalIngredients() {
+        return ingredients.stream().filter(ri -> !ri.getIsNecessary()).toList();
     }
 
 }
