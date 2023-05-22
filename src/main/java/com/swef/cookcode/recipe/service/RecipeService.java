@@ -57,7 +57,7 @@ public class RecipeService {
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
 
-        Recipe recipe = recipeRepository.save(createRecipeEntity(user, request));
+        Recipe recipe = recipeRepository.save(Recipe.createEntity(user, request));
 
         saveNecessaryIngredientsOfRecipe(recipe, requiredIngredients);
         saveOptionalIngredientsOfRecipe(recipe, optionalIngredients);
@@ -80,7 +80,7 @@ public class RecipeService {
         if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) {
             throw new PermissionDeniedException(ErrorCode.ACCESS_DENIED);
         }
-        recipe = updateRecipeEntity(recipe, request);
+        recipe = Recipe.updateEntity(recipe, request);
 
         recipeIngredRepository.deleteByRecipeId(recipe.getId());
         saveNecessaryIngredientsOfRecipe(recipe, requiredIngredients);
@@ -121,22 +121,6 @@ public class RecipeService {
         List<RecipeIngred> recipeIngredList = ingredients.stream()
                 .map(ingredient -> new RecipeIngred(recipe, ingredient, false)).toList();
         recipeIngredRepository.saveAll(recipeIngredList);
-    }
-
-    Recipe createRecipeEntity(User user, RecipeCreateRequest request) {
-        return  Recipe.builder()
-                .user(user)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .thumbnail(request.getThumbnail())
-                .build();
-    }
-
-    Recipe updateRecipeEntity(Recipe recipe, RecipeUpdateRequest request) {
-        recipe.setTitle(request.getTitle());
-        recipe.setDescription(request.getDescription());
-        recipe.setThumbnail(request.getThumbnail());
-        return  recipe;
     }
 
     void save(Recipe recipe, List<Ingredient> ingredients) {
