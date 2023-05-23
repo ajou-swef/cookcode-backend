@@ -19,13 +19,18 @@ public class CookieService {
     private final CookieRepository cookieRepository;
 
     @Transactional
-    public Slice<Cookie> getCookies(Pageable pageable) {
-        return cookieRepository.findCookies(pageable);
+    public Slice<Cookie> getRandomCookies(Pageable pageable) {
+        return cookieRepository.findRandomCookies(pageable);
     }
 
     @Transactional
     public Cookie getCookieById(Long cookieId) {
         return cookieRepository.findById(cookieId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.COOKIE_NOT_FOUND));
+    }
+
+    @Transactional
+    public Slice<Cookie> getCookiesOfUser(Pageable pageable, Long userId) {
+        return cookieRepository.findByUserId(pageable, userId);
     }
 }

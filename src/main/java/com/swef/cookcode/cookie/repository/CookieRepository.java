@@ -8,5 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface CookieRepository extends JpaRepository<Cookie, Long> {
     @Query(value = "SELECT * FROM Cookie ORDER BY RAND()", nativeQuery = true)
-    Slice<Cookie> findCookies(Pageable pageable);
+    Slice<Cookie> findRandomCookies(Pageable pageable);
+
+    @Query(value = "SELECT c FROM Cookie c WHERE c.user.id = :userId")
+    Slice<Cookie> findByUserId(Pageable pageable, Long userId);
 }

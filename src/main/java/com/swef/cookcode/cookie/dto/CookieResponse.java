@@ -8,6 +8,8 @@ import lombok.Getter;
 @Builder
 public class CookieResponse {
 
+    private final Long id;
+
     private final String title;
 
     private final String desc;
@@ -15,6 +17,6 @@ public class CookieResponse {
     private final String videoUrl;
 
     public static CookieResponse of(Cookie cookie){
-        return new CookieResponse(cookie.getTitle(), cookie.getDescription(), cookie.getVideoUrl());
+        return new CookieResponse(cookie.getId(), cookie.getTitle(), cookie.getDescription(), cookie.getVideoUrl());
     }
 }

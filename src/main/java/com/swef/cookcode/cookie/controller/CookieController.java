@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +27,13 @@ public class CookieController {
     private final int COOKIE_SLICE_SIZE = 5;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<SliceResponse<CookieResponse>>> getCookie(
-            @CurrentUser User user,  @PageableDefault(size = COOKIE_SLICE_SIZE) Pageable pageable){
+    public ResponseEntity<ApiResponse<SliceResponse<CookieResponse>>> getRandomCookies(
+            @PageableDefault(size = COOKIE_SLICE_SIZE) Pageable pageable){
 
-        Slice<Cookie> cookieSlice = cookieService.getCookies(pageable);
-        Slice<CookieResponse> cookieRsponseSlice = cookieSlice.map(CookieResponse::of);
+        Slice<Cookie> cookieSlice = cookieService.getRandomCookies(pageable);
+        Slice<CookieResponse> cookieResponseSlice = cookieSlice.map(CookieResponse::of);
 
-        SliceResponse<CookieResponse> sliceResponse = new SliceResponse<>(cookieRsponseSlice);
+        SliceResponse<CookieResponse> sliceResponse = new SliceResponse<>(cookieResponseSlice);
 
         ApiResponse response = ApiResponse.builder()
                 .message("쿠키 조회 성공")
@@ -45,7 +46,7 @@ public class CookieController {
 
     @GetMapping("/{cookieId}")
     public ResponseEntity<ApiResponse<CookieResponse>> getCookieById(
-            @CurrentUser User user, @PathVariable Long cookieId){
+            @PathVariable Long cookieId){
 
         Cookie cookie = cookieService.getCookieById(cookieId);
 
@@ -55,6 +56,25 @@ public class CookieController {
                 .message("쿠키 단건 조회 성공")
                 .status(HttpStatus.OK.value())
                 .data(data)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse<SliceResponse<CookieResponse>>> getCookiesOfUser(
+            @PathVariable Long userId,
+            @PageableDefault(size = COOKIE_SLICE_SIZE, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable){
+
+        Slice<Cookie> cookieSlice = cookieService.getCookiesOfUser(pageable, userId);
+        Slice<CookieResponse> cookieResponseSlice = cookieSlice.map(CookieResponse::of);
+
+        SliceResponse<CookieResponse> sliceResponse = new SliceResponse<>(cookieResponseSlice);
+
+        ApiResponse response = ApiResponse.builder()
+                .message("유저의 쿠키 조회 성공")
+                .status(HttpStatus.OK.value())
+                .data(sliceResponse)
                 .build();
 
         return ResponseEntity.ok(response);
