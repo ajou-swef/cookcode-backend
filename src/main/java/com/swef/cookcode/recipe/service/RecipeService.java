@@ -162,13 +162,9 @@ public class RecipeService {
 
     @Transactional(readOnly = true)
     public Page<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
-
-        Page<RecipeResponse> responses = recipeRepository.findRecipesWithCookable(user.getId(), pageable);
-         if (nonNull(isCookable) && isCookable) {
-             List<RecipeResponse> filteredResponses = responses.stream().filter(RecipeResponse::getIsCookable).toList();
-             return new PageImpl<>(filteredResponses, responses.getPageable(), filteredResponses.size());
-         }
-         return responses;
+        Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
+        Page<RecipeResponse> responses = recipeRepository.findRecipes(fridgeId, isCookable, pageable);
+        return responses;
     }
 
     // TODO : id 외의 부분은 사용하지 않으므로 projection 관련 성능 최적화 가능
