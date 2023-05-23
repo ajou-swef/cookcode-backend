@@ -1,8 +1,10 @@
 package com.swef.cookcode.cookie.service;
 
+import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.cookie.domain.Cookie;
 import com.swef.cookcode.cookie.dto.CookieCreateRequest;
+import com.swef.cookcode.cookie.dto.CookiePatchRequest;
 import com.swef.cookcode.cookie.repository.CookieRepository;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
@@ -10,6 +12,8 @@ import com.swef.cookcode.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.swef.cookcode.common.ErrorCode.COOKIE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,20 @@ public class CookieService {
         cookieRepository.save(cookie);
     }
 
+    @Transactional
+    public void updateCookie(Long cookieId, CookiePatchRequest request) {
+        Cookie cookie = cookieRepository.findById(cookieId)
+                .orElseThrow(()->new NotFoundException(COOKIE_NOT_FOUND));
+
+        cookie.updateTitle(request.getTitle());
+        cookie.updateDesc(request.getDesc());
+    }
+
+    @Transactional
+    public void deleteCookie(Long cookieId) {
+        cookieRepository.deleteById(cookieId);
+    }
+
     private Recipe getRecipeOrNull(Long recipeId) {
         return recipeId == null ? null : recipeRepository.getReferenceById(recipeId);
     }
@@ -45,4 +63,5 @@ public class CookieService {
                 .recipe(recipe)
                 .build();
     }
+
 }

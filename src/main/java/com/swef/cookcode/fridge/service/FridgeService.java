@@ -89,8 +89,6 @@ public class FridgeService {
 
         fridgeIngredient.updateQuantity(ingredUpdateRequest.getQuantity());
         fridgeIngredient.updateExpiredAt(ingredUpdateRequest.getExpiredAt());
-
-        fridgeIngredientRepository.save(fridgeIngredient);
     }
 
     public void validateIngredIsInFridge(User user, Long fridgeIngredId) {

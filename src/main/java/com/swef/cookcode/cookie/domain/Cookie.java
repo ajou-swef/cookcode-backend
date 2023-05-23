@@ -50,4 +50,12 @@ public class Cookie extends BaseEntity {
         this.user = user;
         this.recipe = recipe;
     }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateDesc(String desc) {
+        this.description = desc;
+    }
 }
