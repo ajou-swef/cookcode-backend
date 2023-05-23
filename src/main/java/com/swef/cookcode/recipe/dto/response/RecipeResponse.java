@@ -46,9 +46,9 @@ public class RecipeResponse {
 
     private String thumbnail;
 
-    public RecipeResponse(Recipe recipe, Boolean isCookable) {
+    public RecipeResponse(Recipe recipe, User user, Boolean isCookable) {
         this.recipeId = recipe.getId();
-        this.user = UserSimpleResponse.from(recipe.getAuthor());
+        this.user = UserSimpleResponse.from(user);
         this.title = recipe.getTitle();
         this.description = recipe.getDescription();
         this.ingredients = convert(recipe.getNecessaryIngredients());

@@ -32,7 +32,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     @Override
     public Page<RecipeResponse> findRecipes(Long fridgeId, Boolean isCookable, Pageable pageable) {
 
-        JPAQuery<RecipeResponse> query = queryFactory.select(Projections.constructor(RecipeResponse.class, recipe, isCookableExpression().as("isCookable")))
+        JPAQuery<RecipeResponse> query = queryFactory.select(Projections.constructor(RecipeResponse.class, recipe, user, isCookableExpression().as("isCookable")))
                 .from(recipe)
                 .join(user).on(recipe.author.id.eq(user.id))
                 .leftJoin(recipeIngred).on(recipe.id.eq(recipeIngred.recipe.id).and(recipeIngred.isNecessary.eq(true)))
