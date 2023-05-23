@@ -162,21 +162,8 @@ public class RecipeService {
 
     @Transactional(readOnly = true)
     public Page<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
-        Fridge fridge;
-        List<Long> ingredientIds;
 
-        Page<Recipe> recipes = recipeRepository.findRecipes(pageable);
-
-        fridge = fridgeService.getFridgeOfUser(user);
-        ingredientIds = fridgeService.getIngedsOfFridge(fridge).stream().map(fi -> fi.getIngred().getId()).toList();
-
-         Page<RecipeResponse> responses = recipes.map(recipe -> {
-             boolean isIncludingAll = isIncludingNecessaryIngredients(ingredientIds, recipe);
-            RecipeResponse response = RecipeResponse.getMeta(recipe);
-            response.setIsCookable(isIncludingAll);
-            return response;
-        });
-
+        Page<RecipeResponse> responses = recipeRepository.findRecipesWithCookable(user.getId(), pageable);
          if (nonNull(isCookable) && isCookable) {
              List<RecipeResponse> filteredResponses = responses.stream().filter(RecipeResponse::getIsCookable).toList();
              return new PageImpl<>(filteredResponses, responses.getPageable(), filteredResponses.size());

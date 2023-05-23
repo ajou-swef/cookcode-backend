@@ -6,15 +6,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
+import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
 @JsonInclude(NON_NULL)
+@AllArgsConstructor
 public class RecipeResponse {
     private Long recipeId;
 
@@ -42,6 +45,18 @@ public class RecipeResponse {
     private Long commentCount;
 
     private String thumbnail;
+
+    public RecipeResponse(Recipe recipe, Boolean isCookable) {
+        this.recipeId = recipe.getId();
+        this.user = UserSimpleResponse.from(recipe.getAuthor());
+        this.title = recipe.getTitle();
+        this.description = recipe.getDescription();
+        this.ingredients = convert(recipe.getNecessaryIngredients());
+        this.optionalIngredients = convert(recipe.getOptionalIngredients());
+        this.createdAt = recipe.getCreatedAt();
+        this.updatedAt = recipe.getUpdatedAt();
+        this.isCookable = isCookable;
+    }
 
     public static RecipeResponse from(Recipe recipe) {
         return RecipeResponse.builder()
