@@ -56,6 +56,7 @@ public class RecipeResponse {
         this.createdAt = recipe.getCreatedAt();
         this.updatedAt = recipe.getUpdatedAt();
         this.isCookable = isCookable;
+        this.thumbnail = recipe.getThumbnail();
     }
 
     public static RecipeResponse from(Recipe recipe) {

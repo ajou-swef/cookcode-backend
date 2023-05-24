@@ -56,11 +56,11 @@ public class RecipeController {
                 .body(apiResponse);
     }
 
-    @PostMapping("/files")
-    public ResponseEntity<ApiResponse<UrlResponse>> uploadRecipePhotos(@RequestPart(value = "stepFiles") List<MultipartFile> files) {
-        UrlResponse response = util.uploadFilesToS3(Recipe.RECIPE_DIRECTORY_NAME, files);
+    @PostMapping("/files/{directory}")
+    public ResponseEntity<ApiResponse<UrlResponse>> uploadRecipePhotos(@RequestPart(value = "stepFiles") List<MultipartFile> files, @PathVariable(value = "directory") String directory) {
+        UrlResponse response = util.uploadFilesToS3(directory, files);
         ApiResponse apiResponse = ApiResponse.builder()
-                .message("레시피 파일 업로드 성공")
+                .message("파일 업로드 성공")
                 .status(HttpStatus.OK.value())
                 .data(response)
                 .build();

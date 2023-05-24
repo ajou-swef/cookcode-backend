@@ -1,10 +1,12 @@
 package com.swef.cookcode.cookie.domain;
 
 import com.swef.cookcode.common.entity.BaseEntity;
+import com.swef.cookcode.cookie.dto.CookieCreateRequest;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,8 +38,34 @@ public class Cookie extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
+    @Builder
+    public Cookie(String title, String description, String videoUrl, User user, Recipe recipe) {
+        this.title = title;
+        this.description = description;
+        this.videoUrl = videoUrl;
+        this.user = user;
+        this.recipe = recipe;
+    }
+
+    public static Cookie createEntity(CookieCreateRequest request, User user, String cookieUrl, Recipe recipe) {
+        return Cookie.builder()
+                .title(request.getTitle())
+                .description(request.getDesc())
+                .videoUrl(cookieUrl)
+                .user(user)
+                .recipe(recipe)
+                .build();
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateDesc(String desc) {
+        this.description = desc;
+    }
 }
