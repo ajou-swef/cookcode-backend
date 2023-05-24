@@ -51,7 +51,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
 
     private BooleanExpression isCookableExpression() {
         return new CaseBuilder()
-                .when(recipeIngred.ingredient.id.countDistinct().eq(fridgeIngred.id.countDistinct())).then(true)
+                .when(recipeIngred.ingredient.id.countDistinct().eq(fridgeIngred.ingred.id.countDistinct())).then(true)
                 .otherwise(false);
     }
 }
