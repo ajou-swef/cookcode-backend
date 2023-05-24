@@ -5,6 +5,7 @@ import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.cookie.domain.Cookie;
 import com.swef.cookcode.cookie.dto.CookieCreateRequest;
+import com.swef.cookcode.cookie.dto.CookiePatchRequest;
 import com.swef.cookcode.cookie.dto.CookieResponse;
 import com.swef.cookcode.cookie.service.CookieService;
 import com.swef.cookcode.user.domain.User;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("api/v1/cookie")
@@ -92,6 +94,34 @@ public class CookieController {
         ApiResponse response = ApiResponse.builder()
                 .message("쿠키 생성 성공")
                 .status(CREATED.value())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{cookieId}")
+    public ResponseEntity<ApiResponse> updateCookie(
+            @PathVariable Long cookieId,
+            @RequestBody CookiePatchRequest cookiePatchRequest){
+
+        cookieService.updateCookie(cookieId, cookiePatchRequest);
+
+        ApiResponse response = ApiResponse.builder()
+                .message("쿠키 업데이트 성공")
+                .status(OK.value())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{cookieId}")
+    public ResponseEntity<ApiResponse> deleteCookie(@PathVariable Long cookieId){
+
+        cookieService.deleteCookie(cookieId);
+
+        ApiResponse response = ApiResponse.builder()
+                .message("쿠키 삭제 성공")
+                .status(OK.value())
                 .build();
 
         return ResponseEntity.ok(response);
