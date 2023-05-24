@@ -2,6 +2,8 @@ package com.swef.cookcode.recipe.domain;
 
 import com.swef.cookcode.common.entity.BaseEntity;
 import com.swef.cookcode.fridge.domain.Ingredient;
+import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
+import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -98,6 +100,22 @@ public class Recipe extends BaseEntity {
 
     public List<RecipeIngred> getOptionalIngredients() {
         return ingredients.stream().filter(ri -> !ri.getIsNecessary()).toList();
+    }
+
+    public static Recipe createEntity(User user, RecipeCreateRequest request) {
+        return  Recipe.builder()
+                .user(user)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .thumbnail(request.getThumbnail())
+                .build();
+    }
+
+    public static Recipe updateEntity(Recipe recipe, RecipeUpdateRequest request) {
+        recipe.setTitle(request.getTitle());
+        recipe.setDescription(request.getDescription());
+        recipe.setThumbnail(request.getThumbnail());
+        return recipe;
     }
 
 }
