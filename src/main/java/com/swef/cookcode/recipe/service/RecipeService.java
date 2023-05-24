@@ -151,6 +151,11 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
+    public Recipe getRecipeOrNull(Long recipeId) {
+        return isNull(recipeId) ? null : getRecipeById(recipeId);
+    }
+
+    @Transactional(readOnly = true)
     Recipe getRecipeById(Long recipeId) {
         return recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
     }

@@ -51,6 +51,16 @@ public class Cookie extends BaseEntity {
         this.recipe = recipe;
     }
 
+    public static Cookie createEntity(CookieCreateRequest request, User user, String cookieUrl, Recipe recipe) {
+        return Cookie.builder()
+                .title(request.getTitle())
+                .description(request.getDesc())
+                .videoUrl(cookieUrl)
+                .user(user)
+                .recipe(recipe)
+                .build();
+    }
+
     public void updateTitle(String title) {
         this.title = title;
     }

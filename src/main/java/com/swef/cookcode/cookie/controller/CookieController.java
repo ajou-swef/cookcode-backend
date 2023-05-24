@@ -120,7 +120,7 @@ public class CookieController {
         cookieService.deleteCookie(cookieId);
 
         ApiResponse response = ApiResponse.builder()
-                .message("쿠키 업데이트 성공")
+                .message("쿠키 삭제 성공")
                 .status(OK.value())
                 .build();
 
