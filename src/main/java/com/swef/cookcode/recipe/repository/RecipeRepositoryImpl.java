@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 @RequiredArgsConstructor
 public class RecipeRepositoryImpl implements RecipeCustomRepository{
@@ -47,6 +49,38 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                 pageable.getPageSize()).fetch();
 
         return new PageImpl<>(result, pageable, result.size());
+    }
+
+    @Override
+    public Slice<RecipeResponse> searchRecipes(Long fridgeId, String searchQuery, Boolean isCookable, Pageable pageable) {
+        // Full-text search condition using MATCH AGAINST
+        JPAQuery<RecipeResponse> query = queryFactory.select(Projections.constructor(RecipeResponse.class, recipe, user, isCookableExpression().as("isCookable")))
+                .from(recipe)
+                .join(user).on(recipe.author.id.eq(user.id))
+                .leftJoin(recipeIngred).on(recipe.id.eq(recipeIngred.recipe.id).and(recipeIngred.isNecessary.eq(true)))
+                .leftJoin(fridgeIngred).on(fridgeIngred.fridge.id.eq(fridgeId).and(fridgeIngred.ingred.id.eq(recipeIngred.ingredient.id)))
+                .where(recipeSearchContains(searchQuery))
+                .groupBy(recipe.id);
+
+        if (nonNull(isCookable) && isCookable) {
+            query.having(isCookableExpression().eq(true));
+        }
+
+        List<RecipeResponse> result = query.orderBy(recipe.createdAt.desc()).offset(pageable.getOffset()).limit(
+                pageable.getPageSize()+1).fetch();
+
+        boolean hasNext = false;
+        if (result.size() > pageable.getPageSize()) {
+            result.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+        return new SliceImpl<>(result, pageable, hasNext);
+    }
+
+    private BooleanExpression recipeSearchContains(String searchQuery) {
+        return  recipe.title.containsIgnoreCase(searchQuery)
+                .or(recipe.description.containsIgnoreCase(searchQuery))
+                .or(recipeIngred.ingredient.name.containsIgnoreCase(searchQuery));
     }
 
     private BooleanExpression isCookableExpression() {

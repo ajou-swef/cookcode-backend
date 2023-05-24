@@ -48,6 +48,7 @@ dependencies {
 
     // QueryDSL 설정
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
+    implementation 'com.querydsl:querydsl-sql:5.0.0'
     implementation 'com.querydsl:querydsl-apt'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
