@@ -10,11 +10,10 @@
 
     <springProperty name="AWS_ACCESS_KEY" source="aws.accessKey"/>
     <springProperty name="AWS_SECRET_KEY" source="aws.secretKey"/>
-
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
+        <encoder>
             <Pattern>${LOG_PATTERN}</Pattern>
-        </layout>
+        </encoder>
     </appender>
     <appender name="aws_cloud_watch_log" class="ca.pjer.logback.AwsLogsAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -33,8 +32,15 @@
         <accessKeyId>${AWS_ACCESS_KEY}</accessKeyId>
         <secretAccessKey>${AWS_SECRET_KEY}</secretAccessKey>
     </appender>
-    <root level="WARN">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="aws_cloud_watch_log"/>
-    </root>
+    <springProfile name="dev">
+        <root level="WARN">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="aws_cloud_watch_log"/>
+        </root>
+    </springProfile>
+    <springProfile name="local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
 </configuration>
