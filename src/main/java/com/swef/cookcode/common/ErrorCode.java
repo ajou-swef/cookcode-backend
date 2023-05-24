@@ -67,7 +67,14 @@ public enum ErrorCode {
   /*
   Recipe Domain
    */
-  RECIPE_NOT_FOUND(400, "I001", "존재하지 않는 레시피입니다.");
+  RECIPE_NOT_FOUND(400, "I001", "존재하지 않는 레시피입니다."),
+
+  /*
+  Cookie Domain
+   */
+  COOKIE_NOT_FOUND(400, "K001", "존재하지 않는 쿠키입니다.");
+
+
 
   private final int status;
   private final String code;
