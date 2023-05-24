@@ -1,14 +1,9 @@
 package com.swef.cookcode.recipe.service;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
-import com.swef.cookcode.fridge.domain.Fridge;
-import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
@@ -28,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -165,11 +159,5 @@ public class RecipeService {
         Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
         Page<RecipeResponse> responses = recipeRepository.findRecipes(fridgeId, isCookable, pageable);
         return responses;
-    }
-
-    // TODO : id 외의 부분은 사용하지 않으므로 projection 관련 성능 최적화 가능
-    private boolean isIncludingNecessaryIngredients(List<Long> fridgeIngredients, Recipe recipe) {
-        List<Long> necessaryIngredIds = recipe.getNecessaryIngredients().stream().map(ri -> ri.getIngredient().getId()).toList();
-        return Util.includesAll(fridgeIngredients, necessaryIngredIds);
     }
 }
