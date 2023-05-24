@@ -13,6 +13,8 @@ import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
 import com.swef.cookcode.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +69,11 @@ public class UserService {
         user.quit();
         userRepository.save(user);
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<User> searchUsersWith(String searchQuery, Pageable pageable) {
+        return userRepository.findByNicknameContaining(searchQuery, pageable);
     }
 
 }
