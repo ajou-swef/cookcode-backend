@@ -12,6 +12,7 @@ application-dev.yml
 ingredient_init.sql
 ./cookcode-secret/*
 /logs
+**/src/main/generated/
 
 ### STS ###
 .apt_generated

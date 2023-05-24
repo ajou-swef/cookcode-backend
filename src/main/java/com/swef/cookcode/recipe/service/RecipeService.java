@@ -1,14 +1,9 @@
 package com.swef.cookcode.recipe.service;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
-import com.swef.cookcode.fridge.domain.Fridge;
-import com.swef.cookcode.fridge.domain.FridgeIngredient;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
@@ -28,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +51,7 @@ public class RecipeService {
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
 
-        Recipe recipe = recipeRepository.save(createRecipeEntity(user, request));
+        Recipe recipe = recipeRepository.save(Recipe.createEntity(user, request));
 
         saveNecessaryIngredientsOfRecipe(recipe, requiredIngredients);
         saveOptionalIngredientsOfRecipe(recipe, optionalIngredients);
@@ -80,7 +74,7 @@ public class RecipeService {
         if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) {
             throw new PermissionDeniedException(ErrorCode.ACCESS_DENIED);
         }
-        recipe = updateRecipeEntity(recipe, request);
+        recipe = Recipe.updateEntity(recipe, request);
 
         recipeIngredRepository.deleteByRecipeId(recipe.getId());
         saveNecessaryIngredientsOfRecipe(recipe, requiredIngredients);
@@ -121,22 +115,6 @@ public class RecipeService {
         List<RecipeIngred> recipeIngredList = ingredients.stream()
                 .map(ingredient -> new RecipeIngred(recipe, ingredient, false)).toList();
         recipeIngredRepository.saveAll(recipeIngredList);
-    }
-
-    Recipe createRecipeEntity(User user, RecipeCreateRequest request) {
-        return  Recipe.builder()
-                .user(user)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .thumbnail(request.getThumbnail())
-                .build();
-    }
-
-    Recipe updateRecipeEntity(Recipe recipe, RecipeUpdateRequest request) {
-        recipe.setTitle(request.getTitle());
-        recipe.setDescription(request.getDescription());
-        recipe.setThumbnail(request.getThumbnail());
-        return  recipe;
     }
 
     void save(Recipe recipe, List<Ingredient> ingredients) {
@@ -183,31 +161,8 @@ public class RecipeService {
 
     @Transactional(readOnly = true)
     public Page<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
-        Fridge fridge;
-        List<Long> ingredientIds;
-
-        Page<Recipe> recipes = recipeRepository.findRecipes(pageable);
-
-        fridge = fridgeService.getFridgeOfUser(user);
-        ingredientIds = fridgeService.getIngedsOfFridge(fridge).stream().map(fi -> fi.getIngred().getId()).toList();
-
-         Page<RecipeResponse> responses = recipes.map(recipe -> {
-             boolean isIncludingAll = isIncludingNecessaryIngredients(ingredientIds, recipe);
-            RecipeResponse response = RecipeResponse.getMeta(recipe);
-            response.setIsCookable(isIncludingAll);
-            return response;
-        });
-
-         if (nonNull(isCookable) && isCookable) {
-             List<RecipeResponse> filteredResponses = responses.stream().filter(RecipeResponse::getIsCookable).toList();
-             return new PageImpl<>(filteredResponses, responses.getPageable(), filteredResponses.size());
-         }
-         return responses;
-    }
-
-    // TODO : id 외의 부분은 사용하지 않으므로 projection 관련 성능 최적화 가능
-    private boolean isIncludingNecessaryIngredients(List<Long> fridgeIngredients, Recipe recipe) {
-        List<Long> necessaryIngredIds = recipe.getNecessaryIngredients().stream().map(ri -> ri.getIngredient().getId()).toList();
-        return Util.includesAll(fridgeIngredients, necessaryIngredIds);
+        Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
+        Page<RecipeResponse> responses = recipeRepository.findRecipes(fridgeId, isCookable, pageable);
+        return responses;
     }
 }
