@@ -46,9 +46,9 @@ public class RecipeResponse {
 
     private String thumbnail;
 
-    public RecipeResponse(Recipe recipe, User user, Boolean isCookable) {
+    public RecipeResponse(Recipe recipe, Boolean isCookable) {
         this.recipeId = recipe.getId();
-        this.user = UserSimpleResponse.from(user);
+        this.user = UserSimpleResponse.from(recipe.getAuthor());
         this.title = recipe.getTitle();
         this.description = recipe.getDescription();
         this.ingredients = convert(recipe.getNecessaryIngredients());
@@ -90,9 +90,5 @@ public class RecipeResponse {
 
     private static List<IngredSimpleResponse> convert(List<RecipeIngred> ingreds) {
         return ingreds.stream().map(i -> IngredSimpleResponse.from(i.getIngredient())).toList();
-    }
-
-    public void setIsCookable(Boolean isCookable) {
-        this.isCookable = isCookable;
     }
 }

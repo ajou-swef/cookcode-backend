@@ -6,7 +6,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface CookieRepository extends JpaRepository<Cookie, Long> {
+public interface CookieRepository extends JpaRepository<Cookie, Long>, CookieCustomRepository {
     @Query(value = "SELECT * FROM cookie ORDER BY RAND()", nativeQuery = true)
     Slice<Cookie> findRandomCookies(Pageable pageable);
 

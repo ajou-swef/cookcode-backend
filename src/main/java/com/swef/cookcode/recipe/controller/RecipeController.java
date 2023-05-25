@@ -5,7 +5,6 @@ import com.swef.cookcode.common.PageResponse;
 import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.entity.CurrentUser;
-import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
@@ -63,9 +62,9 @@ public class RecipeController {
                                                                                    @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
 
-        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.getRecipeResponsesBySearch(user, query, isCookable, pageable));
+        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.searchRecipesWith(user, query, isCookable, pageable));
         ApiResponse apiResponse = ApiResponse.builder()
-                .message("레시피 다건 조회 성공")
+                .message("레시피 검색 성공")
                 .status(HttpStatus.OK.value())
                 .data(response)
                 .build();

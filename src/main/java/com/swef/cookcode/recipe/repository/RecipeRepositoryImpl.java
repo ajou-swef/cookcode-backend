@@ -1,6 +1,7 @@
 package com.swef.cookcode.recipe.repository;
 
 
+import static com.swef.cookcode.common.Util.hasNextInSlice;
 import static java.util.Objects.nonNull;
 
 import com.querydsl.core.types.Projections;
@@ -29,14 +30,15 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     private final QRecipe recipe = QRecipe.recipe;
     private final QRecipeIngred recipeIngred = QRecipeIngred.recipeIngred;
     private final QFridgeIngredient fridgeIngred = QFridgeIngredient.fridgeIngredient;
-    private final QUser user = QUser.user;
 
+    // TODO : Q클래스 기본인스턴스 static이니까 필드 멤버에서 없애기
     @Override
     public Slice<RecipeResponse> findRecipes(Long fridgeId, Boolean isCookable, Pageable pageable) {
 
-        JPAQuery<RecipeResponse> query = queryFactory.select(Projections.constructor(RecipeResponse.class, recipe, user, isCookableExpression().as("isCookable")))
+        JPAQuery<RecipeResponse> query = queryFactory.select(Projections.constructor(RecipeResponse.class, recipe, isCookableExpression().as("isCookable")))
                 .from(recipe)
-                .join(user).on(recipe.author.id.eq(user.id))
+                .join(recipe.author)
+                .fetchJoin()
                 .leftJoin(recipeIngred).on(recipe.id.eq(recipeIngred.recipe.id).and(recipeIngred.isNecessary.eq(true)))
                 .leftJoin(fridgeIngred).on(fridgeIngred.fridge.id.eq(fridgeId).and(fridgeIngred.ingred.id.eq(recipeIngred.ingredient.id)))
                 .groupBy(recipe.id);
@@ -53,9 +55,10 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
 
     @Override
     public Slice<RecipeResponse> searchRecipes(Long fridgeId, String searchQuery, Boolean isCookable, Pageable pageable) {
-        JPAQuery<RecipeResponse> query = queryFactory.select(Projections.constructor(RecipeResponse.class, recipe, user, isCookableExpression().as("isCookable")))
+        JPAQuery<RecipeResponse> query = queryFactory.select(Projections.constructor(RecipeResponse.class, recipe, isCookableExpression().as("isCookable")))
                 .from(recipe)
-                .join(user).on(recipe.author.id.eq(user.id))
+                .join(recipe.author)
+                .fetchJoin()
                 .leftJoin(recipeIngred).on(recipe.id.eq(recipeIngred.recipe.id).and(recipeIngred.isNecessary.eq(true)))
                 .leftJoin(fridgeIngred).on(fridgeIngred.fridge.id.eq(fridgeId).and(fridgeIngred.ingred.id.eq(recipeIngred.ingredient.id)))
                 .where(recipeSearchContains(searchQuery))
@@ -82,14 +85,5 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
         return new CaseBuilder()
                 .when(recipeIngred.ingredient.id.countDistinct().eq(fridgeIngred.id.countDistinct())).then(true)
                 .otherwise(false);
-    }
-
-    private static <T> boolean hasNextInSlice(List<T> result, Pageable pageable) {
-        boolean hasNext = false;
-        if (result.size() > pageable.getPageSize()) {
-            result.remove(pageable.getPageSize());
-            hasNext = true;
-        }
-        return hasNext;
     }
 }
