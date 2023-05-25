@@ -53,7 +53,6 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
 
     @Override
     public Slice<RecipeResponse> searchRecipes(Long fridgeId, String searchQuery, Boolean isCookable, Pageable pageable) {
-        // Full-text search condition using MATCH AGAINST
         JPAQuery<RecipeResponse> query = queryFactory.select(Projections.constructor(RecipeResponse.class, recipe, user, isCookableExpression().as("isCookable")))
                 .from(recipe)
                 .join(user).on(recipe.author.id.eq(user.id))
@@ -69,23 +68,28 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
         List<RecipeResponse> result = query.orderBy(recipe.createdAt.desc()).offset(pageable.getOffset()).limit(
                 pageable.getPageSize()+1).fetch();
 
-        boolean hasNext = false;
-        if (result.size() > pageable.getPageSize()) {
-            result.remove(pageable.getPageSize());
-            hasNext = true;
-        }
-        return new SliceImpl<>(result, pageable, hasNext);
+        return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
     }
 
     private BooleanExpression recipeSearchContains(String searchQuery) {
         return  recipe.title.containsIgnoreCase(searchQuery)
                 .or(recipe.description.containsIgnoreCase(searchQuery))
-                .or(recipeIngred.ingredient.name.containsIgnoreCase(searchQuery));
+                .or(recipeIngred.ingredient.name.containsIgnoreCase(searchQuery))
+                .or(recipe.author.nickname.containsIgnoreCase(searchQuery));
     }
 
     private BooleanExpression isCookableExpression() {
         return new CaseBuilder()
                 .when(recipeIngred.ingredient.id.countDistinct().eq(fridgeIngred.id.countDistinct())).then(true)
                 .otherwise(false);
+    }
+
+    private static <T> boolean hasNextInSlice(List<T> result, Pageable pageable) {
+        boolean hasNext = false;
+        if (result.size() > pageable.getPageSize()) {
+            result.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+        return hasNext;
     }
 }
