@@ -31,19 +31,20 @@ public class CookieService {
 
 
     @Transactional(readOnly = true)
-    public Slice<Cookie> getRandomCookies(Pageable pageable) {
-        return cookieRepository.findRandomCookies(pageable);
+    public Slice<CookieResponse> getRandomCookies(Pageable pageable) {
+        return cookieRepository.findRandomCookies(pageable).map(CookieResponse::of);
     }
 
     @Transactional(readOnly = true)
-    public Cookie getCookieById(Long cookieId) {
-        return cookieRepository.findById(cookieId)
+    public CookieResponse getCookieById(Long cookieId) {
+        Cookie cookie = cookieRepository.findById(cookieId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.COOKIE_NOT_FOUND));
+        return CookieResponse.of(cookie);
     }
 
     @Transactional(readOnly = true)
-    public Slice<Cookie> getCookiesOfUser(Pageable pageable, Long userId) {
-        return cookieRepository.findByUserId(pageable, userId);
+    public Slice<CookieResponse> getCookiesOfUser(Pageable pageable, Long userId) {
+        return cookieRepository.findByUserId(pageable, userId).map(CookieResponse::of);
     }
 
     @Transactional

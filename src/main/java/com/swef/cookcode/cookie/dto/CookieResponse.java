@@ -30,7 +30,7 @@ public class CookieResponse {
         this.user = UserSimpleResponse.from(cookie.getUser());
     }
 
-    public static CookieResponse of(Cookie cookie, User user){
+    public static CookieResponse of(Cookie cookie){
         return new CookieResponse(cookie);
     }
 }

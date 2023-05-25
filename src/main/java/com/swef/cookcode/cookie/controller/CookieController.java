@@ -38,10 +38,9 @@ public class CookieController {
     public ResponseEntity<ApiResponse<SliceResponse<CookieResponse>>> getRandomCookies(
             @PageableDefault(size = COOKIE_SLICE_SIZE) Pageable pageable, @CurrentUser User user){
 
-        Slice<Cookie> cookieSlice = cookieService.getRandomCookies(pageable);
-        Slice<CookieResponse> cookieResponseSlice = cookieSlice.map(c -> CookieResponse.of(c, user));
+        Slice<CookieResponse> cookieSlice = cookieService.getRandomCookies(pageable);
 
-        SliceResponse<CookieResponse> sliceResponse = new SliceResponse<>(cookieResponseSlice);
+        SliceResponse<CookieResponse> sliceResponse = new SliceResponse<>(cookieSlice);
 
         ApiResponse response = ApiResponse.builder()
                 .message("쿠키 조회 성공")
@@ -56,9 +55,7 @@ public class CookieController {
     public ResponseEntity<ApiResponse<CookieResponse>> getCookieById(
             @PathVariable Long cookieId, @CurrentUser User user){
 
-        Cookie cookie = cookieService.getCookieById(cookieId);
-
-        CookieResponse data = CookieResponse.of(cookie, user);
+        CookieResponse data = cookieService.getCookieById(cookieId);
 
         ApiResponse response = ApiResponse.builder()
                 .message("쿠키 단건 조회 성공")
@@ -89,9 +86,7 @@ public class CookieController {
             @PathVariable Long userId,
             @PageableDefault(size = COOKIE_SLICE_SIZE, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable){
 
-        User user = userSimpleService.getUserById(userId);
-        Slice<Cookie> cookieSlice = cookieService.getCookiesOfUser(pageable, userId);
-        Slice<CookieResponse> cookieResponseSlice = cookieSlice.map(c -> CookieResponse.of(c, user));
+        Slice<CookieResponse> cookieResponseSlice = cookieService.getCookiesOfUser(pageable, userId);
 
         SliceResponse<CookieResponse> sliceResponse = new SliceResponse<>(cookieResponseSlice);
 

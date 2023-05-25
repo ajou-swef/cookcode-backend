@@ -1,12 +1,12 @@
 package com.swef.cookcode.cookie.repository;
 
+import static com.swef.cookcode.cookie.domain.QCookie.cookie;
+
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.common.Util;
-import com.swef.cookcode.cookie.domain.QCookie;
 import com.swef.cookcode.cookie.dto.CookieResponse;
-import com.swef.cookcode.user.domain.QUser;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -17,8 +17,6 @@ import org.springframework.data.domain.SliceImpl;
 public class CookieRepositoryImpl implements CookieCustomRepository{
 
     private final JPAQueryFactory queryFactory;
-
-    private final QCookie cookie = QCookie.cookie;
 
     @Override
     public Slice<CookieResponse> searchCookies(String query, Pageable pageable) {
