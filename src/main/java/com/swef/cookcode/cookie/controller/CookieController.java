@@ -3,13 +3,11 @@ package com.swef.cookcode.cookie.controller;
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
-import com.swef.cookcode.cookie.domain.Cookie;
 import com.swef.cookcode.cookie.dto.CookieCreateRequest;
 import com.swef.cookcode.cookie.dto.CookiePatchRequest;
 import com.swef.cookcode.cookie.dto.CookieResponse;
 import com.swef.cookcode.cookie.service.CookieService;
 import com.swef.cookcode.user.domain.User;
-import com.swef.cookcode.user.service.UserSimpleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -29,8 +27,6 @@ import static org.springframework.http.HttpStatus.OK;
 public class CookieController {
 
     private final CookieService cookieService;
-
-    private final UserSimpleService userSimpleService;
 
     private final int COOKIE_SLICE_SIZE = 5;
 
