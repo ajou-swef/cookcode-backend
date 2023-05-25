@@ -32,7 +32,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     private final QUser user = QUser.user;
 
     @Override
-    public Page<RecipeResponse> findRecipes(Long fridgeId, Boolean isCookable, Pageable pageable) {
+    public Slice<RecipeResponse> findRecipes(Long fridgeId, Boolean isCookable, Pageable pageable) {
 
         JPAQuery<RecipeResponse> query = queryFactory.select(Projections.constructor(RecipeResponse.class, recipe, user, isCookableExpression().as("isCookable")))
                 .from(recipe)
@@ -46,9 +46,9 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
         }
 
         List<RecipeResponse> result = query.orderBy(recipe.createdAt.desc()).offset(pageable.getOffset()).limit(
-                pageable.getPageSize()).fetch();
+                pageable.getPageSize()+1).fetch();
 
-        return new PageImpl<>(result, pageable, result.size());
+        return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
     }
 
     @Override

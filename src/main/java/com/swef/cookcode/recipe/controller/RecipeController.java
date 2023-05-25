@@ -109,7 +109,7 @@ public class RecipeController {
                                                                                @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
                                                                                Pageable pageable)
     {
-        PageResponse<RecipeResponse> response = new PageResponse<>(recipeService.getRecipeResponses(user, isCookable, month, pageable));
+        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.getRecipeResponses(user, isCookable, month, pageable));
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 다건 조회 성공")
                 .status(HttpStatus.OK.value())

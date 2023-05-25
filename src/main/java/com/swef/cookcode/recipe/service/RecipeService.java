@@ -163,15 +163,15 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
+    public Slice<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
         Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
-        Page<RecipeResponse> responses = recipeRepository.findRecipes(fridgeId, isCookable, pageable);
+        Slice<RecipeResponse> responses = recipeRepository.findRecipes(fridgeId, isCookable, pageable);
         return responses;
     }
 
     public Slice<RecipeResponse> getRecipeResponsesBySearch(User user, String query, Boolean isCookable, Pageable pageable) {
         Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
-        Slice<RecipeResponse> responses = recipeRepository.searchRecipes(user.getId(), query, isCookable, pageable);
+        Slice<RecipeResponse> responses = recipeRepository.searchRecipes(fridgeId, query, isCookable, pageable);
         return responses;
     }
 }
