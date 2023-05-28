@@ -1,22 +1,34 @@
 package com.swef.cookcode.cookie.dto;
 
-import com.swef.cookcode.cookie.domain.Cookie;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
+@AllArgsConstructor
 public class CookieResponse {
 
-    private final Long id;
+    private Long id;
 
-    private final String title;
+    private String title;
 
-    private final String desc;
+    private String desc;
 
-    private final String videoUrl;
+    private String videoUrl;
 
-    public static CookieResponse of(Cookie cookie){
-        return new CookieResponse(cookie.getId(), cookie.getTitle(), cookie.getDescription(), cookie.getVideoUrl());
-    }
+    private LocalDateTime createdAt;
+
+    private Long userId;
+
+    private String nickname;
+
+    private Long isLiked;
+
+    private Long likeCount;
+
+    private Long commentCount;
+
 }

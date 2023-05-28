@@ -4,11 +4,17 @@ import com.swef.cookcode.common.entity.BaseEntity;
 import com.swef.cookcode.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.sql.ConnectionBuilder;
+
 @Entity
-@Table(name = "cookie_like")
+@Table(name = "cookie_like",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "cookie_id"})
+        })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class CookieLike extends BaseEntity {
@@ -25,4 +31,14 @@ public class CookieLike extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cookie_id")
     private Cookie cookie;
+
+    private CookieLike(User user, Cookie cookie) {
+        this.user = user;
+        this.cookie = cookie;
+    }
+
+    public static CookieLike createEntity(User user, Cookie cookie){
+        return new CookieLike(user, cookie);
+    }
+
 }
