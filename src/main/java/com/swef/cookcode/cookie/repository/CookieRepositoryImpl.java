@@ -9,6 +9,7 @@ import com.swef.cookcode.cookie.domain.QCookieComment;
 import com.swef.cookcode.cookie.domain.QCookieLike;
 import com.swef.cookcode.cookie.dto.CookieResponse;
 import com.swef.cookcode.user.domain.QUser;
+import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -68,8 +69,10 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
                         cookie.description,
                         cookie.videoUrl,
                         cookie.createdAt,
-                        user.id,
-                        user.nickname,
+                        Projections.constructor(UserSimpleResponse.class,
+                                user.id,
+                                user.profileImage,
+                                user.nickname),
                         JPAExpressions.select(cookieLike.count()).from(cookieLike).where(cookieLike.cookie.id.eq(cookie.id).and(cookieLike.user.id.eq(userId))),
                         JPAExpressions.select(cookieLike.count()).from(cookieLike).where(cookieLike.cookie.id.eq(cookie.id)),
                         JPAExpressions.select(cookieComment.count()).from(cookieComment).where(cookieComment.cookie.id.eq(cookie.id))))

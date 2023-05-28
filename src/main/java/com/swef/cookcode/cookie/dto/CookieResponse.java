@@ -1,5 +1,6 @@
 package com.swef.cookcode.cookie.dto;
 
+import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,9 +22,7 @@ public class CookieResponse {
 
     private LocalDateTime createdAt;
 
-    private Long userId;
-
-    private String nickname;
+    private UserSimpleResponse user;
 
     private Long isLiked;
 
