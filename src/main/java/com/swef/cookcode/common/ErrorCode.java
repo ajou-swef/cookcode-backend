@@ -70,10 +70,11 @@ public enum ErrorCode {
   RECIPE_NOT_FOUND(400, "I001", "존재하지 않는 레시피입니다."),
 
   /*
-<<<<<<< HEAD
   Recipe Domain
    */
-  COOKIE_NOT_FOUND(400, "K001", "존재하지 않는 쿠키입니다.");
+  COOKIE_NOT_FOUND(400, "K001", "존재하지 않는 쿠키입니다."),
+  COOKIE_COMMENT_NOT_FOUND(400,"K002", "존재하지 않는 쿠키 댓글입니다."),
+  COOKIE_COMMENT_USER_MISSMATCH(400,"K003", "해당 유저의 댓글이 아닙니다.");
 
   private final int status;
   private final String code;

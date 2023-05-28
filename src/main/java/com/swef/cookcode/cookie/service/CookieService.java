@@ -1,6 +1,7 @@
 package com.swef.cookcode.cookie.service;
 
 import com.swef.cookcode.common.error.exception.NotFoundException;
+import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.cookie.domain.Cookie;
 import com.swef.cookcode.cookie.domain.CookieComment;
@@ -25,8 +26,9 @@ import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.ErrorCode;
 
 import java.util.List;
+import java.util.Objects;
 
-import static com.swef.cookcode.common.ErrorCode.COOKIE_NOT_FOUND;
+import static com.swef.cookcode.common.ErrorCode.*;
 import static java.util.Objects.isNull;
 
 @Service
@@ -105,10 +107,20 @@ public class CookieService {
         cookieCommnetRepository.save(cookieComment);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CookieCommentResponse> getCommentsOfCookie(Long cookieId) {
         List<CookieComment> cookieComments = cookieCommnetRepository.findCookieComments(cookieId);
 
         return cookieComments.stream().map(CookieCommentResponse::of).toList();
+    }
+
+    @Transactional
+    public void deleteCommentOfCookie(User user, Long commentId) {
+        CookieComment cookieComment = cookieCommnetRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(COOKIE_COMMENT_NOT_FOUND));
+        if(!Objects.equals(user.getId(), cookieComment.getUser().getId())){
+            throw new PermissionDeniedException(COOKIE_COMMENT_USER_MISSMATCH);
+        }
+        cookieCommnetRepository.deleteById(commentId);
     }
 }

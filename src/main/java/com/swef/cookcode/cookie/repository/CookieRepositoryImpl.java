@@ -10,7 +10,6 @@ import com.swef.cookcode.cookie.domain.QCookieComment;
 import com.swef.cookcode.cookie.domain.QCookieLike;
 import com.swef.cookcode.cookie.dto.CookieResponse;
 import com.swef.cookcode.user.domain.QUser;
-import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -75,14 +74,21 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
     }
 
     private JPQLQuery<Long> selectIsCookiLikedByUser(Long userId){
-        return JPAExpressions.select(cookieLike.count()).from(cookieLike).where(cookieLike.cookie.id.eq(cookie.id).and(cookieLike.user.id.eq(userId)));
+        return JPAExpressions.select(cookieLike.count())
+                .from(cookieLike)
+                .where(cookieLike.cookie.id.eq(cookie.id)
+                        .and(cookieLike.user.id.eq(userId)));
     }
 
     private JPQLQuery<Long> selectCookieLikeCount(){
-        return JPAExpressions.select(cookieLike.count()).from(cookieLike).where(cookieLike.cookie.id.eq(cookie.id));
+        return JPAExpressions.select(cookieLike.count())
+                .from(cookieLike)
+                .where(cookieLike.cookie.id.eq(cookie.id));
     }
 
     private JPQLQuery<Long> selectCookieCommentCount(){
-        return JPAExpressions.select(cookieComment.count()).from(cookieComment).where(cookieComment.cookie.id.eq(cookie.id));
+        return JPAExpressions.select(cookieComment.count())
+                .from(cookieComment)
+                .where(cookieComment.cookie.id.eq(cookie.id));
     }
 }

@@ -164,4 +164,17 @@ public class CookieController {
 
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<ApiResponse<List<CookieCommentResponse>>> deleteCommentsOfCookie(@CurrentUser User user, @PathVariable Long commentId){
+
+        cookieService.deleteCommentOfCookie(user, commentId);
+
+        ApiResponse response = ApiResponse.builder()
+                .message("쿠키 댓글 삭제 성공")
+                .status(OK.value())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
 }

@@ -2,7 +2,6 @@ package com.swef.cookcode.cookie.dto;
 
 import com.swef.cookcode.cookie.domain.CookieComment;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
