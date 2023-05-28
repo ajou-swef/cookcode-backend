@@ -2,6 +2,7 @@ package com.swef.cookcode.cookie.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.cookie.domain.QCookie;
@@ -64,19 +65,24 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
 
     private JPAQuery<CookieResponse> selectCookieResponseFromCookieUserJoinAndLikeComment(Long userId){
         return queryFactory.select(Projections.constructor(CookieResponse.class,
-                        cookie.id,
-                        cookie.title,
-                        cookie.description,
-                        cookie.videoUrl,
-                        cookie.createdAt,
-                        Projections.constructor(UserSimpleResponse.class,
-                                user.id,
-                                user.profileImage,
-                                user.nickname),
-                        JPAExpressions.select(cookieLike.count()).from(cookieLike).where(cookieLike.cookie.id.eq(cookie.id).and(cookieLike.user.id.eq(userId))),
-                        JPAExpressions.select(cookieLike.count()).from(cookieLike).where(cookieLike.cookie.id.eq(cookie.id)),
-                        JPAExpressions.select(cookieComment.count()).from(cookieComment).where(cookieComment.cookie.id.eq(cookie.id))))
+                        cookie,
+                        user,
+                        selectIsCookiLikedByUser(userId),
+                        selectCookieLikeCount(),
+                        selectCookieCommentCount()))
                 .from(cookie)
                 .join(cookie.user, user);
+    }
+
+    private JPQLQuery<Long> selectIsCookiLikedByUser(Long userId){
+        return JPAExpressions.select(cookieLike.count()).from(cookieLike).where(cookieLike.cookie.id.eq(cookie.id).and(cookieLike.user.id.eq(userId)));
+    }
+
+    private JPQLQuery<Long> selectCookieLikeCount(){
+        return JPAExpressions.select(cookieLike.count()).from(cookieLike).where(cookieLike.cookie.id.eq(cookie.id));
+    }
+
+    private JPQLQuery<Long> selectCookieCommentCount(){
+        return JPAExpressions.select(cookieComment.count()).from(cookieComment).where(cookieComment.cookie.id.eq(cookie.id));
     }
 }
