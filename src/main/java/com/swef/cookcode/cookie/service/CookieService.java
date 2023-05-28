@@ -3,10 +3,13 @@ package com.swef.cookcode.cookie.service;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.cookie.domain.Cookie;
+import com.swef.cookcode.cookie.domain.CookieComment;
 import com.swef.cookcode.cookie.domain.CookieLike;
+import com.swef.cookcode.cookie.dto.CookieCommentResponse;
 import com.swef.cookcode.cookie.dto.CookieCreateRequest;
 import com.swef.cookcode.cookie.dto.CookiePatchRequest;
 import com.swef.cookcode.cookie.dto.CookieResponse;
+import com.swef.cookcode.cookie.repository.CookieCommentRepository;
 import com.swef.cookcode.cookie.repository.CookieLikeRepository;
 import com.swef.cookcode.cookie.repository.CookieRepository;
 import com.swef.cookcode.recipe.domain.Recipe;
@@ -34,9 +37,12 @@ public class CookieService {
 
     private final CookieLikeRepository cookieLikeRepository;
 
+    private final CookieCommentRepository cookieCommnetRepository;
+
     private final S3Util s3Util;
 
     private final RecipeService recipeService;
+
 
 
     @Transactional(readOnly = true)
@@ -87,5 +93,22 @@ public class CookieService {
         CookieLike cookieLike = CookieLike.createEntity(user, cookie);
 
         cookieLikeRepository.save(cookieLike);
+    }
+    
+    @Transactional
+    public void createCommentOfCookie(User user, Long cookieId, String comment) {
+
+        Cookie cookie = cookieRepository.getReferenceById(cookieId);
+
+        CookieComment cookieComment = CookieComment.createEntity(user, cookie, comment);
+
+        cookieCommnetRepository.save(cookieComment);
+    }
+
+    @Transactional
+    public List<CookieCommentResponse> getCommentsOfCookie(Long cookieId) {
+        List<CookieComment> cookieComments = cookieCommnetRepository.findCookieComments(cookieId);
+
+        return cookieComments.stream().map(CookieCommentResponse::of).toList();
     }
 }

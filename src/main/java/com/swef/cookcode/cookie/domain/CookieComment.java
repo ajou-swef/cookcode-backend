@@ -30,4 +30,14 @@ public class CookieComment extends BaseEntity {
 
     @Column(name = "comment", nullable = false, length = MAX_COMMENT_LENGTH)
     private String comment;
+
+    public CookieComment(User user, Cookie cookie, String comment) {
+        this.user = user;
+        this.cookie = cookie;
+        this.comment = comment;
+    }
+
+    public static CookieComment createEntity(User user, Cookie cookie, String comment) {
+        return new CookieComment(user, cookie, comment);
+    }
 }

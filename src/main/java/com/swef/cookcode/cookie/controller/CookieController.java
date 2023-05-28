@@ -4,6 +4,7 @@ import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.cookie.domain.Cookie;
+import com.swef.cookcode.cookie.dto.CookieCommentResponse;
 import com.swef.cookcode.cookie.dto.CookieCreateRequest;
 import com.swef.cookcode.cookie.dto.CookiePatchRequest;
 import com.swef.cookcode.cookie.dto.CookieResponse;
@@ -132,6 +133,33 @@ public class CookieController {
         ApiResponse response = ApiResponse.builder()
                 .message("쿠키 좋아요 성공")
                 .status(OK.value())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{cookieId}/comments")
+    public ResponseEntity<ApiResponse> createCommentOfCookie(@CurrentUser User user, @PathVariable Long cookieId, @RequestBody String comment){
+
+        cookieService.createCommentOfCookie(user, cookieId, comment);
+
+        ApiResponse response = ApiResponse.builder()
+                .message("쿠키 댓글 생성 성공")
+                .status(CREATED.value())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{cookieId}/comments")
+    public ResponseEntity<ApiResponse<List<CookieCommentResponse>>> getCommentsOfCookie(@CurrentUser User user, @PathVariable Long cookieId){
+
+        List<CookieCommentResponse> cookieCommentResponses = cookieService.getCommentsOfCookie(cookieId);
+
+        ApiResponse response = ApiResponse.builder()
+                .message("쿠키 댓글 조회 성공")
+                .status(OK.value())
+                .data(cookieCommentResponses)
                 .build();
 
         return ResponseEntity.ok(response);
