@@ -24,8 +24,8 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -162,9 +162,15 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
+    public Slice<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
         Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
-        Page<RecipeResponse> responses = recipeRepository.findRecipes(fridgeId, isCookable, pageable);
+        Slice<RecipeResponse> responses = recipeRepository.findRecipes(fridgeId, isCookable, pageable);
+        return responses;
+    }
+
+    public Slice<RecipeResponse> searchRecipesWith(User user, String query, Boolean isCookable, Pageable pageable) {
+        Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
+        Slice<RecipeResponse> responses = recipeRepository.searchRecipes(fridgeId, query, isCookable, pageable);
         return responses;
     }
 }

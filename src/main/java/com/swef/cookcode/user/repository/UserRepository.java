@@ -3,7 +3,10 @@ package com.swef.cookcode.user.repository;
 import com.swef.cookcode.user.domain.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface UserRepository extends JpaRepository<User, Long> {
         Optional<User> findByIdAndIsQuit(@Param("userId") Long userId, @Param("isQuit") Boolean isQuit);
@@ -17,4 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByNicknameAndIsQuit(@Param("nickname") String nickname, @Param("isQuit") Boolean isQuit);
 
     boolean existsByIdAndIsQuit(@Param("userId") Long userId, @Param("isQuit") Boolean isQuit);
+
+    @Query(value = "select u from User u where u.isQuit = false and u.authority = 'USER' and u.nickname like %:searchQuery%")
+    Slice<User> findByNicknameContaining(@Param("searchQuery") String searchQuery, Pageable pageable);
 }

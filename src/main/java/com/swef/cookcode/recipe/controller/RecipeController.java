@@ -2,9 +2,9 @@ package com.swef.cookcode.recipe.controller;
 
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.PageResponse;
+import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.entity.CurrentUser;
-import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
@@ -56,6 +56,23 @@ public class RecipeController {
                 .body(apiResponse);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> searchRecipes(@CurrentUser User user, @RequestParam(value = "query") String query,
+                                                                                   @RequestParam(value = "cookable", required = false) Boolean isCookable,
+                                                                                   @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+
+        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.searchRecipesWith(user, query, isCookable, pageable));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("레시피 검색 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok().body(apiResponse);
+
+    }
+
+
     @PostMapping("/files/{directory}")
     public ResponseEntity<ApiResponse<UrlResponse>> uploadRecipePhotos(@RequestPart(value = "stepFiles") List<MultipartFile> files, @PathVariable(value = "directory") String directory) {
         UrlResponse response = util.uploadFilesToS3(directory, files);
@@ -91,7 +108,7 @@ public class RecipeController {
                                                                                @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
                                                                                Pageable pageable)
     {
-        PageResponse<RecipeResponse> response = new PageResponse<>(recipeService.getRecipeResponses(user, isCookable, month, pageable));
+        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.getRecipeResponses(user, isCookable, month, pageable));
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 다건 조회 성공")
                 .status(HttpStatus.OK.value())

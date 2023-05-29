@@ -3,7 +3,6 @@ package com.swef.cookcode.cookie.controller;
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
-import com.swef.cookcode.cookie.domain.Cookie;
 import com.swef.cookcode.cookie.dto.CookieCreateRequest;
 import com.swef.cookcode.cookie.dto.CookiePatchRequest;
 import com.swef.cookcode.cookie.dto.CookieResponse;
@@ -24,6 +23,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequestMapping("api/v1/cookie")
 @RequiredArgsConstructor
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class CookieController {
 
     private final CookieService cookieService;
@@ -32,12 +32,11 @@ public class CookieController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<SliceResponse<CookieResponse>>> getRandomCookies(
-            @PageableDefault(size = COOKIE_SLICE_SIZE) Pageable pageable){
+            @PageableDefault(size = COOKIE_SLICE_SIZE) Pageable pageable, @CurrentUser User user){
 
-        Slice<Cookie> cookieSlice = cookieService.getRandomCookies(pageable);
-        Slice<CookieResponse> cookieResponseSlice = cookieSlice.map(CookieResponse::of);
+        Slice<CookieResponse> cookieSlice = cookieService.getRandomCookies(pageable);
 
-        SliceResponse<CookieResponse> sliceResponse = new SliceResponse<>(cookieResponseSlice);
+        SliceResponse<CookieResponse> sliceResponse = new SliceResponse<>(cookieSlice);
 
         ApiResponse response = ApiResponse.builder()
                 .message("쿠키 조회 성공")
@@ -50,11 +49,9 @@ public class CookieController {
 
     @GetMapping("/{cookieId}")
     public ResponseEntity<ApiResponse<CookieResponse>> getCookieById(
-            @PathVariable Long cookieId){
+            @PathVariable Long cookieId, @CurrentUser User user){
 
-        Cookie cookie = cookieService.getCookieById(cookieId);
-
-        CookieResponse data = CookieResponse.of(cookie);
+        CookieResponse data = cookieService.getCookieById(cookieId);
 
         ApiResponse response = ApiResponse.builder()
                 .message("쿠키 단건 조회 성공")
@@ -65,13 +62,27 @@ public class CookieController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<SliceResponse<CookieResponse>>> searchCookies(@CurrentUser User user, @RequestParam(value = "query") String query,
+                                                                                    @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+
+        SliceResponse<CookieResponse> response = new SliceResponse<>(cookieService.searchCookiesWith(query, pageable));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("쿠키 검색 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<SliceResponse<CookieResponse>>> getCookiesOfUser(
             @PathVariable Long userId,
             @PageableDefault(size = COOKIE_SLICE_SIZE, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable){
 
-        Slice<Cookie> cookieSlice = cookieService.getCookiesOfUser(pageable, userId);
-        Slice<CookieResponse> cookieResponseSlice = cookieSlice.map(CookieResponse::of);
+        Slice<CookieResponse> cookieResponseSlice = cookieService.getCookiesOfUser(pageable, userId);
 
         SliceResponse<CookieResponse> sliceResponse = new SliceResponse<>(cookieResponseSlice);
 
