@@ -54,8 +54,7 @@ public class RecipeController {
                 .data(response)
                 .build();
 
-        return ResponseEntity.ok()
-                .body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @GetMapping("/search")
@@ -70,7 +69,7 @@ public class RecipeController {
                 .status(HttpStatus.OK.value())
                 .data(response)
                 .build();
-        return ResponseEntity.ok().body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
 
     }
 
@@ -94,8 +93,7 @@ public class RecipeController {
                 .status(HttpStatus.OK.value())
                 .data(response)
                 .build();
-        return ResponseEntity.ok()
-                .body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @PatchMapping("/{recipeId}")
@@ -110,8 +108,7 @@ public class RecipeController {
                 .data(response)
                 .build();
 
-        return ResponseEntity.ok()
-                .body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @GetMapping
@@ -127,7 +124,7 @@ public class RecipeController {
                 .status(HttpStatus.OK.value())
                 .data(response)
                 .build();
-        return ResponseEntity.ok().body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @GetMapping("/{recipeId}")
@@ -139,8 +136,7 @@ public class RecipeController {
                 .data(recipeService.getRecipeResponseById(recipeId))
                 .build();
 
-        return ResponseEntity.ok()
-                .body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @DeleteMapping("/{recipeId}")
@@ -153,8 +149,7 @@ public class RecipeController {
                 .status(HttpStatus.OK.value())
                 .build();
 
-        return ResponseEntity.ok()
-                .body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
 }
