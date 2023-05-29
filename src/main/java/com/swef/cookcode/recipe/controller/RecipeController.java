@@ -5,8 +5,10 @@ import com.swef.cookcode.common.PageResponse;
 import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.entity.CurrentUser;
+import com.swef.cookcode.recipe.dto.request.RecipeCommentCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
+import com.swef.cookcode.recipe.dto.response.RecipeCommentResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import com.swef.cookcode.common.UrlResponse;
 import com.swef.cookcode.recipe.service.RecipeService;
@@ -70,6 +72,17 @@ public class RecipeController {
                 .build();
         return ResponseEntity.ok().body(apiResponse);
 
+    }
+
+    @PostMapping("/{recipeId}/comments")
+    public ResponseEntity<ApiResponse<RecipeCommentResponse>> commentRecipe(@CurrentUser User user, @PathVariable(value = "recipeId") Long recipeId, @RequestBody
+                                                                            RecipeCommentCreateRequest request) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("레시피 댓글 작성 성공")
+                .status(HttpStatus.OK.value())
+                .data(null)
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
 
