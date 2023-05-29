@@ -2,9 +2,9 @@ package com.swef.cookcode.recipe.repository;
 
 
 import static com.swef.cookcode.common.Util.hasNextInSlice;
+import static com.swef.cookcode.fridge.domain.QFridgeIngredient.fridgeIngredient;
 import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
 import static com.swef.cookcode.recipe.domain.QRecipeIngred.recipeIngred;
-import static com.swef.cookcode.fridge.domain.QFridgeIngredient.fridgeIngredient;
 import static java.util.Objects.nonNull;
 
 import com.querydsl.core.types.Projections;
@@ -15,8 +15,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -24,12 +22,8 @@ import org.springframework.data.domain.SliceImpl;
 @RequiredArgsConstructor
 public class RecipeRepositoryImpl implements RecipeCustomRepository{
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final JPAQueryFactory queryFactory;
 
-
-    // TODO : Q클래스 기본인스턴스 static이니까 필드 멤버에서 없애기
     @Override
     public Slice<RecipeResponse> findRecipes(Long fridgeId, Boolean isCookable, Pageable pageable) {
 
