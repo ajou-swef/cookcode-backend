@@ -13,13 +13,13 @@ public class CookieCommentResponse {
 
     private final String comment;
 
-    private CookieCommentResponse(CookieComment cookieComment){
-        this.id = cookieComment.getId();
-        this.user = UserSimpleResponse.from(cookieComment.getUser());
-        this.comment = cookieComment.getComment();
+    private CookieCommentResponse(Long id, UserSimpleResponse user, String comment){
+        this.id = id;
+        this.user = user;
+        this.comment = comment;
     }
 
     public static CookieCommentResponse of(CookieComment cookieComment){
-        return new CookieCommentResponse(cookieComment);
+        return new CookieCommentResponse(cookieComment.getId(), UserSimpleResponse.from(cookieComment.getUser()), cookieComment.getComment());
     }
 }
