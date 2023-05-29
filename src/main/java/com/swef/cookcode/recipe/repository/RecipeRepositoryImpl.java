@@ -4,6 +4,7 @@ package com.swef.cookcode.recipe.repository;
 import static com.swef.cookcode.common.Util.hasNextInSlice;
 import static com.swef.cookcode.fridge.domain.QFridgeIngredient.fridgeIngredient;
 import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
+import static com.swef.cookcode.recipe.domain.QRecipeComment.recipeComment;
 import static com.swef.cookcode.recipe.domain.QRecipeIngred.recipeIngred;
 import static java.util.Objects.nonNull;
 
@@ -27,7 +28,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     @Override
     public Slice<RecipeResponse> findRecipes(Long fridgeId, Boolean isCookable, Pageable pageable) {
 
-        JPAQuery<RecipeResponse> query = selectRecipesWithCookable(fridgeId)
+        JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndComment(fridgeId)
                 .groupBy(recipe.id);
         filterIfCookable(isCookable, query);
         List<RecipeResponse> result = query.orderBy(recipe.createdAt.desc()).offset(pageable.getOffset()).limit(
@@ -38,7 +39,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
 
     @Override
     public Slice<RecipeResponse> searchRecipes(Long fridgeId, String searchQuery, Boolean isCookable, Pageable pageable) {
-        JPAQuery<RecipeResponse> query = selectRecipesWithCookable(fridgeId)
+        JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndComment(fridgeId)
                 .where(recipeSearchContains(searchQuery))
                 .groupBy(recipe.id);
         filterIfCookable(isCookable, query);
@@ -48,8 +49,11 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
         return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
     }
 
-    private JPAQuery<RecipeResponse> selectRecipesWithCookable(Long fridgeId) {
-        return queryFactory.select(Projections.constructor(RecipeResponse.class, recipe, isCookableExpression().as("isCookable")))
+    private JPAQuery<RecipeResponse> selectRecipesWithCookableAndComment(Long fridgeId) {
+        return queryFactory.select(Projections.constructor(RecipeResponse.class, recipe,
+                        isCookableExpression().as("isCookable"),
+                        recipeComment.id.countDistinct().as("commentCount")
+                ))
                 .from(recipe)
                 .join(recipe.author)
                 .fetchJoin()
@@ -57,7 +61,8 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                 .leftJoin(fridgeIngredient)
                 .on(fridgeIngredient.fridge.id.eq(fridgeId)
                         .and(fridgeIngredient.ingred.id.eq(recipeIngred.ingredient.id))
-                        .and(recipeIngred.isNecessary.isTrue()));
+                        .and(recipeIngred.isNecessary.isTrue()))
+                .leftJoin(recipeComment).on(recipeComment.recipe.id.eq(recipe.id));
     }
 
     private void filterIfCookable(Boolean isCookable, JPAQuery<RecipeResponse> query) {
