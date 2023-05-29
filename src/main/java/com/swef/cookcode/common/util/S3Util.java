@@ -7,6 +7,8 @@ import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.S3Exception;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +28,8 @@ public class S3Util {
     @Value("${aws.s3.bucketName}")
     private String bucket;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     public String upload(MultipartFile multipartFile, String dirName){
         String contentType = multipartFile.getContentType();
         File uploadFile = convert(multipartFile);
@@ -40,6 +44,7 @@ public class S3Util {
 
             return uploadImageUrl;
         } catch (FileNotFoundException e) {
+            logger.error("FileNotFoundException has occurred : {}", e.getMessage());
             throw new S3Exception(ErrorCode.STREAM_CONVERT_FAILED);
         }
     }
@@ -71,6 +76,7 @@ public class S3Util {
 
             return convertFile;
         } catch (IOException e) {
+            logger.error("IOException has occurred : {}", e.getMessage());
             throw new S3Exception(ErrorCode.MULTIPART_CONVERT_FAILED);
         }
     }

@@ -5,17 +5,20 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.swef.cookcode.cookie.domain.QCookie;
-import com.swef.cookcode.cookie.domain.QCookieComment;
-import com.swef.cookcode.cookie.domain.QCookieLike;
+import static com.swef.cookcode.cookie.domain.QCookie.cookie;
+import static com.swef.cookcode.cookie.domain.QCookieComment.cookieComment;
+import static com.swef.cookcode.cookie.domain.QCookieLike.cookieLike;
+import static com.swef.cookcode.user.domain.QUser.user;
+import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.swef.cookcode.common.Util;
+import java.util.List;
+
 import com.swef.cookcode.cookie.dto.CookieResponse;
-import com.swef.cookcode.user.domain.QUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-
-import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -23,13 +26,21 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
 
     private final JPAQueryFactory queryFactory;
 
-    private final QCookie cookie = QCookie.cookie;
+    @Override
+    public Slice<CookieResponse> searchCookies(String query, Long userId, Pageable pageable) {
+        List<CookieResponse> responses = selectCookieResponseFromCookieUserJoinAndLikeComment(userId)
+                .fetchJoin()
+                .where(cookieSearchContains(query))
+                .fetch();
 
-    private final QUser user = QUser.user;
+        return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
+    }
 
-    private final QCookieLike cookieLike = QCookieLike.cookieLike;
-
-    private final QCookieComment cookieComment = QCookieComment.cookieComment;
+    private BooleanExpression cookieSearchContains(String query) {
+        return cookie.title.containsIgnoreCase(query)
+                .or(cookie.description.containsIgnoreCase(query))
+                .or(cookie.user.nickname.containsIgnoreCase(query));
+    }
 
     @Override
     public Slice<CookieResponse> findByTargetUserId(Pageable pageable, Long targetUserId, Long userId) {
@@ -65,11 +76,11 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
     private JPAQuery<CookieResponse> selectCookieResponseFromCookieUserJoinAndLikeComment(Long userId){
         return queryFactory.select(Projections.constructor(CookieResponse.class,
                         cookie,
-                        user,
                         selectIsCookiLikedByUser(userId),
                         selectCookieLikeCount(),
                         selectCookieCommentCount()))
                 .from(cookie)
+                .leftJoin(recipe).on(recipe.id.eq(cookie.recipe.id))
                 .join(cookie.user, user);
     }
 

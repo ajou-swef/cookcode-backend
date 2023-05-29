@@ -63,6 +63,20 @@ public class CookieController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<SliceResponse<CookieResponse>>> searchCookies(@CurrentUser User user, @RequestParam(value = "query") String query,
+                                                                                    @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        SliceResponse<CookieResponse> response = new SliceResponse<>(cookieService.searchCookiesWith(query, user.getId(), pageable));
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("쿠키 검색 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+
     @GetMapping("/user/{targetUserId}")
     public ResponseEntity<ApiResponse<SliceResponse<CookieResponse>>> getCookiesOfUser(
             @CurrentUser User user,

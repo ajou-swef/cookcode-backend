@@ -1,47 +1,48 @@
 package com.swef.cookcode.cookie.dto;
 
 import com.swef.cookcode.cookie.domain.Cookie;
-import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+import static java.util.Objects.isNull;
+
 @Getter
-@Builder
-@AllArgsConstructor
 public class CookieResponse {
 
-    private Long id;
+    private final Long id;
 
-    private String title;
+    private final String title;
 
-    private String desc;
+    private final String desc;
 
-    private String videoUrl;
+    private final String videoUrl;
 
-    private LocalDateTime createdAt;
+    private final Long recipeId;
 
-    private UserSimpleResponse user;
+    private final LocalDateTime createdAt;
 
-    private Long isLiked;
+    private final UserSimpleResponse user;
 
-    private Long likeCount;
+    private final Long isLiked;
 
-    private Long commentCount;
+    private final Long likeCount;
 
-    public CookieResponse(Cookie cookie, User user, Long isLiked, Long likeCount, Long commentCount) {
+    private final Long commentCount;
+
+
+    public CookieResponse(Cookie cookie, Long isLiked, Long likeCount, Long commentCount) {
         this.id = cookie.getId();
         this.title = cookie.getTitle();
         this.desc = cookie.getDescription();
         this.videoUrl = cookie.getVideoUrl();
+        this.recipeId = isNull(cookie.getRecipe())? null : cookie.getRecipe().getId();
         this.createdAt = cookie.getCreatedAt();
-        this.user = UserSimpleResponse.from(user);
+        this.user = UserSimpleResponse.from(cookie.getUser());
         this.isLiked = isLiked;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
     }
-
 }

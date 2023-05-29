@@ -20,4 +20,6 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long>, RecipeCus
 
     boolean existsById(Long recipeId);
 
+
+
 }

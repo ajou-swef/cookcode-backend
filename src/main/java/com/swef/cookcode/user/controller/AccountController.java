@@ -4,6 +4,8 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.swef.cookcode.common.ApiResponse;
+import com.swef.cookcode.common.PageResponse;
+import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.common.jwt.JwtAuthenticationToken;
 import com.swef.cookcode.common.jwt.JwtPrincipal;
@@ -15,6 +17,7 @@ import com.swef.cookcode.user.dto.response.SignInResponse;
 import com.swef.cookcode.user.dto.response.SignUpResponse;
 import com.swef.cookcode.user.dto.response.UniqueCheckResponse;
 import com.swef.cookcode.user.dto.response.UserDetailResponse;
+import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.service.UserService;
 import com.swef.cookcode.user.service.UserSimpleService;
 import jakarta.validation.Valid;
@@ -24,6 +27,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -121,6 +128,21 @@ public class AccountController {
                 .message("계정 삭제 성공")
                 .status(OK.value())
                 .data(UserDetailResponse.from(returnedUser))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<SliceResponse<UserDetailResponse>>> searchUsers(@CurrentUser User user,
+                                                                                      @RequestParam(value = "nickname") String nickname,
+                                                                                      @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+                                                                                          Pageable pageable) {
+        Slice<User> users = userService.searchUsersWith(nickname, pageable);
+        SliceResponse<UserDetailResponse> response = new SliceResponse<>(users.map(UserDetailResponse::from));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("유저 검색 성공")
+                .status(OK.value())
+                .data(response)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
