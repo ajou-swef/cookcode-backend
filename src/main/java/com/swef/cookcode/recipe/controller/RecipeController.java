@@ -74,7 +74,7 @@ public class RecipeController {
 
     }
 
-    @PostMapping("/{recipeId}/like")
+    @PostMapping("/{recipeId}/likes")
     public ResponseEntity<ApiResponse<RecipeLikeResponse>> likeRecipe(@CurrentUser User user, @PathVariable(value = "recipeId") Long recipeId) {
         RecipeLikeResponse response = recipeService.flipRecipeLike(user, recipeId);
         ApiResponse apiResponse = ApiResponse.builder()
