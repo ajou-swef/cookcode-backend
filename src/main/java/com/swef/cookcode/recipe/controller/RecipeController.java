@@ -85,6 +85,17 @@ public class RecipeController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<ApiResponse> deleteComment(@CurrentUser User user, @PathVariable(value = "commentId") Long commentId) {
+        recipeService.deleteCommentOfRecipe(user, commentId);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("레시피 댓글 삭제 성공")
+                .status(HttpStatus.OK.value())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+
+    }
+
 
     @PostMapping("/files/{directory}")
     public ResponseEntity<ApiResponse<UrlResponse>> uploadRecipePhotos(@RequestPart(value = "stepFiles") List<MultipartFile> files, @PathVariable(value = "directory") String directory) {
