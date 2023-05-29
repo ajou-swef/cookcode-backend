@@ -11,16 +11,20 @@ import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
+import com.swef.cookcode.recipe.domain.RecipeLike;
 import com.swef.cookcode.recipe.domain.StepPhoto;
 import com.swef.cookcode.recipe.domain.StepVideo;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
+import com.swef.cookcode.recipe.dto.response.RecipeLikeResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
+import com.swef.cookcode.recipe.repository.RecipeLikeRepository;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.User;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +45,8 @@ public class RecipeService {
 
     private final StepService stepService;
     private final IngredientSimpleService ingredientSimpleService;
+
+    private final RecipeLikeRepository recipeLikeRepository;
 
     private final FridgeService fridgeService;
 
@@ -119,12 +125,6 @@ public class RecipeService {
         recipeIngredRepository.saveAll(recipeIngredList);
     }
 
-    void save(Recipe recipe, List<Ingredient> ingredients) {
-        List<RecipeIngred> recipeIngredList = ingredients.stream()
-                .map(ingredient -> new RecipeIngred(recipe, ingredient, true)).toList();
-        recipeIngredRepository.saveAll(recipeIngredList);
-    }
-
     @Transactional
     void validateCurrentUserIsAuthor(Recipe recipe, User user) {
         if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) throw new PermissionDeniedException(ErrorCode.USER_IS_NOT_AUTHOR);
@@ -168,9 +168,28 @@ public class RecipeService {
         return responses;
     }
 
+    @Transactional(readOnly = true)
     public Slice<RecipeResponse> searchRecipesWith(User user, String query, Boolean isCookable, Pageable pageable) {
         Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
         Slice<RecipeResponse> responses = recipeRepository.searchRecipes(fridgeId, query, isCookable, pageable);
         return responses;
     }
+
+    @Transactional
+    public RecipeLikeResponse flipRecipeLike(User user, Long recipeId) {
+        Optional<RecipeLike> likeOptional = recipeLikeRepository.findByUserIdAndRecipeId(user.getId(), recipeId);
+        likeOptional.ifPresentOrElse(this::unlikeRecipe, () -> likeRecipe(user, recipeId));
+        return new RecipeLikeResponse(likeOptional.isPresent());
+    }
+
+    void likeRecipe(User user, Long recipeId) {
+        Recipe recipe = getRecipeById(recipeId);
+        recipeLikeRepository.save(new RecipeLike(recipe, user));
+    }
+
+    void unlikeRecipe(RecipeLike recipeLike) {
+        recipeLikeRepository.delete(recipeLike);
+    }
+
+
 }

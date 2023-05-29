@@ -5,8 +5,10 @@ import com.swef.cookcode.common.PageResponse;
 import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.entity.CurrentUser;
+import com.swef.cookcode.recipe.domain.RecipeLike;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
+import com.swef.cookcode.recipe.dto.response.RecipeLikeResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import com.swef.cookcode.common.UrlResponse;
 import com.swef.cookcode.recipe.service.RecipeService;
@@ -70,6 +72,17 @@ public class RecipeController {
                 .build();
         return ResponseEntity.ok().body(apiResponse);
 
+    }
+
+    @PostMapping("/{recipeId}/like")
+    public ResponseEntity<ApiResponse<RecipeLikeResponse>> likeRecipe(@CurrentUser User user, @PathVariable(value = "recipeId") Long recipeId) {
+        RecipeLikeResponse response = recipeService.flipRecipeLike(user, recipeId);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("레시피 좋아요 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok().body(apiResponse);
     }
 
 
