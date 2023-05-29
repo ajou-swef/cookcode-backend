@@ -96,6 +96,20 @@ public class RecipeController {
 
     }
 
+    @GetMapping("/{recipeId}/comments")
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeCommentResponse>>> getCommentsOfRecipe(@PathVariable(value = "recipeId") Long recipeId,
+                                                                                                 @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+                                                                                                 Pageable pageable) {
+        SliceResponse<RecipeCommentResponse> response = new SliceResponse<>(recipeService.getCommentsOfRecipe(pageable));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("레시피 댓글 다건 조회 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+
+    }
+
 
     @PostMapping("/files/{directory}")
     public ResponseEntity<ApiResponse<UrlResponse>> uploadRecipePhotos(@RequestPart(value = "stepFiles") List<MultipartFile> files, @PathVariable(value = "directory") String directory) {
@@ -124,7 +138,7 @@ public class RecipeController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<RecipeResponse>>> getRecipe(@CurrentUser User user,
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipe(@CurrentUser User user,
                                                                                @RequestParam(value = "cookable", required = false) Boolean isCookable,
                                                                                @RequestParam(value = "month", required = false) Integer month,
                                                                                @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)

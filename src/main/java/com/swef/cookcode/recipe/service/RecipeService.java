@@ -192,4 +192,8 @@ public class RecipeService {
         if (!Objects.equals(user.getId(), comment.getUser().getId())) throw new PermissionDeniedException(ErrorCode.RECIPE_COMMENT_USER_MISSMATCH);
         recipeCommentRepository.delete(comment);
     }
+
+    public Slice<RecipeCommentResponse> getCommentsOfRecipe(Pageable pageable) {
+        return null;
+    }
 }
