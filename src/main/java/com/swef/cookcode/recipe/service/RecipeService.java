@@ -10,12 +10,17 @@ import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
+import com.swef.cookcode.recipe.domain.RecipeComment;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
+import com.swef.cookcode.recipe.domain.RecipeLike;
 import com.swef.cookcode.recipe.domain.StepPhoto;
 import com.swef.cookcode.recipe.domain.StepVideo;
+import com.swef.cookcode.recipe.dto.request.RecipeCommentCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
+import com.swef.cookcode.recipe.dto.response.RecipeCommentResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
+import com.swef.cookcode.recipe.repository.RecipeCommentRepository;
 import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.User;
@@ -38,6 +43,8 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
 
     private final RecipeIngredRepository recipeIngredRepository;
+
+    private final RecipeCommentRepository recipeCommentRepository;
 
     private final StepService stepService;
     private final IngredientSimpleService ingredientSimpleService;
@@ -119,12 +126,6 @@ public class RecipeService {
         recipeIngredRepository.saveAll(recipeIngredList);
     }
 
-    void save(Recipe recipe, List<Ingredient> ingredients) {
-        List<RecipeIngred> recipeIngredList = ingredients.stream()
-                .map(ingredient -> new RecipeIngred(recipe, ingredient, true)).toList();
-        recipeIngredRepository.saveAll(recipeIngredList);
-    }
-
     @Transactional
     void validateCurrentUserIsAuthor(Recipe recipe, User user) {
         if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) throw new PermissionDeniedException(ErrorCode.USER_IS_NOT_AUTHOR);
@@ -172,5 +173,11 @@ public class RecipeService {
         Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
         Slice<RecipeResponse> responses = recipeRepository.searchRecipes(fridgeId, query, isCookable, pageable);
         return responses;
+    }
+
+    public RecipeCommentResponse createComment(User user, Long recipeId, RecipeCommentCreateRequest request) {
+        Recipe recipe = getRecipeById(recipeId);
+        RecipeComment comment = new RecipeComment(recipe, user, request.getComment());
+        return RecipeCommentResponse.from(recipeCommentRepository.save(comment));
     }
 }
