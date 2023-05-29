@@ -3,11 +3,13 @@ package com.swef.cookcode.user.dto.response;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.swef.cookcode.user.domain.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class UserSimpleResponse {
     private Long userId;
 
