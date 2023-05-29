@@ -36,9 +36,7 @@ public class FridgeService {
 
     @Transactional
     public Fridge createFridgeOfUser(User user){
-        Fridge newFridge = Fridge.builder()
-                .owner(user)
-                .build();
+        Fridge newFridge = Fridge.createEntity(user);
         return fridgeRepository.save(newFridge);
     }
 

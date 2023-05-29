@@ -25,8 +25,11 @@ public class Fridge extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User owner;
 
-    @Builder
-    public Fridge(User owner) {
+    private Fridge(User owner) {
         this.owner = owner;
+    }
+
+    public static Fridge createEntity(User user) {
+        return new Fridge(user);
     }
 }
