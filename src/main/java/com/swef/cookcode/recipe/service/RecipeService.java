@@ -193,7 +193,8 @@ public class RecipeService {
         recipeCommentRepository.delete(comment);
     }
 
-    public Slice<RecipeCommentResponse> getCommentsOfRecipe(Pageable pageable) {
-        return null;
+    public Slice<RecipeCommentResponse> getCommentsOfRecipe(Long recipeId, Pageable pageable) {
+        if (recipeRepository.findById(recipeId).isEmpty()) throw new NotFoundException(ErrorCode.RECIPE_NOT_FOUND);
+        return recipeCommentRepository.findRecipeComments(recipeId, pageable).map(RecipeCommentResponse::from);
     }
 }

@@ -100,7 +100,7 @@ public class RecipeController {
     public ResponseEntity<ApiResponse<SliceResponse<RecipeCommentResponse>>> getCommentsOfRecipe(@PathVariable(value = "recipeId") Long recipeId,
                                                                                                  @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
                                                                                                  Pageable pageable) {
-        SliceResponse<RecipeCommentResponse> response = new SliceResponse<>(recipeService.getCommentsOfRecipe(pageable));
+        SliceResponse<RecipeCommentResponse> response = new SliceResponse<>(recipeService.getCommentsOfRecipe(recipeId, pageable));
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 댓글 다건 조회 성공")
                 .status(HttpStatus.OK.value())
