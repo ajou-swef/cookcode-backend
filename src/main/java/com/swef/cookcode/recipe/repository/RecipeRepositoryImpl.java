@@ -4,6 +4,8 @@ package com.swef.cookcode.recipe.repository;
 import static com.swef.cookcode.common.Util.hasNextInSlice;
 import static com.swef.cookcode.fridge.domain.QFridgeIngredient.fridgeIngredient;
 import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
+import static com.swef.cookcode.recipe.domain.QRecipeComment.recipeComment;
+import static com.swef.cookcode.recipe.domain.QRecipeComment.recipeComment;
 import static com.swef.cookcode.recipe.domain.QRecipeIngred.recipeIngred;
 import static com.swef.cookcode.recipe.domain.QRecipeLike.recipeLike;
 import static java.util.Objects.nonNull;
@@ -57,7 +59,8 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                         recipe,
                         isCookableExpression().as("isCookable"),
                         recipeLike.countDistinct().as("likeCount"),
-                        isLikedExpression(userId).as("isLiked")
+                        isLikedExpression(userId).as("isLiked"),
+                        recipeComment.id.countDistinct().as("commentCount")
                 ))
                 .from(recipe)
                 .join(recipe.author)
@@ -68,7 +71,8 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                         .and(fridgeIngredient.ingred.id.eq(recipeIngred.ingredient.id))
                         .and(recipeIngred.isNecessary.isTrue()))
                 .leftJoin(recipeLike).on(recipeLike.recipe.id.eq(recipe.id))
-                .leftJoin(recipeLikeForIsLike).on(recipeLikeForIsLike.recipe.id.eq(recipe.id).and(recipeLikeForIsLike.user.id.eq(userId)));
+                .leftJoin(recipeLikeForIsLike).on(recipeLikeForIsLike.recipe.id.eq(recipe.id).and(recipeLikeForIsLike.user.id.eq(userId)))
+                .leftJoin(recipeComment).on(recipeComment.recipe.id.eq(recipe.id));
 
     }
 

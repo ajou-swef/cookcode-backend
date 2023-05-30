@@ -1,16 +1,16 @@
 package com.swef.cookcode.recipe.controller;
 
 import com.swef.cookcode.common.ApiResponse;
-import com.swef.cookcode.common.PageResponse;
 import com.swef.cookcode.common.SliceResponse;
+import com.swef.cookcode.common.UrlResponse;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.entity.CurrentUser;
-import com.swef.cookcode.recipe.domain.RecipeLike;
+import com.swef.cookcode.recipe.dto.request.RecipeCommentCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
+import com.swef.cookcode.recipe.dto.response.RecipeCommentResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeLikeResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
-import com.swef.cookcode.common.UrlResponse;
 import com.swef.cookcode.recipe.service.RecipeService;
 import com.swef.cookcode.user.domain.User;
 import java.util.List;
@@ -54,8 +54,7 @@ public class RecipeController {
                 .data(response)
                 .build();
 
-        return ResponseEntity.ok()
-                .body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @GetMapping("/search")
@@ -70,7 +69,43 @@ public class RecipeController {
                 .status(HttpStatus.OK.value())
                 .data(response)
                 .build();
-        return ResponseEntity.ok().body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PostMapping("/{recipeId}/comments")
+    public ResponseEntity<ApiResponse<RecipeCommentResponse>> commentRecipe(@CurrentUser User user, @PathVariable(value = "recipeId") Long recipeId, @RequestBody
+                                                                            RecipeCommentCreateRequest request) {
+        RecipeCommentResponse response = recipeService.createComment(user, recipeId, request);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("레시피 댓글 작성 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<ApiResponse> deleteComment(@CurrentUser User user, @PathVariable(value = "commentId") Long commentId) {
+        recipeService.deleteCommentOfRecipe(user, commentId);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("레시피 댓글 삭제 성공")
+                .status(HttpStatus.OK.value())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+
+    }
+
+    @GetMapping("/{recipeId}/comments")
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeCommentResponse>>> getCommentsOfRecipe(@PathVariable(value = "recipeId") Long recipeId,
+                                                                                                 @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+                                                                                                 Pageable pageable) {
+        SliceResponse<RecipeCommentResponse> response = new SliceResponse<>(recipeService.getCommentsOfRecipe(recipeId, pageable));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("레시피 댓글 다건 조회 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
 
     }
 
@@ -94,8 +129,7 @@ public class RecipeController {
                 .status(HttpStatus.OK.value())
                 .data(response)
                 .build();
-        return ResponseEntity.ok()
-                .body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @PatchMapping("/{recipeId}")
@@ -110,12 +144,11 @@ public class RecipeController {
                 .data(response)
                 .build();
 
-        return ResponseEntity.ok()
-                .body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<RecipeResponse>>> getRecipe(@CurrentUser User user,
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipe(@CurrentUser User user,
                                                                                @RequestParam(value = "cookable", required = false) Boolean isCookable,
                                                                                @RequestParam(value = "month", required = false) Integer month,
                                                                                @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
@@ -127,7 +160,7 @@ public class RecipeController {
                 .status(HttpStatus.OK.value())
                 .data(response)
                 .build();
-        return ResponseEntity.ok().body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @GetMapping("/{recipeId}")
@@ -139,8 +172,7 @@ public class RecipeController {
                 .data(recipeService.getRecipeResponseById(recipeId))
                 .build();
 
-        return ResponseEntity.ok()
-                .body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @DeleteMapping("/{recipeId}")
@@ -153,8 +185,7 @@ public class RecipeController {
                 .status(HttpStatus.OK.value())
                 .build();
 
-        return ResponseEntity.ok()
-                .body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 
 }

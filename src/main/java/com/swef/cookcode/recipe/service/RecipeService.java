@@ -10,14 +10,18 @@ import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
+import com.swef.cookcode.recipe.domain.RecipeComment;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
 import com.swef.cookcode.recipe.domain.RecipeLike;
 import com.swef.cookcode.recipe.domain.StepPhoto;
 import com.swef.cookcode.recipe.domain.StepVideo;
+import com.swef.cookcode.recipe.dto.request.RecipeCommentCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
+import com.swef.cookcode.recipe.dto.response.RecipeCommentResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeLikeResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
+import com.swef.cookcode.recipe.repository.RecipeCommentRepository;
 import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
 import com.swef.cookcode.recipe.repository.RecipeLikeRepository;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
@@ -42,6 +46,8 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
 
     private final RecipeIngredRepository recipeIngredRepository;
+
+    private final RecipeCommentRepository recipeCommentRepository;
 
     private final StepService stepService;
     private final IngredientSimpleService ingredientSimpleService;
@@ -173,6 +179,29 @@ public class RecipeService {
         Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
         Slice<RecipeResponse> responses = recipeRepository.searchRecipes(fridgeId, user.getId(), query, isCookable, pageable);
         return responses;
+    }
+
+    @Transactional
+    public RecipeCommentResponse createComment(User user, Long recipeId, RecipeCommentCreateRequest request) {
+        Recipe recipe = getRecipeById(recipeId);
+        RecipeComment comment = new RecipeComment(recipe, user, request.getComment());
+        return RecipeCommentResponse.from(recipeCommentRepository.save(comment));
+    }
+
+    RecipeComment getRecipeCommentById(Long commentId) {
+        return recipeCommentRepository.findById(commentId).orElseThrow(() -> new NotFoundException(ErrorCode.RECIPE_COMMENT_NOT_FOUND));
+    }
+
+    @Transactional
+    public void deleteCommentOfRecipe(User user, Long commentId) {
+        RecipeComment comment = getRecipeCommentById(commentId);
+        if (!Objects.equals(user.getId(), comment.getUser().getId())) throw new PermissionDeniedException(ErrorCode.RECIPE_COMMENT_USER_MISSMATCH);
+        recipeCommentRepository.delete(comment);
+    }
+
+    public Slice<RecipeCommentResponse> getCommentsOfRecipe(Long recipeId, Pageable pageable) {
+        if (recipeRepository.findById(recipeId).isEmpty()) throw new NotFoundException(ErrorCode.RECIPE_NOT_FOUND);
+        return recipeCommentRepository.findRecipeComments(recipeId, pageable).map(RecipeCommentResponse::from);
     }
 
     @Transactional

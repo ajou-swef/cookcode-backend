@@ -46,7 +46,7 @@ public class RecipeResponse {
 
     private String thumbnail;
 
-    public RecipeResponse(Recipe recipe, Boolean isCookable, Long likeCount, Boolean isLiked) {
+    public RecipeResponse(Recipe recipe, Boolean isCookable, Long likeCount, Boolean isLiked, Long commentCount) {
         this.recipeId = recipe.getId();
         this.user = UserSimpleResponse.from(recipe.getAuthor());
         this.title = recipe.getTitle();
@@ -59,6 +59,7 @@ public class RecipeResponse {
         this.thumbnail = recipe.getThumbnail();
         this.likeCount = likeCount;
         this.isLiked = isLiked;
+        this.commentCount = commentCount;
     }
 
     public static RecipeResponse from(Recipe recipe) {
