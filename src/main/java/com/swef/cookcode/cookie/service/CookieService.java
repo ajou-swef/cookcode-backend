@@ -1,5 +1,6 @@
 package com.swef.cookcode.cookie.service;
 
+import com.swef.cookcode.common.dto.CommentResponse;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.common.util.S3Util;
@@ -99,6 +100,7 @@ public class CookieService {
 
     void likeCookie(User user, Long cookieId) {
         Cookie cookie = cookieRepository.getReferenceById(cookieId);
+
         cookieLikeRepository.save(CookieLike.createEntity(user, cookie));
     }
 
@@ -108,6 +110,7 @@ public class CookieService {
 
     @Transactional
     public void createCommentOfCookie(User user, Long cookieId, String comment) {
+        cookieRepository.findById(cookieId).orElseThrow(() -> new NotFoundException(COOKIE_NOT_FOUND));
 
         Cookie cookie = cookieRepository.getReferenceById(cookieId);
 
@@ -117,16 +120,19 @@ public class CookieService {
     }
 
     @Transactional(readOnly = true)
-    public List<CookieCommentResponse> getCommentsOfCookie(Long cookieId) {
-        List<CookieComment> cookieComments = cookieCommentRepository.findCookieComments(cookieId);
+    public Slice<CookieCommentResponse> getCommentsOfCookie(Pageable pageable, Long cookieId) {
+        cookieRepository.findById(cookieId).orElseThrow(() -> new NotFoundException(COOKIE_NOT_FOUND));
 
-        return cookieComments.stream().map(CookieCommentResponse::of).toList();
+        Slice<CookieComment> cookieComments = cookieCommentRepository.findCookieComments(pageable, cookieId);
+
+        return cookieComments.map(CookieCommentResponse::of);
     }
 
     @Transactional
     public void deleteCommentOfCookie(User user, Long commentId) {
         CookieComment cookieComment = cookieCommentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(COOKIE_COMMENT_NOT_FOUND));
+
         if(!Objects.equals(user.getId(), cookieComment.getUser().getId())){
             throw new PermissionDeniedException(COOKIE_COMMENT_USER_MISSMATCH);
         }

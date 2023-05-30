@@ -2,6 +2,8 @@ package com.swef.cookcode.cookie.controller;
 
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
+import com.swef.cookcode.common.dto.CommentCreateRequest;
+import com.swef.cookcode.common.dto.CommentResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.cookie.domain.Cookie;
 import com.swef.cookcode.cookie.dto.CookieCommentResponse;
@@ -153,9 +155,9 @@ public class CookieController {
     }
 
     @PostMapping("/{cookieId}/comments")
-    public ResponseEntity<ApiResponse> createCommentOfCookie(@CurrentUser User user, @PathVariable Long cookieId, @RequestBody String comment){
+    public ResponseEntity<ApiResponse> createCommentOfCookie(@CurrentUser User user, @PathVariable Long cookieId, @RequestBody CommentCreateRequest comment){
 
-        cookieService.createCommentOfCookie(user, cookieId, comment);
+        cookieService.createCommentOfCookie(user, cookieId, comment.getComment());
 
         ApiResponse response = ApiResponse.builder()
                 .message("쿠키 댓글 생성 성공")
@@ -166,14 +168,18 @@ public class CookieController {
     }
 
     @GetMapping("/{cookieId}/comments")
-    public ResponseEntity<ApiResponse<List<CookieCommentResponse>>> getCommentsOfCookie(@CurrentUser User user, @PathVariable Long cookieId){
+    public ResponseEntity<ApiResponse<SliceResponse<CookieCommentResponse>>> getCommentsOfCookie(
+            @CurrentUser User user, @PathVariable Long cookieId,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        List<CookieCommentResponse> cookieCommentResponses = cookieService.getCommentsOfCookie(cookieId);
+        Slice<CookieCommentResponse> cookieCommentSlice = cookieService.getCommentsOfCookie(pageable, cookieId);
+
+        SliceResponse<CookieCommentResponse> cookieCommentResponseSliceResponse = new SliceResponse<>(cookieCommentSlice);
 
         ApiResponse response = ApiResponse.builder()
                 .message("쿠키 댓글 조회 성공")
                 .status(OK.value())
-                .data(cookieCommentResponses)
+                .data(cookieCommentResponseSliceResponse)
                 .build();
 
         return ResponseEntity.ok(response);
