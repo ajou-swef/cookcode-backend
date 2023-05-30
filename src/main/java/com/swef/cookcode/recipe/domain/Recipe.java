@@ -51,7 +51,7 @@ public class Recipe extends BaseEntity {
     @Column(nullable = false, length = MAX_THUMBNAIL_LENGTH)
     private String thumbnail;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
