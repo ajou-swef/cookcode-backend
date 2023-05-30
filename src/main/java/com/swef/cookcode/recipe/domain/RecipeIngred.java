@@ -2,6 +2,7 @@ package com.swef.cookcode.recipe.domain;
 
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.user.domain.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,7 +39,7 @@ public class RecipeIngred {
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,  cascade = CascadeType.REMOVE)
     @JoinColumn(name = "ingred_id")
     private Ingredient ingredient;
 
