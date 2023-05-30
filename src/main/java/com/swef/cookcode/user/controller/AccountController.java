@@ -146,4 +146,18 @@ public class AccountController {
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
+
+    @PostMapping("/subscribe/{createrId}")
+    public ResponseEntity<ApiResponse> createSubscribe(@CurrentUser User user, @PathVariable Long createrId){
+
+        userService.createSubscribe(user, createrId);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("크리에이터 구독 성공")
+                .status(OK.value())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
 }

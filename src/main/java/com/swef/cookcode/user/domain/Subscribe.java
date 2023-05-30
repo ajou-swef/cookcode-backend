@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -40,4 +41,13 @@ public class Subscribe {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_id")
     private User publisher;
+
+    private Subscribe(User user, User creater){
+        this.subscriber = user;
+        this.publisher = creater;
+    }
+
+    public static Subscribe createEntity(User user, User creater) {
+        return new Subscribe(user, creater);
+    }
 }

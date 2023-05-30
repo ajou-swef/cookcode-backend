@@ -9,8 +9,11 @@ import com.swef.cookcode.common.error.exception.AlreadyExistsException;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.user.domain.Authority;
+import com.swef.cookcode.user.domain.Subscribe;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
+import com.swef.cookcode.user.dto.response.UserSimpleResponse;
+import com.swef.cookcode.user.repository.SubscribeRepository;
 import com.swef.cookcode.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -19,12 +22,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final PasswordEncoder passwordEncoder;
+
     private final UserRepository userRepository;
+
+    private final SubscribeRepository subscribeRepository;
 
     @Transactional(readOnly = true)
     public User signIn(String principal, String credentials) {
@@ -74,6 +82,15 @@ public class UserService {
     @Transactional(readOnly = true)
     public Slice<User> searchUsersWith(String searchQuery, Pageable pageable) {
         return userRepository.findByNicknameContaining(searchQuery, pageable);
+    }
+
+    @Transactional
+    public void createSubscribe(User user, Long createrId) {
+        User creater = userRepository.getReferenceById(createrId);
+
+        Subscribe subscribe = Subscribe.createEntity(user, creater);
+
+        subscribeRepository.save(subscribe);
     }
 
 }
