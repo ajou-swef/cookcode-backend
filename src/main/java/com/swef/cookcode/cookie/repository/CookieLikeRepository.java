@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface CookieLikeRepository extends JpaRepository<CookieLike, Long> {
 
     Optional<CookieLike> findByUserIdAndCookieId(Long id, Long cookieId);
+
+    void deleteByCookieId(Long cookieId);
 }

@@ -83,6 +83,10 @@ public class CookieService {
 
     @Transactional
     public void deleteCookie(Long cookieId) {
+        cookieLikeRepository.deleteByCookieId(cookieId);
+
+        cookieCommentRepository.deleteByCookieId(cookieId);
+
         cookieRepository.deleteById(cookieId);
     }
 
@@ -101,6 +105,7 @@ public class CookieService {
     void unlikeCookie(CookieLike cookieLike) {
         cookieLikeRepository.delete(cookieLike);
     }
+
     @Transactional
     public void createCommentOfCookie(User user, Long cookieId, String comment) {
 

@@ -11,4 +11,6 @@ public interface CookieCommentRepository extends JpaRepository<CookieComment, Lo
 
     @Query(value = "SELECT c FROM CookieComment c join fetch c.user WHERE c.cookie.id = :cookieId")
     List<CookieComment> findCookieComments(Long cookieId);
+
+    void deleteByCookieId(Long cookieId);
 }
