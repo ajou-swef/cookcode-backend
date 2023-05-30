@@ -102,4 +102,13 @@ public class UserService {
         ).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<UserSimpleResponse> getPublishers(User user) {
+        List<Subscribe> subscribes = subscribeRepository.findPublishers(user);
+
+        return subscribes.stream().map(
+                subscribe -> UserSimpleResponse.from(subscribe.getPublisher())
+        ).toList();
+    }
+
 }

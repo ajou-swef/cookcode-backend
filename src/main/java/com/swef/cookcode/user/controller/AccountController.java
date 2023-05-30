@@ -174,4 +174,18 @@ public class AccountController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @GetMapping("/subscribe/publishers")
+    public ResponseEntity<ApiResponse<List<UserSimpleResponse>>> getPublishers(@CurrentUser User user){
+
+        List<UserSimpleResponse> response = userService.getPublishers(user);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("사용자의 구독자 조회 성공")
+                .status(OK.value())
+                .data(response)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
 }
