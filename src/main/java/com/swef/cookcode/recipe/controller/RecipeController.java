@@ -4,12 +4,11 @@ import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.UrlResponse;
 import com.swef.cookcode.common.Util;
+import com.swef.cookcode.common.dto.CommentCreateRequest;
+import com.swef.cookcode.common.dto.CommentResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
-import com.swef.cookcode.recipe.dto.request.RecipeCommentCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
-import com.swef.cookcode.recipe.dto.response.RecipeCommentResponse;
-import com.swef.cookcode.recipe.dto.response.RecipeLikeResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import com.swef.cookcode.recipe.service.RecipeService;
 import com.swef.cookcode.user.domain.User;
@@ -73,9 +72,9 @@ public class RecipeController {
     }
 
     @PostMapping("/{recipeId}/comments")
-    public ResponseEntity<ApiResponse<RecipeCommentResponse>> commentRecipe(@CurrentUser User user, @PathVariable(value = "recipeId") Long recipeId, @RequestBody
-                                                                            RecipeCommentCreateRequest request) {
-        RecipeCommentResponse response = recipeService.createComment(user, recipeId, request);
+    public ResponseEntity<ApiResponse<CommentResponse>> commentRecipe(@CurrentUser User user, @PathVariable(value = "recipeId") Long recipeId, @RequestBody
+    CommentCreateRequest request) {
+        CommentResponse response = recipeService.createComment(user, recipeId, request);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 댓글 작성 성공")
                 .status(HttpStatus.OK.value())
@@ -96,10 +95,10 @@ public class RecipeController {
     }
 
     @GetMapping("/{recipeId}/comments")
-    public ResponseEntity<ApiResponse<SliceResponse<RecipeCommentResponse>>> getCommentsOfRecipe(@PathVariable(value = "recipeId") Long recipeId,
-                                                                                                 @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+    public ResponseEntity<ApiResponse<SliceResponse<CommentResponse>>> getCommentsOfRecipe(@PathVariable(value = "recipeId") Long recipeId,
+                                                                                           @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
                                                                                                  Pageable pageable) {
-        SliceResponse<RecipeCommentResponse> response = new SliceResponse<>(recipeService.getCommentsOfRecipe(recipeId, pageable));
+        SliceResponse<CommentResponse> response = new SliceResponse<>(recipeService.getCommentsOfRecipe(recipeId, pageable));
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 댓글 다건 조회 성공")
                 .status(HttpStatus.OK.value())
@@ -110,12 +109,11 @@ public class RecipeController {
     }
 
     @PostMapping("/{recipeId}/likes")
-    public ResponseEntity<ApiResponse<RecipeLikeResponse>> likeRecipe(@CurrentUser User user, @PathVariable(value = "recipeId") Long recipeId) {
-        RecipeLikeResponse response = recipeService.flipRecipeLike(user, recipeId);
+    public ResponseEntity<ApiResponse> likeRecipe(@CurrentUser User user, @PathVariable(value = "recipeId") Long recipeId) {
+        recipeService.toggleRecipeLike(user, recipeId);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 좋아요 성공")
                 .status(HttpStatus.OK.value())
-                .data(response)
                 .build();
         return ResponseEntity.ok().body(apiResponse);
     }
