@@ -181,10 +181,10 @@ public class RecipeService {
     }
 
     @Transactional
-    public CommentResponse createComment(User user, Long recipeId, CommentCreateRequest request) {
+    public void createComment(User user, Long recipeId, CommentCreateRequest request) {
         Recipe recipe = getRecipeById(recipeId);
         RecipeComment comment = new RecipeComment(recipe, user, request.getComment());
-        return CommentResponse.from(recipeCommentRepository.save(comment));
+        recipeCommentRepository.save(comment);
     }
 
     RecipeComment getRecipeCommentById(Long commentId) {
