@@ -12,5 +12,5 @@ public class IngredUpdateRequest {
 
     private LocalDate expiredAt;
 
-    private int quantity;
+    private Long quantity;
 }
