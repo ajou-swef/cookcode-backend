@@ -12,7 +12,7 @@ import static java.util.Objects.isNull;
 @Getter
 public class CookieResponse {
 
-    private final Long id;
+    private final Long cookieId;
 
     private final String title;
 
@@ -32,9 +32,8 @@ public class CookieResponse {
 
     private final Long commentCount;
 
-
     public CookieResponse(Cookie cookie, Long isLiked, Long likeCount, Long commentCount) {
-        this.id = cookie.getId();
+        this.cookieId = cookie.getId();
         this.title = cookie.getTitle();
         this.desc = cookie.getDescription();
         this.videoUrl = cookie.getVideoUrl();
