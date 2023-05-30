@@ -12,6 +12,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,5 +40,11 @@ public class RecipeComment extends BaseEntity {
 
     @Column(nullable = false, length = MAX_COMMENT_LENGTH)
     private String comment;
+
+    public RecipeComment(Recipe recipe, User user, String comment) {
+        this.recipe = recipe;
+        this.user = user;
+        this.comment = comment;
+    }
 
 }
