@@ -7,7 +7,6 @@ import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.cookie.domain.Cookie;
 import com.swef.cookcode.cookie.domain.CookieComment;
 import com.swef.cookcode.cookie.domain.CookieLike;
-import com.swef.cookcode.cookie.dto.CookieCommentResponse;
 import com.swef.cookcode.cookie.dto.CookieCreateRequest;
 import com.swef.cookcode.cookie.dto.CookiePatchRequest;
 import com.swef.cookcode.cookie.dto.CookieResponse;
@@ -22,14 +21,12 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
-import com.swef.cookcode.common.ErrorCode;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import static com.swef.cookcode.common.ErrorCode.*;
-import static java.util.Objects.isNull;
 import static com.swef.cookcode.common.ErrorCode.COOKIE_NOT_FOUND;
 
 @Service
@@ -120,12 +117,12 @@ public class CookieService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<CookieCommentResponse> getCommentsOfCookie(Pageable pageable, Long cookieId) {
+    public Slice<CommentResponse> getCommentsOfCookie(Pageable pageable, Long cookieId) {
         cookieRepository.findById(cookieId).orElseThrow(() -> new NotFoundException(COOKIE_NOT_FOUND));
 
         Slice<CookieComment> cookieComments = cookieCommentRepository.findCookieComments(pageable, cookieId);
 
-        return cookieComments.map(CookieCommentResponse::of);
+        return cookieComments.map(CommentResponse::from);
     }
 
     @Transactional

@@ -5,8 +5,6 @@ import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.dto.CommentCreateRequest;
 import com.swef.cookcode.common.dto.CommentResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
-import com.swef.cookcode.cookie.domain.Cookie;
-import com.swef.cookcode.cookie.dto.CookieCommentResponse;
 import com.swef.cookcode.cookie.dto.CookieCreateRequest;
 import com.swef.cookcode.cookie.dto.CookiePatchRequest;
 import com.swef.cookcode.cookie.dto.CookieResponse;
@@ -168,13 +166,13 @@ public class CookieController {
     }
 
     @GetMapping("/{cookieId}/comments")
-    public ResponseEntity<ApiResponse<SliceResponse<CookieCommentResponse>>> getCommentsOfCookie(
+    public ResponseEntity<ApiResponse<SliceResponse<CommentResponse>>> getCommentsOfCookie(
             @CurrentUser User user, @PathVariable Long cookieId,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Slice<CookieCommentResponse> cookieCommentSlice = cookieService.getCommentsOfCookie(pageable, cookieId);
+        Slice<CommentResponse> cookieCommentSlice = cookieService.getCommentsOfCookie(pageable, cookieId);
 
-        SliceResponse<CookieCommentResponse> cookieCommentResponseSliceResponse = new SliceResponse<>(cookieCommentSlice);
+        SliceResponse<CommentResponse> cookieCommentResponseSliceResponse = new SliceResponse<>(cookieCommentSlice);
 
         ApiResponse response = ApiResponse.builder()
                 .message("쿠키 댓글 조회 성공")
@@ -186,7 +184,7 @@ public class CookieController {
     }
 
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<ApiResponse<List<CookieCommentResponse>>> deleteCommentsOfCookie(@CurrentUser User user, @PathVariable Long commentId){
+    public ResponseEntity<ApiResponse> deleteCommentsOfCookie(@CurrentUser User user, @PathVariable Long commentId){
 
         cookieService.deleteCommentOfCookie(user, commentId);
 
