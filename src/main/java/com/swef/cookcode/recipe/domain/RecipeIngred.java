@@ -39,7 +39,7 @@ public class RecipeIngred {
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
-    @ManyToOne(fetch = FetchType.LAZY,  cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ingred_id")
     private Ingredient ingredient;
 

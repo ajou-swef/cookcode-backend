@@ -8,6 +8,7 @@ import com.swef.cookcode.common.dto.CommentCreateRequest;
 import com.swef.cookcode.common.dto.CommentResponse;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
+import com.swef.cookcode.cookie.repository.CookieRepository;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
@@ -52,6 +53,8 @@ public class RecipeService {
     private final IngredientSimpleService ingredientSimpleService;
 
     private final RecipeLikeRepository recipeLikeRepository;
+
+    private final CookieRepository cookieRepository;
 
     private final FridgeService fridgeService;
 
@@ -163,6 +166,9 @@ public class RecipeService {
             util.deleteFilesInS3(deletedPhotos);
             util.deleteFilesInS3(deletedVideos);
         });
+        recipeCommentRepository.deleteAllByRecipeId(recipeId);
+        recipeLikeRepository.deleteAllByRecipeId(recipeId);
+        cookieRepository.updateCookieWhenRecipeDeleted(recipeId);
         recipeRepository.delete(recipe);
     }
 
