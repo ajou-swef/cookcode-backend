@@ -139,13 +139,13 @@ public class CookieController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/likes/{cookieId}")
-    public ResponseEntity<ApiResponse> createLike(@CurrentUser User user, @PathVariable Long cookieId){
+    @PostMapping("/{cookieId}/likes")
+    public ResponseEntity<ApiResponse> toggleLike(@CurrentUser User user, @PathVariable Long cookieId){
 
-        cookieService.createLike(user, cookieId);
+        cookieService.toggleLike(user, cookieId);
 
         ApiResponse response = ApiResponse.builder()
-                .message("쿠키 좋아요 성공")
+                .message("쿠키 좋아요 수정 성공")
                 .status(OK.value())
                 .build();
 

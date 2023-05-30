@@ -25,6 +25,7 @@ import com.swef.cookcode.common.ErrorCode;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.swef.cookcode.common.ErrorCode.*;
 import static java.util.Objects.isNull;
@@ -86,15 +87,20 @@ public class CookieService {
     }
 
     @Transactional
-    public void createLike(User user, Long cookieId) {
+    public void toggleLike(User user, Long cookieId) {
+        Optional<CookieLike> likeOptional = cookieLikeRepository.findByUserIdAndCookieId(user.getId(), cookieId);
 
-        Cookie cookie = cookieRepository.getReferenceById(cookieId);
-
-        CookieLike cookieLike = CookieLike.createEntity(user, cookie);
-
-        cookieLikeRepository.save(cookieLike);
+        likeOptional.ifPresentOrElse(this::unlikeCookie, () -> likeCookie(user, cookieId));
     }
 
+    void likeCookie(User user, Long cookieId) {
+        Cookie cookie = cookieRepository.getReferenceById(cookieId);
+        cookieLikeRepository.save(CookieLike.createEntity(user, cookie));
+    }
+
+    void unlikeCookie(CookieLike cookieLike) {
+        cookieLikeRepository.delete(cookieLike);
+    }
     @Transactional
     public void createCommentOfCookie(User user, Long cookieId, String comment) {
 
