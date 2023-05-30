@@ -93,4 +93,13 @@ public class UserService {
         subscribeRepository.save(subscribe);
     }
 
+    @Transactional(readOnly = true)
+    public List<UserSimpleResponse> getSubscribers(User user) {
+        List<Subscribe> subscribes = subscribeRepository.findSubscribers(user);
+
+        return subscribes.stream().map(
+                subscribe -> UserSimpleResponse.from(subscribe.getSubscriber())
+        ).toList();
+    }
+
 }
