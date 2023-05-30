@@ -72,13 +72,12 @@ public class RecipeController {
     }
 
     @PostMapping("/{recipeId}/comments")
-    public ResponseEntity<ApiResponse<CommentResponse>> commentRecipe(@CurrentUser User user, @PathVariable(value = "recipeId") Long recipeId, @RequestBody
+    public ResponseEntity<ApiResponse> commentRecipe(@CurrentUser User user, @PathVariable(value = "recipeId") Long recipeId, @RequestBody
     CommentCreateRequest request) {
-        CommentResponse response = recipeService.createComment(user, recipeId, request);
+        recipeService.createComment(user, recipeId, request);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 댓글 작성 성공")
                 .status(HttpStatus.OK.value())
-                .data(response)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
