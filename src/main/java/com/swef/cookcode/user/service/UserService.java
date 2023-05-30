@@ -111,4 +111,10 @@ public class UserService {
         ).toList();
     }
 
+    @Transactional
+    public void deleteSubscribe(User user, Long createrId) {
+        User creater = userRepository.getReferenceById(createrId);
+
+        subscribeRepository.deleteByPublisherAndSubscriber(creater, user);
+    }
 }

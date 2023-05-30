@@ -15,4 +15,5 @@ public interface SubscribeRepository extends JpaRepository<Subscribe, Long> {
     @Query("select s from Subscribe s join fetch s.publisher where s.subscriber = :user")
     List<Subscribe> findPublishers(User user);
 
+    void deleteByPublisherAndSubscriber(User creater, User user);
 }
