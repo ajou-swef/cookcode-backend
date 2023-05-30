@@ -1,10 +1,10 @@
-package com.swef.cookcode.recipe.dto.request;
+package com.swef.cookcode.common.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class RecipeCommentCreateRequest {
+public class CommentCreateRequest {
     @NotBlank
     private String comment;
 }

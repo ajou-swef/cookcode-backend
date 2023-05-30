@@ -1,4 +1,4 @@
-package com.swef.cookcode.recipe.dto.response;
+package com.swef.cookcode.common.dto;
 
 import com.swef.cookcode.recipe.domain.RecipeComment;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
@@ -7,19 +7,16 @@ import lombok.RequiredArgsConstructor;
 
 @Builder
 @RequiredArgsConstructor
-public class RecipeCommentResponse {
+public class CommentResponse {
     private final Long commentId;
-
-    private final Long recipeId;
 
     private final UserSimpleResponse user;
 
     private final String comment;
 
-    public static RecipeCommentResponse from(RecipeComment comment) {
-        return RecipeCommentResponse.builder()
+    public static CommentResponse from(RecipeComment comment) {
+        return CommentResponse.builder()
                 .commentId(comment.getId())
-                .recipeId(comment.getRecipe().getId())
                 .user(UserSimpleResponse.from(comment.getUser()))
                 .comment(comment.getComment())
                 .build();

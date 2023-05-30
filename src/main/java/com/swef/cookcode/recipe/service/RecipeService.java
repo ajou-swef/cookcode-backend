@@ -4,6 +4,8 @@ import static java.util.Objects.isNull;
 
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.Util;
+import com.swef.cookcode.common.dto.CommentCreateRequest;
+import com.swef.cookcode.common.dto.CommentResponse;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.fridge.domain.Ingredient;
@@ -12,19 +14,20 @@ import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeComment;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
+import com.swef.cookcode.recipe.domain.RecipeLike;
 import com.swef.cookcode.recipe.domain.StepPhoto;
 import com.swef.cookcode.recipe.domain.StepVideo;
-import com.swef.cookcode.recipe.dto.request.RecipeCommentCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
-import com.swef.cookcode.recipe.dto.response.RecipeCommentResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import com.swef.cookcode.recipe.repository.RecipeCommentRepository;
 import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
+import com.swef.cookcode.recipe.repository.RecipeLikeRepository;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.User;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,8 @@ public class RecipeService {
 
     private final StepService stepService;
     private final IngredientSimpleService ingredientSimpleService;
+
+    private final RecipeLikeRepository recipeLikeRepository;
 
     private final FridgeService fridgeService;
 
@@ -164,22 +169,22 @@ public class RecipeService {
     @Transactional(readOnly = true)
     public Slice<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
         Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
-        Slice<RecipeResponse> responses = recipeRepository.findRecipes(fridgeId, isCookable, pageable);
+        Slice<RecipeResponse> responses = recipeRepository.findRecipes(fridgeId, user.getId(), isCookable, pageable);
         return responses;
     }
 
     @Transactional(readOnly = true)
     public Slice<RecipeResponse> searchRecipesWith(User user, String query, Boolean isCookable, Pageable pageable) {
         Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
-        Slice<RecipeResponse> responses = recipeRepository.searchRecipes(fridgeId, query, isCookable, pageable);
+        Slice<RecipeResponse> responses = recipeRepository.searchRecipes(fridgeId, user.getId(), query, isCookable, pageable);
         return responses;
     }
 
     @Transactional
-    public RecipeCommentResponse createComment(User user, Long recipeId, RecipeCommentCreateRequest request) {
+    public CommentResponse createComment(User user, Long recipeId, CommentCreateRequest request) {
         Recipe recipe = getRecipeById(recipeId);
         RecipeComment comment = new RecipeComment(recipe, user, request.getComment());
-        return RecipeCommentResponse.from(recipeCommentRepository.save(comment));
+        return CommentResponse.from(recipeCommentRepository.save(comment));
     }
 
     RecipeComment getRecipeCommentById(Long commentId) {
@@ -193,8 +198,25 @@ public class RecipeService {
         recipeCommentRepository.delete(comment);
     }
 
-    public Slice<RecipeCommentResponse> getCommentsOfRecipe(Long recipeId, Pageable pageable) {
+    public Slice<CommentResponse> getCommentsOfRecipe(Long recipeId, Pageable pageable) {
         if (recipeRepository.findById(recipeId).isEmpty()) throw new NotFoundException(ErrorCode.RECIPE_NOT_FOUND);
-        return recipeCommentRepository.findRecipeComments(recipeId, pageable).map(RecipeCommentResponse::from);
+        return recipeCommentRepository.findRecipeComments(recipeId, pageable).map(CommentResponse::from);
     }
+
+    @Transactional
+    public void toggleRecipeLike(User user, Long recipeId) {
+        Optional<RecipeLike> likeOptional = recipeLikeRepository.findByUserIdAndRecipeId(user.getId(), recipeId);
+        likeOptional.ifPresentOrElse(this::unlikeRecipe, () -> likeRecipe(user, recipeId));
+    }
+
+    void likeRecipe(User user, Long recipeId) {
+        Recipe recipe = getRecipeById(recipeId);
+        recipeLikeRepository.save(new RecipeLike(recipe, user));
+    }
+
+    void unlikeRecipe(RecipeLike recipeLike) {
+        recipeLikeRepository.delete(recipeLike);
+    }
+
+
 }

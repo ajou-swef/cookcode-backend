@@ -1,6 +1,7 @@
 package com.swef.cookcode.recipe.domain;
 
 import com.swef.cookcode.user.domain.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,7 +37,7 @@ public class RecipeReport {
     @Column(name = "recipe_report_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
