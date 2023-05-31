@@ -31,11 +31,11 @@ public class RecipeComment extends BaseEntity {
     @Column(name = "recipe_comment_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
