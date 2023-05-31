@@ -53,5 +53,9 @@ jobs:
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://cookcode-app/$PROJECT_NAME/$GITHUB_SHA.zip
 
-      - name: Code Deploy
+      - name: Code Deploy to EC2
         run: aws deploy create-deployment --application-name cookcode-dev-deploy --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name dev --s3-location bucket=cookcode-app,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+
+      - name: Code Deploy to Auto Scaling Groupo
+        run: aws deploy create-deployment --application-name cookcode-dev-deploy --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name dev --s3-location bucket=cookcode-app,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+
