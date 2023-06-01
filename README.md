@@ -1,6 +1,6 @@
 # cookcode backend
-
-[api 명세서](https://dolomite-mascara-65c.notion.site/API-5f5784b670a549978dc8d2442f40aca1)
+## API 명세
+[팀 API notion 바로가기](https://dolomite-mascara-65c.notion.site/API-5f5784b670a549978dc8d2442f40aca1)
 
 ## 협업 방식
 1. issue를 열고 개발할 todo를 작성하고, 브랜치를 생성
