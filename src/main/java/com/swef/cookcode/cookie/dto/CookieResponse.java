@@ -18,6 +18,8 @@ public class CookieResponse {
 
     private final String desc;
 
+    private final String thumbnailUrl;
+
     private final String videoUrl;
 
     private final Long recipeId;
@@ -37,6 +39,7 @@ public class CookieResponse {
         this.id = cookie.getId();
         this.title = cookie.getTitle();
         this.desc = cookie.getDescription();
+        this.thumbnailUrl = cookie.getThumbnailUrl();
         this.videoUrl = cookie.getVideoUrl();
         this.recipeId = isNull(cookie.getRecipe())? null : cookie.getRecipe().getId();
         this.createdAt = cookie.getCreatedAt();

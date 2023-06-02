@@ -31,6 +31,9 @@ public class Cookie extends BaseEntity {
     @Column(name = "description", nullable = false, length = MAX_DESCRIPTION_LENGTH)
     private String description;
 
+    @Column(name = "thumbnail_url", nullable = false, length = MAX_VIDEO_URL_LENGTH)
+    private String thumbnailUrl;
+
     @Column(name = "video_url", nullable = false, length = MAX_VIDEO_URL_LENGTH)
     private String videoUrl;
 
@@ -42,23 +45,17 @@ public class Cookie extends BaseEntity {
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
-    @Builder
-    public Cookie(String title, String description, String videoUrl, User user, Recipe recipe) {
+    private Cookie(String title, String description, String thumbnailUrl, String videoUrl, User user, Recipe recipe) {
         this.title = title;
         this.description = description;
+        this.thumbnailUrl = thumbnailUrl;
         this.videoUrl = videoUrl;
         this.user = user;
         this.recipe = recipe;
     }
 
-    public static Cookie createEntity(CookieCreateRequest request, User user, String cookieUrl, Recipe recipe) {
-        return Cookie.builder()
-                .title(request.getTitle())
-                .description(request.getDesc())
-                .videoUrl(cookieUrl)
-                .user(user)
-                .recipe(recipe)
-                .build();
+    public static Cookie createEntity(CookieCreateRequest request, User user, String thumbnailUrl, String cookieUrl, Recipe recipe) {
+        return new Cookie(request.getTitle(), request.getDesc(), thumbnailUrl, cookieUrl, user, recipe);
     }
 
     public void updateTitle(String title) {
