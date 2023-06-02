@@ -161,9 +161,16 @@ public class RecipeController {
     }
 
     @GetMapping("/user/{targetUserId}")
-    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipesOfUser(@CurrentUser User user, @PathVariable(value = "targetUserId") Long userId) {
-
-        return null;
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipesOfUser(@CurrentUser User user, @PathVariable(value = "targetUserId") Long userId,
+                                                                                       @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+                                                                                       Pageable pageable) {
+        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.getRecipeResponsesOfUser(user, userId, pageable));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("유저의 레시피 조회 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     @GetMapping("/{recipeId}")

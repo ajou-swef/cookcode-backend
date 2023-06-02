@@ -43,6 +43,16 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     }
 
     @Override
+    public Slice<RecipeResponse> findRecipesOfUser(Long fridgeId, Long userId, Long targetUserId, Pageable pageable) {
+        JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndLike(fridgeId, userId)
+                .where(recipe.author.id.eq(targetUserId))
+                .groupBy(recipe.id);
+        List<RecipeResponse> result = query.orderBy(recipe.createdAt.desc()).offset(pageable.getOffset()).limit(
+                pageable.getPageSize()+1).fetch();
+        return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
+    }
+
+    @Override
     public Slice<RecipeResponse> searchRecipes(Long fridgeId, Long userId, String searchQuery, Boolean isCookable, Pageable pageable) {
         JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndLike(fridgeId, userId)
                 .where(recipeSearchContains(searchQuery))
