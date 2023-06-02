@@ -160,6 +160,12 @@ public class RecipeController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @GetMapping("/user/{targetUserId}")
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipesOfUser(@CurrentUser User user, @PathVariable(value = "targetUserId") Long userId) {
+
+        return null;
+    }
+
     @GetMapping("/{recipeId}")
     public ResponseEntity<ApiResponse<RecipeResponse>> getRecipeById(@CurrentUser User user, @PathVariable("recipeId") Long recipeId) {
 
