@@ -3,14 +3,18 @@ package com.swef.cookcode.user.service;
 import static com.swef.cookcode.common.ErrorCode.LOGIN_PARAM_REQUIRED;
 import static com.swef.cookcode.common.ErrorCode.USER_ALREADY_EXISTS;
 import static com.swef.cookcode.common.ErrorCode.USER_NOT_FOUND;
+import static java.util.Objects.nonNull;
 import static org.springframework.util.StringUtils.hasText;
 
+import com.swef.cookcode.common.UrlResponse;
 import com.swef.cookcode.common.error.exception.AlreadyExistsException;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
+import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.user.domain.Authority;
 import com.swef.cookcode.user.domain.Subscribe;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.dto.request.ProfileImageUpdateRequest;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.repository.SubscribeRepository;
@@ -23,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +38,25 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final SubscribeRepository subscribeRepository;
+
+    private final S3Util s3Util;
+
+    private final static String PROFILEIMAGE_DIRECTORY = "profileImage";
+
+    @Transactional
+    public UrlResponse updateProfileImage(User user, MultipartFile profileImage) {
+        String newUrl = null;
+        if (nonNull(profileImage)) {
+            newUrl = s3Util.upload(profileImage, PROFILEIMAGE_DIRECTORY);
+        }
+        if (hasText(user.getProfileImage())) {
+            s3Util.deleteFile(user.getProfileImage());
+        }
+        user.updateProfileImage(newUrl);
+        userRepository.save(user);
+        return UrlResponse.builder()
+                .urls(List.of(newUrl)).build();
+    }
 
     @Transactional(readOnly = true)
     public User signIn(String principal, String credentials) {
