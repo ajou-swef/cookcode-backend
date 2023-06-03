@@ -5,13 +5,12 @@ import static org.springframework.http.HttpStatus.OK;
 
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
-import com.swef.cookcode.common.UrlResponse;
+import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.common.jwt.JwtAuthenticationToken;
 import com.swef.cookcode.common.jwt.JwtPrincipal;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.user.domain.User;
-import com.swef.cookcode.user.dto.request.ProfileImageUpdateRequest;
 import com.swef.cookcode.user.dto.request.UserSignInRequest;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
 import com.swef.cookcode.user.dto.response.SignInResponse;
@@ -36,7 +35,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -124,9 +122,14 @@ public class AccountController {
     }
 
     @PatchMapping("/profileImage")
-    public ResponseEntity<ApiResponse<UrlResponse>> updateProfileImage(@CurrentUser User user, @RequestPart(value = "profileImage") MultipartFile profileImage) {
+    public ResponseEntity<ApiResponse<UrlResponse>> updateProfileImage(@CurrentUser User user, @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         UrlResponse response = userService.updateProfileImage(user, profileImage);
-        return null;
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("유저의 프로필 이미지 수정 성공")
+                .status(OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     @PatchMapping

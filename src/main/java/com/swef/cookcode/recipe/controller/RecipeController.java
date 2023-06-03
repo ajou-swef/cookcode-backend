@@ -2,7 +2,7 @@ package com.swef.cookcode.recipe.controller;
 
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
-import com.swef.cookcode.common.UrlResponse;
+import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.dto.CommentCreateRequest;
 import com.swef.cookcode.common.dto.CommentResponse;
