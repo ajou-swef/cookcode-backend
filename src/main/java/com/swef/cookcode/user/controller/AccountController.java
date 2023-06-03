@@ -4,8 +4,8 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.swef.cookcode.common.ApiResponse;
-import com.swef.cookcode.common.PageResponse;
 import com.swef.cookcode.common.SliceResponse;
+import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.common.jwt.JwtAuthenticationToken;
 import com.swef.cookcode.common.jwt.JwtPrincipal;
@@ -22,7 +22,6 @@ import com.swef.cookcode.user.service.UserService;
 import com.swef.cookcode.user.service.UserSimpleService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -42,7 +41,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/v1/account")
@@ -116,6 +117,17 @@ public class AccountController {
                 .message("유저 정보 조회 성공")
                 .status(OK.value())
                 .data(res)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PatchMapping("/profileImage")
+    public ResponseEntity<ApiResponse<UrlResponse>> updateProfileImage(@CurrentUser User user, @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+        UrlResponse response = userService.updateProfileImage(user, profileImage);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("유저의 프로필 이미지 수정 성공")
+                .status(OK.value())
+                .data(response)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
