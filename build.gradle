@@ -56,7 +56,6 @@ dependencies {
 
     // 썸네일
     implementation 'org.bytedeco:javacv-platform:1.5.7'
-
 }
 
 def querydslSrcDir = 'src/main/generated'

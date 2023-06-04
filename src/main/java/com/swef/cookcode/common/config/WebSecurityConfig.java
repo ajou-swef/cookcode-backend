@@ -82,7 +82,7 @@ public class WebSecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/account/signin", "/api/v1/account/signup", "/api/v1/account/check").permitAll()
+                .requestMatchers("/api/v1/account/signin", "/api/v1/account/signup", "/api/v1/account/check", "/health").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()

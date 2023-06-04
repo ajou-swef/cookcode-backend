@@ -4,8 +4,8 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.swef.cookcode.common.ApiResponse;
-import com.swef.cookcode.common.PageResponse;
 import com.swef.cookcode.common.SliceResponse;
+import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.common.jwt.JwtAuthenticationToken;
 import com.swef.cookcode.common.jwt.JwtPrincipal;
@@ -22,7 +22,6 @@ import com.swef.cookcode.user.service.UserService;
 import com.swef.cookcode.user.service.UserSimpleService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -42,7 +41,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/v1/account")
@@ -120,6 +121,17 @@ public class AccountController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @PatchMapping("/profileImage")
+    public ResponseEntity<ApiResponse<UrlResponse>> updateProfileImage(@CurrentUser User user, @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+        UrlResponse response = userService.updateProfileImage(user, profileImage);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("유저의 프로필 이미지 수정 성공")
+                .status(OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
     @PatchMapping
     public ResponseEntity<ApiResponse<UserDetailResponse>> quit(@CurrentUser User user) {
         User returnedUser = userService.quit(user);
@@ -146,4 +158,60 @@ public class AccountController {
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
+
+    @PostMapping("/subscribe/{createrId}")
+    public ResponseEntity<ApiResponse> createSubscribe(@CurrentUser User user, @PathVariable Long createrId){
+
+        userService.createSubscribe(user, createrId);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("크리에이터 구독 성공")
+                .status(OK.value())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/subscribe/subscribers")
+    public ResponseEntity<ApiResponse<List<UserSimpleResponse>>> getSubscribers(@CurrentUser User user){
+
+        List<UserSimpleResponse> response = userService.getSubscribers(user);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("사용자의 구독자 조회 성공")
+                .status(OK.value())
+                .data(response)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/subscribe/publishers")
+    public ResponseEntity<ApiResponse<List<UserSimpleResponse>>> getPublishers(@CurrentUser User user){
+
+        List<UserSimpleResponse> response = userService.getPublishers(user);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("구독한 크리에이터 조회 성공")
+                .status(OK.value())
+                .data(response)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @DeleteMapping("/subscribe/{createrId}")
+    public ResponseEntity<ApiResponse> deleteSubscribe(
+            @CurrentUser User user, @PathVariable Long createrId){
+
+        userService.deleteSubscribe(user, createrId);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("구독 취소 성공")
+                .status(OK.value())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
 }

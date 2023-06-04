@@ -1,5 +1,6 @@
 package com.swef.cookcode.common;
 
+import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.util.S3Util;
 import java.util.HashSet;

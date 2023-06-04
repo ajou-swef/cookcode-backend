@@ -1,6 +1,7 @@
 package com.swef.cookcode.cookie.service;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.swef.cookcode.common.dto.CommentResponse;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.common.error.exception.ThumbnailException;
@@ -9,7 +10,6 @@ import com.swef.cookcode.common.util.ThumbnailUtil;
 import com.swef.cookcode.cookie.domain.Cookie;
 import com.swef.cookcode.cookie.domain.CookieComment;
 import com.swef.cookcode.cookie.domain.CookieLike;
-import com.swef.cookcode.cookie.dto.CookieCommentResponse;
 import com.swef.cookcode.cookie.dto.CookieCreateRequest;
 import com.swef.cookcode.cookie.dto.CookiePatchRequest;
 import com.swef.cookcode.cookie.dto.CookieResponse;
@@ -34,7 +34,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import java.util.Optional;
+
 import static com.swef.cookcode.common.ErrorCode.*;
+import static com.swef.cookcode.common.ErrorCode.COOKIE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -106,21 +109,33 @@ public class CookieService {
 
     @Transactional
     public void deleteCookie(Long cookieId) {
+        cookieLikeRepository.deleteByCookieId(cookieId);
+
+        cookieCommentRepository.deleteByCookieId(cookieId);
+
         cookieRepository.deleteById(cookieId);
     }
 
     @Transactional
-    public void createLike(User user, Long cookieId) {
+    public void toggleLike(User user, Long cookieId) {
+        Optional<CookieLike> likeOptional = cookieLikeRepository.findByUserIdAndCookieId(user.getId(), cookieId);
 
+        likeOptional.ifPresentOrElse(this::unlikeCookie, () -> likeCookie(user, cookieId));
+    }
+
+    void likeCookie(User user, Long cookieId) {
         Cookie cookie = cookieRepository.getReferenceById(cookieId);
 
-        CookieLike cookieLike = CookieLike.createEntity(user, cookie);
+        cookieLikeRepository.save(CookieLike.createEntity(user, cookie));
+    }
 
-        cookieLikeRepository.save(cookieLike);
+    void unlikeCookie(CookieLike cookieLike) {
+        cookieLikeRepository.delete(cookieLike);
     }
 
     @Transactional
     public void createCommentOfCookie(User user, Long cookieId, String comment) {
+        cookieRepository.findById(cookieId).orElseThrow(() -> new NotFoundException(COOKIE_NOT_FOUND));
 
         Cookie cookie = cookieRepository.getReferenceById(cookieId);
 
@@ -130,16 +145,19 @@ public class CookieService {
     }
 
     @Transactional(readOnly = true)
-    public List<CookieCommentResponse> getCommentsOfCookie(Long cookieId) {
-        List<CookieComment> cookieComments = cookieCommentRepository.findCookieComments(cookieId);
+    public Slice<CommentResponse> getCommentsOfCookie(Pageable pageable, Long cookieId) {
+        cookieRepository.findById(cookieId).orElseThrow(() -> new NotFoundException(COOKIE_NOT_FOUND));
 
-        return cookieComments.stream().map(CookieCommentResponse::of).toList();
+        Slice<CookieComment> cookieComments = cookieCommentRepository.findCookieComments(pageable, cookieId);
+
+        return cookieComments.map(CommentResponse::from);
     }
 
     @Transactional
     public void deleteCommentOfCookie(User user, Long commentId) {
         CookieComment cookieComment = cookieCommentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(COOKIE_COMMENT_NOT_FOUND));
+
         if(!Objects.equals(user.getId(), cookieComment.getUser().getId())){
             throw new PermissionDeniedException(COOKIE_COMMENT_USER_MISSMATCH);
         }

@@ -9,4 +9,6 @@ public interface RecipeCustomRepository {
     Slice<RecipeResponse> findRecipes(Long userId, Boolean isCookable, Pageable pageable);
 
     Slice<RecipeResponse> searchRecipes(Long userId, String query, Boolean isCookable, Pageable pageable);
+
+    Slice<RecipeResponse> findRecipesOfUser(Long userId, Long targetUserId, Pageable pageable);
 }
