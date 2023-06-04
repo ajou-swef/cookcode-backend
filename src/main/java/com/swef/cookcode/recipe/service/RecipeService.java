@@ -116,12 +116,9 @@ public class RecipeService {
         });
     }
 
-    // TODO : Recipe fetch 할 때 validation 안되서 임의로 추가.
     @Transactional(readOnly = true)
-    public RecipeResponse getRecipeResponseById(Long recipeId) {
-        validateRecipeById(recipeId);
-        Recipe recipe = recipeRepository.findAllElementsById(recipeId).orElseThrow(() -> new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
-        return RecipeResponse.from(recipe);
+    public RecipeResponse getRecipeResponseById(User user, Long recipeId) {
+        return recipeRepository.findRecipeById(user.getId(), recipeId).orElseThrow(() -> new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
     }
 
     void saveNecessaryIngredientsOfRecipe(Recipe recipe, List<Ingredient> ingredients) {
