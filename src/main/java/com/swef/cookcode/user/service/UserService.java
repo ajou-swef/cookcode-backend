@@ -16,14 +16,14 @@ import com.swef.cookcode.user.dto.request.UserSignUpRequest;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.repository.SubscribeRepository;
 import com.swef.cookcode.user.repository.UserRepository;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +48,9 @@ public class UserService {
 
     @Transactional
     public User signUp(UserSignUpRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            User existUser = userRepository.findByEmail(request.getEmail()).get();
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        if (userOptional.isPresent()) {
+            User existUser = userOptional.get();
             if (existUser.getIsQuit()) {
                 existUser.rejoin();
                 return userRepository.save(existUser);

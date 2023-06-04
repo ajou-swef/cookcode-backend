@@ -60,6 +60,8 @@ public class AccountController {
 
     private final UserSimpleService userSimpleService;
 
+    // TODO : 비밀번호 찾기 시, 이메일로 임시 비밀번호 발급
+
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<SignInResponse>> signIn(
             @RequestBody @Valid UserSignInRequest request) {
@@ -203,9 +205,6 @@ public class AccountController {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // TODO : 회원가입 시 이메일 인증
-    // TODO : 비밀번호 찾기 시, 이메일로 임시 비밀번호 발급
-    // TODO : 비밀번호 변경 시, 기존 비밀번호, 새로운 비밀번호 입력하여 변경하기
     @PatchMapping("/password")
     public ResponseEntity<ApiResponse> changePassword(@CurrentUser User user, @RequestBody @Valid ChangePasswordRequest request) {
         userService.changePassword(user, request);
