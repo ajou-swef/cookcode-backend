@@ -1,5 +1,6 @@
 package com.swef.cookcode.user.controller;
 
+import static com.swef.cookcode.common.ErrorCode.INVALID_INPUT_VALUE;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -9,6 +10,7 @@ import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.Util;
 import com.swef.cookcode.common.dto.EmailMessage;
 import com.swef.cookcode.common.entity.CurrentUser;
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.jwt.JwtAuthenticationToken;
 import com.swef.cookcode.common.jwt.JwtPrincipal;
 import com.swef.cookcode.common.util.EmailUtil;
@@ -28,6 +30,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -221,16 +224,18 @@ public class AccountController {
 
     @PostMapping("/email")
     public ResponseEntity<ApiResponse<String>> authenticateEmail(@RequestParam(value = "email") String email) {
-        // TODO : EmailMessage 생성 시 email 양식 맞는 지 validation
+        if (!Pattern.matches(User.EMAIL_REGEX, email)) throw new InvalidRequestException(INVALID_INPUT_VALUE);
+        String code = Util.createNumberCode(6);
         EmailMessage message = EmailMessage.builder()
                 .receiver(email)
                 .title("[cookcode] 이메일 인증을 위한 인증 코드 발송해드립니다.")
-                .content("423fjkdla")
+                .content(code)
                 .build();
         emailUtil.sendMessage(message);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("이메일 인증코드 발송 성공")
                 .status(OK.value())
+                .data(code)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

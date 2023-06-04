@@ -30,7 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Getter
 public class User extends BaseEntity {
 
-    private static final String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+    public static final String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
 
     private static final String NICKNAME_REGEX = "^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,16}$";
 
