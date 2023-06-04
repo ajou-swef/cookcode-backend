@@ -1,27 +1,48 @@
 package com.swef.cookcode.common.util;
 
+import com.swef.cookcode.common.error.exception.ThumbnailException;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.opencv.global.opencv_imgcodecs;
 import org.bytedeco.opencv.opencv_core.Mat;
 
-import java.io.InputStream;
+import java.io.*;
+
+import static com.swef.cookcode.common.ErrorCode.FFMPEGFRAMEGRABBER_FAILED;
 
 public class ThumbnailUtil {
 
-    public static void extractFirstFrame(InputStream inputStream, String outputImagePath) throws FrameGrabber.Exception {
-        FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(inputStream);
-        grabber.start();
+    public static InputStream extractFirstFrame(InputStream inputStream){
 
-        Frame frame = grabber.grabImage();
+        try {
+            FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(inputStream);
+            grabber.start();
 
-        OpenCVFrameConverter.ToMat converter = new OpenCVFrameConverter.ToMat();
-        Mat mat = converter.convert(frame);
-        opencv_imgcodecs.imwrite(outputImagePath, mat);
+            Frame frame = grabber.grabImage();
 
-        grabber.stop();
-        grabber.release();
+            grabber.stop();
+            grabber.release();
+
+            OpenCVFrameConverter.ToMat converter = new OpenCVFrameConverter.ToMat();
+
+            Mat mat = converter.convert(frame);
+
+            opencv_imgcodecs.imwrite("./output.png", mat);
+
+            return matToInputStream(mat);
+
+        } catch (FFmpegFrameGrabber.Exception e) {
+            throw new ThumbnailException(FFMPEGFRAMEGRABBER_FAILED);
+        }
+    }
+
+
+    private static InputStream matToInputStream(Mat mat) {
+        byte[] byteArray = new byte[mat.size().area()];
+
+        opencv_imgcodecs.imencode("./stream.png", mat, byteArray);
+
+        return new ByteArrayInputStream(byteArray);
     }
 }
