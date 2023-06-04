@@ -14,6 +14,7 @@ import com.swef.cookcode.user.domain.Authority;
 import com.swef.cookcode.user.domain.Subscribe;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
+import com.swef.cookcode.user.dto.response.UserDetailResponse;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.repository.SubscribeRepository;
 import com.swef.cookcode.user.repository.UserRepository;
@@ -103,8 +104,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<User> searchUsersWith(String searchQuery, Pageable pageable) {
-        return userRepository.findByNicknameContaining(searchQuery, pageable);
+    public Slice<UserDetailResponse> searchUsersWith(Long userId, String searchQuery, Pageable pageable) {
+        return userRepository.findByNicknameContaining(userId, searchQuery, pageable);
     }
 
     @Transactional

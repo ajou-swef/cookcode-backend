@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
     boolean existsByNicknameAndIsQuit(@Param("nickname") String nickname, @Param("isQuit") Boolean isQuit);
 
     boolean existsByIdAndIsQuit(@Param("userId") Long userId, @Param("isQuit") Boolean isQuit);
-
-    @Query(value = "select u from User u where u.isQuit = false and u.authority = 'USER' and u.nickname like %:searchQuery%")
-    Slice<User> findByNicknameContaining(@Param("searchQuery") String searchQuery, Pageable pageable);
+//
+//    @Query(value = "select u from User u where u.isQuit = false and u.authority = 'USER' and u.nickname like %:searchQuery%")
+//    Slice<User> findByNicknameContaining(@Param("searchQuery") String searchQuery, Pageable pageable);
 }

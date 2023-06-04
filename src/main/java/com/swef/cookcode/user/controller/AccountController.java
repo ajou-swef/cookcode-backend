@@ -150,8 +150,11 @@ public class AccountController {
                                                                                       @RequestParam(value = "nickname") String nickname,
                                                                                       @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
                                                                                           Pageable pageable) {
-        Slice<User> users = userService.searchUsersWith(nickname, pageable);
-        SliceResponse<UserDetailResponse> response = new SliceResponse<>(users.map(UserDetailResponse::from));
+
+        Slice<UserDetailResponse> users = userService.searchUsersWith(user.getId(), nickname, pageable);
+
+        SliceResponse<UserDetailResponse> response = new SliceResponse<>(users);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("유저 검색 성공")
                 .status(OK.value())
