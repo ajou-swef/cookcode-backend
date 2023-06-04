@@ -128,21 +128,14 @@ public class UserService {
 
 
     @Transactional(readOnly = true)
-    public List<UserSimpleResponse> getSubscribers(User user) {
-        List<Subscribe> subscribes = subscribeRepository.findSubscribers(user);
-
-        return subscribes.stream().map(
-                subscribe -> UserSimpleResponse.from(subscribe.getSubscriber())
-        ).toList();
+    public Slice<UserDetailResponse> getSubscribers(Pageable pageable, User user) {
+//        List<Subscribe> subscribes = subscribeRepository.findSubscribers(user);
+        return userRepository.findSubscribers(pageable, user.getId());
     }
 
     @Transactional(readOnly = true)
-    public List<UserSimpleResponse> getPublishers(User user) {
-        List<Subscribe> subscribes = subscribeRepository.findPublishers(user);
-
-        return subscribes.stream().map(
-                subscribe -> UserSimpleResponse.from(subscribe.getPublisher())
-        ).toList();
+    public Slice<UserDetailResponse> getPublishers(Pageable pageable, User user) {
+        return userRepository.findPublishers(pageable, user.getId());
     }
 
 }

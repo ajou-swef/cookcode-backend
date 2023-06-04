@@ -177,9 +177,11 @@ public class AccountController {
     }
 
     @GetMapping("/subscribe/subscribers")
-    public ResponseEntity<ApiResponse<List<UserSimpleResponse>>> getSubscribers(@CurrentUser User user){
+    public ResponseEntity<ApiResponse<SliceResponse<UserDetailResponse>>> getSubscribers(
+            @CurrentUser User user, Pageable pageable){
 
-        List<UserSimpleResponse> response = userService.getSubscribers(user);
+        Slice<UserDetailResponse> subscribers = userService.getSubscribers(pageable, user);
+        SliceResponse<UserDetailResponse> response = new SliceResponse<>(subscribers);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("사용자의 구독자 조회 성공")
@@ -191,9 +193,11 @@ public class AccountController {
     }
 
     @GetMapping("/subscribe/publishers")
-    public ResponseEntity<ApiResponse<List<UserSimpleResponse>>> getPublishers(@CurrentUser User user){
+    public ResponseEntity<ApiResponse<SliceResponse<UserDetailResponse>>> getPublishers(
+            @CurrentUser User user, Pageable pageable){
 
-        List<UserSimpleResponse> response = userService.getPublishers(user);
+        Slice<UserDetailResponse> publishers = userService.getPublishers(pageable, user);
+        SliceResponse<UserDetailResponse> response = new SliceResponse<>(publishers);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("구독한 크리에이터 조회 성공")

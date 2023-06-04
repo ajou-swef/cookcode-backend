@@ -9,4 +9,7 @@ public interface UserCustomRepository {
 
     Slice<UserDetailResponse> findByNicknameContaining(Long userId, String searchQuery, Pageable pageable);
 
+    Slice<UserDetailResponse> findSubscribers(Pageable pageable, Long userId);
+
+    Slice<UserDetailResponse> findPublishers(Pageable pageable, Long userId);
 }
