@@ -6,9 +6,11 @@ import static org.springframework.http.HttpStatus.OK;
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.PageResponse;
 import com.swef.cookcode.common.SliceResponse;
+import com.swef.cookcode.common.dto.EmailMessage;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.common.jwt.JwtAuthenticationToken;
 import com.swef.cookcode.common.jwt.JwtPrincipal;
+import com.swef.cookcode.common.util.EmailUtil;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.request.ChangePasswordRequest;
@@ -60,6 +62,7 @@ public class AccountController {
 
     private final UserSimpleService userSimpleService;
 
+    private final EmailUtil emailUtil;
     // TODO : 비밀번호 찾기 시, 이메일로 임시 비밀번호 발급
 
     @PostMapping("/signin")
@@ -210,6 +213,22 @@ public class AccountController {
         userService.changePassword(user, request);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("비밀번호 변경 성공")
+                .status(OK.value())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PostMapping("/email")
+    public ResponseEntity<ApiResponse<String>> authenticateEmail(@RequestParam(value = "email") String email) {
+        // TODO : EmailMessage 생성 시 email 양식 맞는 지 validation
+        EmailMessage message = EmailMessage.builder()
+                .receiver(email)
+                .title("[cookcode] 이메일 인증을 위한 인증 코드 발송해드립니다.")
+                .content("423fjkdla")
+                .build();
+        emailUtil.sendMessage(message);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("이메일 인증코드 발송 성공")
                 .status(OK.value())
                 .build();
         return ResponseEntity.ok(apiResponse);
