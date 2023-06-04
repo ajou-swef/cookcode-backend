@@ -111,12 +111,13 @@ public class AccountController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserDetailResponse>> getUserInfo(@CurrentUser User user, @PathVariable("userId") Long userId) {
-        User returnedUser = userSimpleService.getUserById(userId);
-        UserDetailResponse res = UserDetailResponse.from(returnedUser);
+
+        UserDetailResponse data = userSimpleService.getInfoByUserId(user.getId(), userId);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("유저 정보 조회 성공")
                 .status(OK.value())
-                .data(res)
+                .data(data)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

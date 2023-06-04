@@ -23,6 +23,21 @@ public class UserDetailResponse {
 
     private final String authority;
 
+    private final Long isSubscribed;
+
+    private final Long subscriberCount;
+
+    public UserDetailResponse(User user, Long isSubscribed, Long subscriberCount) {
+        this.userId = user.getId();
+        this.email = user.getEmail();
+        this.nickname = user.getNickname();
+        this.profileImage = hasText(user.getProfileImage()) ? user.getProfileImage() : null;
+        this.status = user.getStatus().toString();
+        this.authority = user.getAuthority().toString();
+        this.isSubscribed = isSubscribed;
+        this.subscriberCount = subscriberCount;
+    }
+
     public static UserDetailResponse from(User user) {
         return UserDetailResponse.builder()
                 .userId(user.getId())
