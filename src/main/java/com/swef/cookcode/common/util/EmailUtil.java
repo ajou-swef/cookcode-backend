@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,14 +21,16 @@ public class EmailUtil {
 
     private final EmailConfig emailConfig;
 
+    @Async
     public void sendMessage(EmailMessage message) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         try {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            messageHelper.setFrom(emailConfig.getUsername());
+            messageHelper.setFrom("cookcode <"+emailConfig.getUsername()+">");
             messageHelper.setTo(message.getReceiver());
             messageHelper.setSubject(message.getTitle());
             messageHelper.setText(message.getContent(), true);
+            mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             logger.warn(e.getMessage());
         }
