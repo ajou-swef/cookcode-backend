@@ -240,4 +240,9 @@ public class AccountController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @GetMapping("/password")
+    public ResponseEntity<ApiResponse> findPassword(){
+
+    }
+
 }
