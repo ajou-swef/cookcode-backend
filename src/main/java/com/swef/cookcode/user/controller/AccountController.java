@@ -11,6 +11,7 @@ import com.swef.cookcode.common.jwt.JwtAuthenticationToken;
 import com.swef.cookcode.common.jwt.JwtPrincipal;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.dto.request.ChangePasswordRequest;
 import com.swef.cookcode.user.dto.request.UserSignInRequest;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
 import com.swef.cookcode.user.dto.response.SignInResponse;
@@ -199,6 +200,19 @@ public class AccountController {
                 .status(OK.value())
                 .build();
 
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // TODO : 회원가입 시 이메일 인증
+    // TODO : 비밀번호 찾기 시, 이메일로 임시 비밀번호 발급
+    // TODO : 비밀번호 변경 시, 기존 비밀번호, 새로운 비밀번호 입력하여 변경하기
+    @PatchMapping("/password")
+    public ResponseEntity<ApiResponse> changePassword(@CurrentUser User user, @RequestBody @Valid ChangePasswordRequest request) {
+        userService.changePassword(user, request);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("비밀번호 변경 성공")
+                .status(OK.value())
+                .build();
         return ResponseEntity.ok(apiResponse);
     }
 

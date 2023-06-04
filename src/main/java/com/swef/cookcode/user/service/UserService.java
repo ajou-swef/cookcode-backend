@@ -11,6 +11,7 @@ import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.user.domain.Authority;
 import com.swef.cookcode.user.domain.Subscribe;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.dto.request.ChangePasswordRequest;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.repository.SubscribeRepository;
@@ -116,5 +117,12 @@ public class UserService {
         User creater = userRepository.getReferenceById(createrId);
 
         subscribeRepository.deleteByPublisherAndSubscriber(creater, user);
+    }
+
+    @Transactional
+    public void changePassword(User user, ChangePasswordRequest request) {
+        user.checkPassword(passwordEncoder, request.getPassword());
+        user.changePassword(passwordEncoder, request.getNewPassword());
+        userRepository.save(user);
     }
 }
