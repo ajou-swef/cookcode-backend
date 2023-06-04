@@ -18,6 +18,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.recipe.domain.QRecipeLike;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -50,6 +51,15 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
         List<RecipeResponse> result = query.orderBy(recipe.createdAt.desc()).offset(pageable.getOffset()).limit(
                 pageable.getPageSize()+1).fetch();
         return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
+    }
+
+    @Override
+    public Optional<RecipeResponse> findRecipeById(Long userId, Long recipeId) {
+        RecipeResponse response = selectRecipesWithCookableAndLike(userId)
+                .where(recipe.id.eq(recipeId))
+                .groupBy(recipe.id)
+                .fetchFirst();
+        return Optional.ofNullable(response);
     }
 
     @Override
