@@ -3,6 +3,7 @@ package com.swef.cookcode.user.service;
 import static com.swef.cookcode.common.ErrorCode.LOGIN_PARAM_REQUIRED;
 import static com.swef.cookcode.common.ErrorCode.USER_ALREADY_EXISTS;
 import static com.swef.cookcode.common.ErrorCode.USER_NOT_FOUND;
+import static java.util.Objects.nonNull;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.swef.cookcode.common.dto.UrlResponse;
@@ -19,8 +20,6 @@ import com.swef.cookcode.user.repository.SubscribeRepository;
 import com.swef.cookcode.user.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,7 +43,7 @@ public class UserService {
     @Transactional
     public UrlResponse updateProfileImage(User user, MultipartFile profileImage) {
         String newUrl = "";
-        if (!profileImage.isEmpty()) {
+        if (nonNull(profileImage) && !profileImage.isEmpty()) {
             newUrl = s3Util.upload(profileImage, PROFILEIMAGE_DIRECTORY);
         }
         if (hasText(user.getProfileImage())) {
