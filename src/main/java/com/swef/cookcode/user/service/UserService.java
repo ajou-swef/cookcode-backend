@@ -18,9 +18,9 @@ import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.repository.SubscribeRepository;
 import com.swef.cookcode.user.repository.UserRepository;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -108,13 +108,23 @@ public class UserService {
     }
 
     @Transactional
-    public void createSubscribe(User user, Long createrId) {
-        User creater = userRepository.getReferenceById(createrId);
+    public void toggleSubscribe(User user, Long createrId) {
+        User publisher = userRepository.getReferenceById(createrId);
 
-        Subscribe subscribe = Subscribe.createEntity(user, creater);
+        Optional<Subscribe> subscribeOptional = subscribeRepository.findBySubscriberAndPublisher(user, publisher);
+
+        subscribeOptional.ifPresentOrElse(this::unSubscribe, () -> subscribe(user, publisher));
+    }
+
+    void subscribe(User user, User publisher) {
+        Subscribe subscribe = Subscribe.createEntity(user, publisher);
 
         subscribeRepository.save(subscribe);
     }
+    void unSubscribe(Subscribe subscribe) {
+        subscribeRepository.delete(subscribe);
+    }
+
 
     @Transactional(readOnly = true)
     public List<UserSimpleResponse> getSubscribers(User user) {
@@ -134,10 +144,4 @@ public class UserService {
         ).toList();
     }
 
-    @Transactional
-    public void deleteSubscribe(User user, Long createrId) {
-        User creater = userRepository.getReferenceById(createrId);
-
-        subscribeRepository.deleteByPublisherAndSubscriber(creater, user);
-    }
 }

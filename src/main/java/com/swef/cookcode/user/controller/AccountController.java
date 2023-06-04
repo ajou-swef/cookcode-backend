@@ -160,12 +160,12 @@ public class AccountController {
     }
 
     @PostMapping("/subscribe/{createrId}")
-    public ResponseEntity<ApiResponse> createSubscribe(@CurrentUser User user, @PathVariable Long createrId){
+    public ResponseEntity<ApiResponse> toggleSubscribe(@CurrentUser User user, @PathVariable Long createrId){
 
-        userService.createSubscribe(user, createrId);
+        userService.toggleSubscribe(user, createrId);
 
         ApiResponse apiResponse = ApiResponse.builder()
-                .message("크리에이터 구독 성공")
+                .message("크리에이터 구독 상태 변경 성공")
                 .status(OK.value())
                 .build();
 
@@ -195,20 +195,6 @@ public class AccountController {
                 .message("구독한 크리에이터 조회 성공")
                 .status(OK.value())
                 .data(response)
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
-    }
-
-    @DeleteMapping("/subscribe/{createrId}")
-    public ResponseEntity<ApiResponse> deleteSubscribe(
-            @CurrentUser User user, @PathVariable Long createrId){
-
-        userService.deleteSubscribe(user, createrId);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .message("구독 취소 성공")
-                .status(OK.value())
                 .build();
 
         return ResponseEntity.ok(apiResponse);
