@@ -31,8 +31,6 @@ public class RecipeResponse {
 
     private List<IngredSimpleResponse> optionalIngredients;
 
-    private List<StepResponse> steps;
-
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -60,35 +58,6 @@ public class RecipeResponse {
         this.likeCount = likeCount;
         this.isLiked = isLiked;
         this.commentCount = commentCount;
-    }
-
-    public static RecipeResponse from(Recipe recipe) {
-        return RecipeResponse.builder()
-                .recipeId(recipe.getId())
-                .user(UserSimpleResponse.from(recipe.getAuthor()))
-                .title(recipe.getTitle())
-                .description(recipe.getDescription())
-                .ingredients(convert(recipe.getNecessaryIngredients()))
-                .optionalIngredients(convert(recipe.getOptionalIngredients()))
-                .steps(recipe.getSteps().stream().map(s -> StepResponse.from(s, s.getPhotos(), s.getVideos())).toList())
-                .createdAt(recipe.getCreatedAt())
-                .updatedAt(recipe.getUpdatedAt())
-                .thumbnail(recipe.getThumbnail())
-                .build();
-    }
-
-    public static RecipeResponse getMeta(Recipe recipe) {
-        return RecipeResponse.builder()
-                .recipeId(recipe.getId())
-                .user(UserSimpleResponse.from(recipe.getAuthor()))
-                .title(recipe.getTitle())
-                .description(recipe.getDescription())
-                .ingredients(convert(recipe.getNecessaryIngredients()))
-                .optionalIngredients(convert(recipe.getOptionalIngredients()))
-                .createdAt(recipe.getCreatedAt())
-                .updatedAt(recipe.getUpdatedAt())
-                .thumbnail(recipe.getThumbnail())
-                .build();
     }
 
     private static List<IngredSimpleResponse> convert(List<RecipeIngred> ingreds) {

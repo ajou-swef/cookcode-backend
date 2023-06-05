@@ -16,6 +16,7 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.recipe.domain.QRecipeLike;
+import com.swef.cookcode.recipe.dto.response.RecipeDetailResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +56,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
 
     @Override
     public Optional<RecipeResponse> findRecipeById(Long userId, Long recipeId) {
-        RecipeResponse response = selectRecipesWithCookableAndLike(userId)
+        RecipeResponse response = selectDetailRecipeWithCookableAndLike(userId)
                 .where(recipe.id.eq(recipeId))
                 .groupBy(recipe.id)
                 .fetchFirst();
@@ -75,7 +76,15 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     }
 
     private JPAQuery<RecipeResponse> selectRecipesWithCookableAndLike(Long userId) {
-        return queryFactory.select(Projections.constructor(RecipeResponse.class,
+        return selectRecipesWithCookableAndLike(userId, RecipeResponse.class);
+    }
+
+    private JPAQuery<RecipeDetailResponse> selectDetailRecipeWithCookableAndLike(Long userId) {
+        return selectRecipesWithCookableAndLike(userId, RecipeDetailResponse.class);
+    }
+
+    private <T> JPAQuery<T> selectRecipesWithCookableAndLike(Long userId, Class<T> tClass) {
+        return queryFactory.select(Projections.constructor(tClass,
                         recipe,
                         isCookableExpression().as("isCookable"),
                         recipeLike.countDistinct().as("likeCount"),
