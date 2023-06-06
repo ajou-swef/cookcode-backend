@@ -11,6 +11,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class EmailUtil {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final EmailConfig emailConfig;
+    private final SpringTemplateEngine templateEngine;
 
     @Async
     public void sendMessage(EmailMessage message) {
@@ -29,10 +32,18 @@ public class EmailUtil {
             messageHelper.setFrom("cookcode <"+emailConfig.getUsername()+">");
             messageHelper.setTo(message.getReceiver());
             messageHelper.setSubject(message.getTitle());
-            messageHelper.setText(message.getContent(), true);
+            messageHelper.setText(setContext(message.getContent(), message.getButtonValue()), true);
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             logger.warn(e.getMessage());
         }
+    }
+
+
+    private String setContext(String content, String code) {
+        Context context = new Context();
+        context.setVariable("content", content);
+        context.setVariable("buttonValue", code); // Template에 전달할 데이터 설정
+        return templateEngine.process("mail", context); // mail.html
     }
 }
