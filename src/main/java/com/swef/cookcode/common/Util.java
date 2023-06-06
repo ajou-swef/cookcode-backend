@@ -22,8 +22,6 @@ public class Util {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final S3Util s3Util;
 
-    private final static char[] specialCharacters = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')'};
-
     public static <T> void validateDuplication(List<T> list1, List<T> list2) {
         Set<T> mergedSets = new HashSet<>() {{
             addAll(list1);
@@ -53,28 +51,4 @@ public class Util {
         return hasNext;
     }
 
-    public static String createMixedCode(int size) {
-        Random random = new Random();
-        StringBuilder key = new StringBuilder();
-        for (int i = 0; i < size; i++) {
-            int index = random.nextInt(5);
-
-            switch (index) {
-                case 0 -> key.append((char) ((int) random.nextInt(26) + 97));
-                case 1 -> key.append((char) ((int) random.nextInt(26) + 65));
-                case 2 -> key.append(specialCharacters[random.nextInt(specialCharacters.length)]);
-                default -> key.append(random.nextInt(9));
-            }
-        }
-        return key.toString();
-    }
-
-    public static String createNumberCode(int size) {
-        StringBuilder key = new StringBuilder();
-        Random random = new Random();
-        for (int i = 0; i < size; i++) {
-            key.append(random.nextInt(10));
-        }
-        return key.toString();
-    }
 }
