@@ -2,11 +2,7 @@ package com.swef.cookcode.common.error;
 
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.ErrorResponse;
-import com.swef.cookcode.common.error.exception.AlreadyExistsException;
-import com.swef.cookcode.common.error.exception.AuthErrorException;
-import com.swef.cookcode.common.error.exception.InvalidRequestException;
-import com.swef.cookcode.common.error.exception.NotFoundException;
-import com.swef.cookcode.common.error.exception.PermissionDeniedException;
+import com.swef.cookcode.common.error.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -122,6 +118,16 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(PermissionDeniedException.class)
   public ResponseEntity<ErrorResponse> handleInvalidRequestException(PermissionDeniedException e) {
+    return handleException(e, e.getErrorCode());
+  }
+
+  @ExceptionHandler(S3Exception.class)
+  public ResponseEntity<ErrorResponse> handleInvalidRequestException(S3Exception e) {
+    return handleException(e, e.getErrorCode());
+  }
+
+  @ExceptionHandler(ThumbnailException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidRequestException(ThumbnailException e) {
     return handleException(e, e.getErrorCode());
   }
 

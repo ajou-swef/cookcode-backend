@@ -7,6 +7,7 @@ import static org.springframework.http.HttpStatus.OK;
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
 import com.swef.cookcode.common.dto.EmailMessage;
+import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.jwt.JwtAuthenticationToken;
@@ -47,7 +48,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/v1/account")
@@ -65,7 +68,6 @@ public class AccountController {
     private final UserSimpleService userSimpleService;
 
     private final EmailUtil emailUtil;
-    // TODO : 비밀번호 찾기 시, 이메일로 임시 비밀번호 발급
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<SignInResponse>> signIn(
@@ -120,6 +122,17 @@ public class AccountController {
                 .message("유저 정보 조회 성공")
                 .status(OK.value())
                 .data(res)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PatchMapping("/profileImage")
+    public ResponseEntity<ApiResponse<UrlResponse>> updateProfileImage(@CurrentUser User user, @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+        UrlResponse response = userService.updateProfileImage(user, profileImage);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("유저의 프로필 이미지 수정 성공")
+                .status(OK.value())
+                .data(response)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

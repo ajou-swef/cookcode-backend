@@ -3,11 +3,14 @@ package com.swef.cookcode.user.service;
 import static com.swef.cookcode.common.ErrorCode.LOGIN_PARAM_REQUIRED;
 import static com.swef.cookcode.common.ErrorCode.USER_ALREADY_EXISTS;
 import static com.swef.cookcode.common.ErrorCode.USER_NOT_FOUND;
+import static java.util.Objects.nonNull;
 import static org.springframework.util.StringUtils.hasText;
 
+import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.error.exception.AlreadyExistsException;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
+import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.user.domain.Authority;
 import com.swef.cookcode.user.domain.Subscribe;
 import com.swef.cookcode.user.domain.User;
@@ -24,6 +27,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +39,27 @@ public class UserService {
 
     private final SubscribeRepository subscribeRepository;
 
+    private final S3Util s3Util;
+
     private final UserSimpleService userSimpleService;
+
+
+    private final static String PROFILEIMAGE_DIRECTORY = "profileImage";
+    @Transactional
+    public UrlResponse updateProfileImage(User user, MultipartFile profileImage) {
+        String newUrl = "";
+        if (nonNull(profileImage) && !profileImage.isEmpty()) {
+            newUrl = s3Util.upload(profileImage, PROFILEIMAGE_DIRECTORY);
+        }
+        if (hasText(user.getProfileImage())) {
+            s3Util.deleteFile(user.getProfileImage());
+        }
+        user.updateProfileImage(newUrl);
+        userRepository.save(user);
+        return UrlResponse.builder()
+                .urls(List.of(newUrl))
+                .build();
+    }
 
     @Transactional(readOnly = true)
     public User signIn(String principal, String credentials) {
@@ -61,8 +85,6 @@ public class UserService {
                 throw new AlreadyExistsException(USER_ALREADY_EXISTS);
             }
         }
-
-        //TODO: 이메일 인증 로직
 
         User.validatePassword(request.getPassword());
 

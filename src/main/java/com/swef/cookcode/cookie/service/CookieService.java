@@ -1,9 +1,12 @@
 package com.swef.cookcode.cookie.service;
 
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.swef.cookcode.common.dto.CommentResponse;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
+import com.swef.cookcode.common.error.exception.ThumbnailException;
 import com.swef.cookcode.common.util.S3Util;
+import com.swef.cookcode.common.util.ThumbnailUtil;
 import com.swef.cookcode.cookie.domain.Cookie;
 import com.swef.cookcode.cookie.domain.CookieComment;
 import com.swef.cookcode.cookie.domain.CookieLike;
@@ -21,9 +24,16 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
+
 import java.util.Optional;
 
 import static com.swef.cookcode.common.ErrorCode.*;
@@ -60,14 +70,32 @@ public class CookieService {
     }
 
     @Transactional
-    public void createCookie(User user, CookieCreateRequest request){
+    public void createCookie(User user, CookieCreateRequest request) {
+
+        String thumbnailUrl = extractAndUploadThumbnail(request.getMultipartFile());
+
         String cookieUrl = s3Util.upload(request.getMultipartFile(), "cookie");
 
         Recipe recipe = recipeService.getRecipeOrNull(request.getRecipeId());
 
-        Cookie cookie = Cookie.createEntity(request, user, cookieUrl, recipe);
+        Cookie cookie = Cookie.createEntity(request, user, thumbnailUrl, cookieUrl, recipe);
 
         cookieRepository.save(cookie);
+    }
+
+    private String extractAndUploadThumbnail(MultipartFile multiPartFile){
+        InputStream thumbnail;
+        try {
+            thumbnail = ThumbnailUtil.extractFirstFrame(multiPartFile.getInputStream());
+        } catch (IOException e) {
+            throw new ThumbnailException(MULTIPART_GETINPUTSTREAM_FAILED);
+        }
+        String thumbnailFileName = "cookie_thumbnail/" + new SimpleDateFormat("yyyyMMddHmsS").format(new Date()) + UUID.randomUUID();
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType("image/png");
+
+        return s3Util.putInputStreamToS3(thumbnail, thumbnailFileName, objectMetadata);
     }
 
     @Transactional

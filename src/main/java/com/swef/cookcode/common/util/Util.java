@@ -2,7 +2,7 @@ package com.swef.cookcode.common.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swef.cookcode.common.ErrorCode;
-import com.swef.cookcode.common.UrlResponse;
+import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;

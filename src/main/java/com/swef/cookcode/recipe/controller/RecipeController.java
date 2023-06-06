@@ -2,7 +2,7 @@ package com.swef.cookcode.recipe.controller;
 
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
-import com.swef.cookcode.common.UrlResponse;
+import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.common.dto.CommentCreateRequest;
 import com.swef.cookcode.common.dto.CommentResponse;
@@ -160,13 +160,26 @@ public class RecipeController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @GetMapping("/user/{targetUserId}")
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipesOfUser(@CurrentUser User user, @PathVariable(value = "targetUserId") Long userId,
+                                                                                       @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+                                                                                       Pageable pageable) {
+        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.getRecipeResponsesOfUser(user, userId, pageable));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("유저의 레시피 조회 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
     @GetMapping("/{recipeId}")
     public ResponseEntity<ApiResponse<RecipeResponse>> getRecipeById(@CurrentUser User user, @PathVariable("recipeId") Long recipeId) {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 세부 조회 성공")
-                .status(HttpStatus.CREATED.value())
-                .data(recipeService.getRecipeResponseById(recipeId))
+                .status(HttpStatus.OK.value())
+                .data(recipeService.getRecipeResponseById(user, recipeId))
                 .build();
 
         return ResponseEntity.ok(apiResponse);

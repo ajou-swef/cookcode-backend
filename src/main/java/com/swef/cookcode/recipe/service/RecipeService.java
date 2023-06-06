@@ -26,6 +26,7 @@ import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
 import com.swef.cookcode.recipe.repository.RecipeLikeRepository;
 import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.service.UserSimpleService;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,6 +52,8 @@ public class RecipeService {
 
     private final StepService stepService;
     private final IngredientSimpleService ingredientSimpleService;
+
+    private final UserSimpleService userSimpleService;
 
     private final RecipeLikeRepository recipeLikeRepository;
 
@@ -113,12 +116,9 @@ public class RecipeService {
         });
     }
 
-    // TODO : Recipe fetch 할 때 validation 안되서 임의로 추가.
     @Transactional(readOnly = true)
-    public RecipeResponse getRecipeResponseById(Long recipeId) {
-        validateRecipeById(recipeId);
-        Recipe recipe = recipeRepository.findAllElementsById(recipeId).orElseThrow(() -> new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
-        return RecipeResponse.from(recipe);
+    public RecipeResponse getRecipeResponseById(User user, Long recipeId) {
+        return recipeRepository.findRecipeById(user.getId(), recipeId).orElseThrow(() -> new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
     }
 
     void saveNecessaryIngredientsOfRecipe(Recipe recipe, List<Ingredient> ingredients) {
@@ -174,15 +174,20 @@ public class RecipeService {
 
     @Transactional(readOnly = true)
     public Slice<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
-        Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
-        Slice<RecipeResponse> responses = recipeRepository.findRecipes(fridgeId, user.getId(), isCookable, pageable);
+        Slice<RecipeResponse> responses = recipeRepository.findRecipes(user.getId(), isCookable, pageable);
+        return responses;
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<RecipeResponse> getRecipeResponsesOfUser(User user, Long targetUserId, Pageable pageable) {
+        userSimpleService.checkUserExists(targetUserId);
+        Slice<RecipeResponse> responses = recipeRepository.findRecipesOfUser(user.getId(), targetUserId, pageable);
         return responses;
     }
 
     @Transactional(readOnly = true)
     public Slice<RecipeResponse> searchRecipesWith(User user, String query, Boolean isCookable, Pageable pageable) {
-        Long fridgeId = fridgeService.getFridgeOfUser(user).getId();
-        Slice<RecipeResponse> responses = recipeRepository.searchRecipes(fridgeId, user.getId(), query, isCookable, pageable);
+        Slice<RecipeResponse> responses = recipeRepository.searchRecipes(user.getId(), query, isCookable, pageable);
         return responses;
     }
 
