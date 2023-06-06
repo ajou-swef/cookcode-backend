@@ -84,18 +84,17 @@ public class CookieService {
     }
 
     private String extractAndUploadThumbnail(MultipartFile multiPartFile){
-        InputStream thumbnail;
-        try {
-            thumbnail = ThumbnailUtil.extractFirstFrame(multiPartFile.getInputStream());
+
+        try (InputStream thumbnail = ThumbnailUtil.extractFirstFrame(multiPartFile.getInputStream())) {
+            String thumbnailFileName = "cookie_thumbnail/" + new SimpleDateFormat("yyyyMMddHmsS").format(new Date()) + UUID.randomUUID();
+
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentType("image/png");
+
+            return s3Util.putInputStreamToS3(thumbnail, thumbnailFileName, objectMetadata);
         } catch (IOException e) {
             throw new ThumbnailException(MULTIPART_GETINPUTSTREAM_FAILED);
         }
-        String thumbnailFileName = "cookie_thumbnail/" + new SimpleDateFormat("yyyyMMddHmsS").format(new Date()) + UUID.randomUUID();
-
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType("image/png");
-
-        return s3Util.putInputStreamToS3(thumbnail, thumbnailFileName, objectMetadata);
     }
 
     @Transactional

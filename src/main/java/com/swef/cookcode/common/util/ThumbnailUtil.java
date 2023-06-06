@@ -28,8 +28,6 @@ public class ThumbnailUtil {
 
             Mat mat = converter.convert(frame);
 
-            opencv_imgcodecs.imwrite("./output.png", mat);
-
             return matToInputStream(mat);
 
         } catch (FFmpegFrameGrabber.Exception e) {
@@ -41,7 +39,7 @@ public class ThumbnailUtil {
     private static InputStream matToInputStream(Mat mat) {
         byte[] byteArray = new byte[mat.size().area()];
 
-        opencv_imgcodecs.imencode("./stream.png", mat, byteArray);
+        opencv_imgcodecs.imencode(".png", mat, byteArray);
 
         return new ByteArrayInputStream(byteArray);
     }
