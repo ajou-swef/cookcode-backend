@@ -3,7 +3,7 @@ package com.swef.cookcode.common.config;
 import com.swef.cookcode.common.jwt.Jwt;
 import com.swef.cookcode.common.jwt.JwtAuthenticationFilter;
 import com.swef.cookcode.common.jwt.JwtAuthenticationProvider;
-import com.swef.cookcode.common.jwt.JwtService;
+import com.swef.cookcode.common.jwt.JwtUtil;
 import com.swef.cookcode.user.service.UserService;
 import com.swef.cookcode.user.service.UserSimpleService;
 import lombok.Getter;
@@ -54,14 +54,14 @@ public class JwtConfig {
   }
 
   @Bean
-  public JwtAuthenticationProvider jwtAuthenticationProvider(JwtService jwtService,
+  public JwtAuthenticationProvider jwtAuthenticationProvider(JwtUtil jwtUtil,
                                                              UserService userService) {
-    return new JwtAuthenticationProvider(jwtService, userService);
+    return new JwtAuthenticationProvider(jwtUtil, userService);
   }
 
   @Bean
-  public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService,
+  public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil,
                                                          UserSimpleService userSimpleService) {
-    return new JwtAuthenticationFilter(this.accessToken.header, jwtService, userSimpleService);
+    return new JwtAuthenticationFilter(jwtUtil, userSimpleService);
   }
 }

@@ -38,6 +38,11 @@ public class AccessClaim implements Claims {
   }
 
   @Override
+  public String toString() {
+    return "userId : " + this.userId + " email : " + this.email + "\n";
+  }
+
+  @Override
   public void applyToBuilder(Builder builder) {
     builder.withClaim("userId", this.userId);
     builder.withClaim("email", this.email);

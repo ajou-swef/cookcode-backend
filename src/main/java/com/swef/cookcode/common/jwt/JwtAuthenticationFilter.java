@@ -15,29 +15,18 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-  private final Logger log = LoggerFactory.getLogger(getClass());
-
-  private final String accessHeaderKey;
-
-  private final JwtService jwtService;
+  private final JwtUtil jwtUtil;
 
   private final UserSimpleService userSimpleService;
 
@@ -49,15 +38,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       chain.doFilter(request, response);
       return;
     }
-    String token = getAccessToken(request);
+    String token = jwtUtil.getAccessToken(request);
     if (isNull(token)) {
       chain.doFilter(request, response);
       return;
     }
     try {
-      AccessClaim claims = jwtService.verifyAccessToken(token);
+      AccessClaim claims = jwtUtil.verifyAccessToken(token);
       Long userId = claims.getUserId();
-      List<GrantedAuthority> authorities = getAuthorities(claims);
+      List<GrantedAuthority> authorities = jwtUtil.getAuthorities(claims);
       User currentUser = userSimpleService.getUserById(userId);
       if (!isNull(userId) && authorities.size() > 0) {
         JwtAuthenticationToken authentication = new JwtAuthenticationToken(new JwtPrincipal(token, currentUser), null, authorities);
@@ -78,20 +67,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       throw e;
     }
     chain.doFilter(request, response);
-  }
-
-  private String getAccessToken(HttpServletRequest request) {
-    String token = request.getHeader(accessHeaderKey);
-    if(hasText(token)) {
-      log.debug("Jwt authorization api detected: {}", token);
-      return URLDecoder.decode(token, StandardCharsets.UTF_8);
-    }
-    return null;
-  }
-
-  private List<GrantedAuthority> getAuthorities(AccessClaim claims) {
-    String[] roles = claims.getRoles();
-    return roles == null || roles.length == 0 ? Collections.emptyList() : Arrays.stream(roles).map(
-        SimpleGrantedAuthority::new).collect(Collectors.toList());
   }
 }

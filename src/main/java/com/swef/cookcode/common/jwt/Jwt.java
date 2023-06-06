@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.swef.cookcode.common.jwt.claims.AccessClaim;
 import com.swef.cookcode.common.jwt.claims.Claims;
 import com.swef.cookcode.common.jwt.claims.RefreshClaim;
+import com.swef.cookcode.user.domain.User;
 import java.util.Date;
 import lombok.Getter;
 

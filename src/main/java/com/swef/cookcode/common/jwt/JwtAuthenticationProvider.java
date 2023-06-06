@@ -14,13 +14,13 @@ import org.springframework.util.Assert;
 
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
-  private final JwtService jwtService;
+  private final JwtUtil jwtUtil;
 
   private final UserService userService;
 
   public JwtAuthenticationProvider(
-          JwtService jwtService, UserService userService) {
-    this.jwtService = jwtService;
+          JwtUtil jwtUtil, UserService userService) {
+    this.jwtUtil = jwtUtil;
     this.userService = userService;
   }
 
@@ -40,8 +40,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     try{
       User user = userService.signIn(principal, credentials);
       List<GrantedAuthority> authorities = List.of(user.getAuthority().toGrantedAuthority());
-      String accessToken = jwtService.createAccessToken(user.getId(), user.getEmail(), authorities);
-      String refreshToken = jwtService.createRefreshToken(user.getEmail());
+      String accessToken = jwtUtil.createAccessToken(user.getId(), user.getEmail(), authorities);
+      String refreshToken = jwtUtil.createRefreshToken(user.getEmail());
       JwtAuthenticationToken authenticated = new JwtAuthenticationToken(new JwtPrincipal(accessToken, user), null, authorities);
       authenticated.setDetails(refreshToken);
       return authenticated;
