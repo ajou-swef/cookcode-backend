@@ -34,7 +34,7 @@ public class User extends BaseEntity {
 
     private static final String NICKNAME_REGEX = "^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,16}$";
 
-    private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$";
+    private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()])[A-Za-z\\d!@#$%^&*()]{8,}$";
     private static final int MAX_EMAIL_LENGTH = 100;
     private static final int MAX_NICKNAME_LENGTH = 10;
     private static final int MAX_PROFILEIMAGE_LENGTH = 300;
