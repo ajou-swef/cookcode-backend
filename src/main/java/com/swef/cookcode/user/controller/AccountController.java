@@ -79,11 +79,7 @@ public class AccountController {
         ApiResponse response = ApiResponse.builder()
                 .message("로그인 성공하였습니다.")
                 .status(OK.value())
-                .data(SignInResponse.builder()
-                        .userId(principal.getUser().getId())
-                        .accessToken(principal.getAccessToken())
-                        .refreshToken(refreshToken)
-                        .build())
+                .data(SignInResponse.from(principal.getUser().getId(), principal.getAccessToken(), refreshToken))
                 .build();
         return ResponseEntity.ok()
                 .body(response);
