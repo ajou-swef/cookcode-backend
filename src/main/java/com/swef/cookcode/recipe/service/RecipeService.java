@@ -3,7 +3,7 @@ package com.swef.cookcode.recipe.service;
 import static java.util.Objects.isNull;
 
 import com.swef.cookcode.common.ErrorCode;
-import com.swef.cookcode.common.Util;
+import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.common.dto.CommentCreateRequest;
 import com.swef.cookcode.common.dto.CommentResponse;
 import com.swef.cookcode.common.error.exception.NotFoundException;

@@ -2,15 +2,12 @@ package com.swef.cookcode.common.filter;
 
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.ErrorResponse;
 import com.swef.cookcode.common.error.exception.AuthErrorException;
-import com.swef.cookcode.common.jwt.claims.AccessClaim;
 import com.swef.cookcode.common.jwt.JwtUtil;
-import com.swef.cookcode.user.service.UserSimpleService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,13 +24,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings({"rawtypes"})
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
-
-  private final ObjectMapper objectMapper;
 
   private final String tokenReissuePath = "/api/v1/account/token/reissue";
 
   private final JwtUtil jwtUtil;
+
+  private final ObjectMapper objectMapper;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -41,25 +39,26 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
     } catch (TokenExpiredException e) {
       if (request.getServletPath().equals(tokenReissuePath)) {
-        jwtUtil.reissueAccessToken(request, response);
+        ApiResponse apiResponse = jwtUtil.reissueAccessToken(request);
+        setResponse(apiResponse.getStatus(), response, apiResponse);
         return;
       }
-      setErrorResponse(HttpStatus.UNAUTHORIZED, response, ErrorCode.TOKEN_EXPIRED);
+      setResponse(HttpStatus.UNAUTHORIZED.value(), response, ErrorResponse.of(ErrorCode.TOKEN_EXPIRED));
     } catch (AuthErrorException e) {
-      setErrorResponse(HttpStatus.BAD_REQUEST, response, ErrorCode.BLACKLIST_TOKEN_REQUEST);
+      setResponse(HttpStatus.BAD_REQUEST.value(), response, ErrorResponse.of(ErrorCode.BLACKLIST_TOKEN_REQUEST));
     } catch (SignatureVerificationException e) {
-      setErrorResponse(HttpStatus.UNAUTHORIZED, response, ErrorCode.INVALID_TOKEN_SIGN);
+      setResponse(HttpStatus.UNAUTHORIZED.value(), response, ErrorResponse.of(ErrorCode.INVALID_TOKEN_SIGN));
     } catch (RuntimeException e) {
       log.warn(e.getMessage());
-      setErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, response, ErrorCode.INTERNAL_SERVER_ERROR);
+      setResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), response, ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR));
     }
   }
 
-  public void setErrorResponse(HttpStatus status, HttpServletResponse response, ErrorCode errorCode) {
-    response.setStatus(status.value());
+  public void setResponse(int status, HttpServletResponse response, Object responseBody) {
+    response.setStatus(status);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     try {
-      String json = objectMapper.writeValueAsString(ErrorResponse.of(errorCode));
+      String json = objectMapper.writeValueAsString(responseBody);
       PrintWriter writer = response.getWriter();
       writer.write(json);
       writer.flush();
@@ -67,5 +66,4 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
       e.printStackTrace();
     }
   }
-
 }

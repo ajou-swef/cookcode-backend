@@ -1,7 +1,8 @@
-package com.swef.cookcode.common;
+package com.swef.cookcode.common.util;
 
+import com.swef.cookcode.common.ErrorCode;
+import com.swef.cookcode.common.UrlResponse;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
-import com.swef.cookcode.common.util.S3Util;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

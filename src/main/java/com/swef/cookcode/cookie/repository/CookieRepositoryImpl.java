@@ -11,7 +11,7 @@ import static com.swef.cookcode.cookie.domain.QCookieLike.cookieLike;
 import static com.swef.cookcode.user.domain.QUser.user;
 import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.swef.cookcode.common.Util;
+import com.swef.cookcode.common.util.Util;
 import java.util.List;
 
 import com.swef.cookcode.cookie.dto.CookieResponse;

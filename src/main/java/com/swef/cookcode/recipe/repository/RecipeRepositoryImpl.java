@@ -1,10 +1,9 @@
 package com.swef.cookcode.recipe.repository;
 
 
-import static com.swef.cookcode.common.Util.hasNextInSlice;
+import static com.swef.cookcode.common.util.Util.hasNextInSlice;
 import static com.swef.cookcode.fridge.domain.QFridgeIngredient.fridgeIngredient;
 import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
-import static com.swef.cookcode.recipe.domain.QRecipeComment.recipeComment;
 import static com.swef.cookcode.recipe.domain.QRecipeComment.recipeComment;
 import static com.swef.cookcode.recipe.domain.QRecipeIngred.recipeIngred;
 import static com.swef.cookcode.recipe.domain.QRecipeLike.recipeLike;
