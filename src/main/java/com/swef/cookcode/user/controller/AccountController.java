@@ -226,11 +226,7 @@ public class AccountController {
     public ResponseEntity<ApiResponse<String>> authenticateEmail(@RequestParam(value = "email") String email) {
         if (!Pattern.matches(User.EMAIL_REGEX, email)) throw new InvalidRequestException(INVALID_INPUT_VALUE);
         String code = Util.createNumberCode(6);
-        EmailMessage message = EmailMessage.builder()
-                .receiver(email)
-                .title("[cookcode] 이메일 인증을 위한 인증 코드 발송해드립니다.")
-                .content(code)
-                .build();
+        EmailMessage message = EmailMessage.createMessage(email, "[cookcode] 이메일 인증을 위한 인증 코드 발송해드립니다.", code);
         emailUtil.sendMessage(message);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("이메일 인증코드 발송 성공")
@@ -241,8 +237,15 @@ public class AccountController {
     }
 
     @GetMapping("/password")
-    public ResponseEntity<ApiResponse> findPassword(){
-
+    public ResponseEntity<ApiResponse> findPassword(@RequestParam(value = "email") String email){
+        String code = Util.createMixedCode(10);
+        EmailMessage message = EmailMessage.createMessage(email, "[cookcode] 임시 비밀번호 발급해드립니다.", code);
+        emailUtil.sendMessage(message);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("비밀번호 찾기 통한 임시비밀번호 발급 성공")
+                .status(OK.value())
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
 }
