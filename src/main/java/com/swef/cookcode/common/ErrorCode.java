@@ -45,6 +45,8 @@ public enum ErrorCode {
   USER_IS_NOT_AUTHOR(400, "U021", "해당 유저는 컨텐츠의 작성자가 아닙니다."),
   INVALID_TOKEN_SIGN(400, "U022", "토큰의 서명이 올바르지 않습니다"),
 
+  INVALID_TOKEN_PROCESSING(400, "U023", "올바르지 않은 토큰 형식입니다."),
+
   /*
   Ingredient Domain
    */

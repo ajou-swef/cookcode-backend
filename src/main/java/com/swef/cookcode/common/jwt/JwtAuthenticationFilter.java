@@ -2,12 +2,14 @@ package com.swef.cookcode.common.jwt;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.springframework.util.StringUtils.hasText;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.swef.cookcode.common.ApiResponse;
+import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.error.exception.AuthErrorException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.jwt.claims.AccessClaim;
+import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.service.UserSimpleService;
 import jakarta.servlet.FilterChain;
@@ -25,10 +27,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings({"rawtypes"})
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final JwtUtil jwtUtil;
 
+  private final Util util;
+
   private final UserSimpleService userSimpleService;
+
+  private final String tokenReissuePath = "/api/v1/account/token/reissue";
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -45,6 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
     try {
       AccessClaim claims = jwtUtil.verifyAccessToken(token);
+      if (request.getServletPath().equals(tokenReissuePath)) throw new AuthErrorException(ErrorCode.TOKEN_NOT_EXPIRED);
       Long userId = claims.getUserId();
       List<GrantedAuthority> authorities = jwtUtil.getAuthorities(claims);
       User currentUser = userSimpleService.getUserById(userId);
@@ -58,9 +66,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       throw e;
     } catch (TokenExpiredException e) {
       log.warn("토큰이 만료된 요청입니다. token: {}", token);
-      throw e;
+      if (!request.getServletPath().equals(tokenReissuePath)) throw e;
+      ApiResponse apiResponse = jwtUtil.reissueAccessToken(request);
+      util.setResponse(apiResponse.getStatus(), response, apiResponse);
+      return;
     } catch (AuthErrorException e) {
-      log.warn("로그아웃 처리된 토큰입니다. token: {}", token);
+      log.warn("token: {}", token);
       throw e;
     } catch (Exception e) {
       log.warn("Jwt 처리 실패: {}, class: {}", e.getMessage(), e.getClass());

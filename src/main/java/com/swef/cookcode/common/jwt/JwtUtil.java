@@ -19,7 +19,6 @@ import com.swef.cookcode.common.jwt.claims.RefreshClaim;
 import com.swef.cookcode.common.service.RedisService;
 import com.swef.cookcode.user.dto.response.SignInResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -62,7 +61,7 @@ public class JwtUtil {
     this.objectMapper = objectMapper;
   }
 
-  public ApiResponse reissueAccessToken(HttpServletRequest request) throws IOException {
+  public ApiResponse reissueAccessToken(HttpServletRequest request) throws JsonProcessingException {
     String token = getAccessToken(request);
     AccessClaim claim = decodeExpiredAccessToken(token);
     String refreshToken = getRefreshTokenOfRequest(request);
