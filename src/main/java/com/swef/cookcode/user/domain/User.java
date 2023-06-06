@@ -4,6 +4,7 @@ import static com.swef.cookcode.common.ErrorCode.INVALID_ACCOUNT_REQUEST;
 import static com.swef.cookcode.common.ErrorCode.INVALID_INPUT_VALUE;
 import static com.swef.cookcode.common.ErrorCode.INVALID_LENGTH;
 import static com.swef.cookcode.common.ErrorCode.MISSING_REQUEST_PARAMETER;
+import static com.swef.cookcode.common.ErrorCode.PASSWORD_CANNOT_BE_SAME;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.swef.cookcode.common.entity.BaseEntity;
@@ -124,6 +125,9 @@ public class User extends BaseEntity {
 
     public void changePassword(PasswordEncoder passwordEncoder, String rawPassword) {
         validatePassword(rawPassword);
+        if (passwordEncoder.matches(rawPassword, password)) {
+            throw new AuthErrorException(PASSWORD_CANNOT_BE_SAME);
+        }
         this.password = passwordEncoder.encode(rawPassword);
     }
 
