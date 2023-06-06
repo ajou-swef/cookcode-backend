@@ -2,7 +2,11 @@ package com.swef.cookcode.common.util;
 
 import com.swef.cookcode.user.domain.User;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class PasswordUtil {
 
@@ -24,8 +28,13 @@ public class PasswordUtil {
            appendRandomSingleCharacterFrom(allCharacters, key);
         }
 
-        User.validatePassword(key.toString());
-        return key.toString();
+        List<Character> password = new ArrayList<>(key.toString().chars().mapToObj(c -> (char) c).toList());
+        Collections.shuffle(password);
+        String shuffledPassword = password.stream()
+                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+                .toString();
+        User.validatePassword(shuffledPassword);
+        return shuffledPassword;
     }
 
     public static String createNumberCode(int size) {
