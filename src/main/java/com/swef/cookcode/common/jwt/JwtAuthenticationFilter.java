@@ -44,35 +44,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                   FilterChain chain) throws ServletException, IOException {
-    if (SecurityContextHolder.getContext().getAuthentication() == null) {
-      String token = getAccessToken(request);
-      if (nonNull(token)) {
-        try {
-          AccessClaim claims = jwtService.verifyAccessToken(token);
-          Long userId = claims.getUserId();
-          List<GrantedAuthority> authorities = getAuthorities(claims);
-          User currentUser = userSimpleService.getUserById(userId);
-          if (!isNull(userId) && authorities.size() > 0) {
-            JwtAuthenticationToken authentication = new JwtAuthenticationToken(new JwtPrincipal(token, currentUser), null, authorities);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-          }
-        } catch (NotFoundException e) {
-          log.warn("탈퇴한 유저의 토큰입니다. token: {}", token);
-          throw e;
-        } catch (TokenExpiredException e) {
-          log.warn("토큰이 만료된 요청입니다. token: {}", token);
-          throw e;
-        } catch (AuthErrorException e) {
-          log.warn("로그아웃 처리된 토큰입니다. token: {}", token);
-          throw e;
-        } catch (Exception e) {
-          log.warn("Jwt 처리 실패: {}, class: {}", e.getMessage(), e.getClass());
-          throw e;
-        }
-      }
-    } else {
+    if (nonNull(SecurityContextHolder.getContext().getAuthentication())) {
       log.debug("SecurityContextHolder는 이미 authentication 객체를 가지고 있습니다.: '{}'", SecurityContextHolder.getContext().getAuthentication());
+      chain.doFilter(request, response);
+      return;
+    }
+    String token = getAccessToken(request);
+    if (isNull(token)) {
+      chain.doFilter(request, response);
+      return;
+    }
+    try {
+      AccessClaim claims = jwtService.verifyAccessToken(token);
+      Long userId = claims.getUserId();
+      List<GrantedAuthority> authorities = getAuthorities(claims);
+      User currentUser = userSimpleService.getUserById(userId);
+      if (!isNull(userId) && authorities.size() > 0) {
+        JwtAuthenticationToken authentication = new JwtAuthenticationToken(new JwtPrincipal(token, currentUser), null, authorities);
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+      }
+    } catch (NotFoundException e) {
+      log.warn("탈퇴한 유저의 토큰입니다. token: {}", token);
+      throw e;
+    } catch (TokenExpiredException e) {
+      log.warn("토큰이 만료된 요청입니다. token: {}", token);
+      throw e;
+    } catch (AuthErrorException e) {
+      log.warn("로그아웃 처리된 토큰입니다. token: {}", token);
+      throw e;
+    } catch (Exception e) {
+      log.warn("Jwt 처리 실패: {}, class: {}", e.getMessage(), e.getClass());
+      throw e;
     }
     chain.doFilter(request, response);
   }
