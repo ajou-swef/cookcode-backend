@@ -43,7 +43,7 @@ public class EmailUtil {
     private String setContext(String content, String code) {
         Context context = new Context();
         context.setVariable("content", content);
-        context.setVariable("buttonValue", code); // Template에 전달할 데이터 설정
-        return templateEngine.process("mail", context); // mail.html
+        context.setVariable("buttonValue", code);
+        return templateEngine.process("mail", context);
     }
 }

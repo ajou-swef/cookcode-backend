@@ -35,6 +35,8 @@ public class UserService {
 
     private final SubscribeRepository subscribeRepository;
 
+    private final UserSimpleService userSimpleService;
+
     @Transactional(readOnly = true)
     public User signIn(String principal, String credentials) {
         if (!hasText(principal) || !hasText(credentials)) {
@@ -124,6 +126,13 @@ public class UserService {
     public void changePassword(User user, ChangePasswordRequest request) {
         user.checkPassword(passwordEncoder, request.getPassword());
         user.changePassword(passwordEncoder, request.getNewPassword());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void changeToTemporaryPassword(String email, String temporaryPassword) {
+        User user = userSimpleService.getUserByEmail(email);
+        user.changePassword(passwordEncoder, temporaryPassword);
         userRepository.save(user);
     }
 }

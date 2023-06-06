@@ -4,22 +4,16 @@ import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.util.S3Util;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Component
 @RequiredArgsConstructor
 public class Util {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final S3Util s3Util;
 
     public static <T> void validateDuplication(List<T> list1, List<T> list2) {

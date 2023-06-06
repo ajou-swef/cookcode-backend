@@ -243,6 +243,7 @@ public class AccountController {
         String content = "임시 비밀번호를 통해 로그인하여 비밀번호 변경을 해주십시오.";
         EmailMessage message = EmailMessage.createMessage(email, title, content, code);
         emailUtil.sendMessage(message);
+        userService.changeToTemporaryPassword(email, code);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("비밀번호 찾기 통한 임시비밀번호 발급 성공")
                 .status(OK.value())
