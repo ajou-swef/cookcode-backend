@@ -2,6 +2,7 @@ package com.swef.cookcode.user.dto.response;
 
 import static org.springframework.util.StringUtils.hasText;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.swef.cookcode.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,11 +24,11 @@ public class UserDetailResponse {
 
     private final String authority;
 
-    private final Long isSubscribed;
+    private final Boolean isSubscribed;
 
     private final Long subscriberCount;
 
-    public UserDetailResponse(User user, Long isSubscribed, Long subscriberCount) {
+    public UserDetailResponse(User user, Boolean isSubscribed, Long subscriberCount) {
         this.userId = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();

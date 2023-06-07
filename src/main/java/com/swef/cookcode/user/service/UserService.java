@@ -129,7 +129,6 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Slice<UserDetailResponse> getSubscribers(Pageable pageable, User user) {
-//        List<Subscribe> subscribes = subscribeRepository.findSubscribers(user);
         return userRepository.findSubscribers(pageable, user.getId());
     }
 

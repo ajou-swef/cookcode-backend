@@ -1,11 +1,14 @@
 package com.swef.cookcode.user.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.swef.cookcode.user.domain.QSubscribe;
 import com.swef.cookcode.user.dto.response.UserDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -17,14 +20,19 @@ import static com.swef.cookcode.user.domain.QSubscribe.subscribe;
 import static com.swef.cookcode.user.domain.QUser.user;
 
 
+// TODO : NumberPath 매개변수로 엮인 함수끼리의 의존성 refactor
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserCustomRepository{
 
     private final JPAQueryFactory queryFactory;
 
+    private final QSubscribe subscribeForFlag = new QSubscribe("subscribeForFlag");
+
+    private final QSubscribe subscribeForCount = new QSubscribe("subscribeForFlag");
+
     @Override
     public UserDetailResponse getInfoByUserId(Long userId, Long targetUserId){
-        return selectUserAndSubscribes(userId)
+        return selectUserWithSubscribes(userId)
                 .from(user)
                 .where(user.id.eq(targetUserId))
                 .fetchOne();
@@ -33,7 +41,7 @@ public class UserRepositoryImpl implements UserCustomRepository{
     @Override
     public Slice<UserDetailResponse> findByNicknameContaining(Long userId, String searchQuery, Pageable pageable) {
         return new SliceImpl<>(
-                selectUserAndSubscribes(userId)
+                selectUserWithSubscribes(userId)
                         .from(user)
                         .where(user.nickname.contains(searchQuery))
                         .offset(pageable.getOffset())
@@ -47,8 +55,8 @@ public class UserRepositoryImpl implements UserCustomRepository{
         return new SliceImpl<>(
                 queryFactory.select(Projections.constructor(UserDetailResponse.class,
                             user,
-                            Expressions.constant(0L),
-                            Expressions.constant(0L)))
+                            isSubscribedExpression(userId, user.id),
+                            selectSubscribeCount(user.id)))
                     .from(subscribe)
                     .join(user)
                     .on(user.id.eq(subscribe.subscriber.id))
@@ -60,35 +68,42 @@ public class UserRepositoryImpl implements UserCustomRepository{
     @Override
     public Slice<UserDetailResponse> findPublishers(Pageable pageable, Long userId){
         return new SliceImpl<>(
-                queryFactory.select(Projections.constructor(UserDetailResponse.class,
-                                user,
-                                Expressions.constant(1L),
-                                Expressions.constant(0L)))
-                        .from(subscribe)
-                        .join(user)
-                        .on(user.id.eq(subscribe.publisher.id))
-                        .where(subscribe.subscriber.id.eq(userId))
-                        .fetch()
+            queryFactory.select(Projections.constructor(UserDetailResponse.class,
+                            user,
+                            Expressions.TRUE,
+                            selectSubscribeCount(subscribe.publisher.id)))
+                    .from(subscribe)
+                    .join(user)
+                    .on(user.id.eq(subscribe.publisher.id))
+                    .where(subscribe.subscriber.id.eq(userId))
+                    .fetch()
         );
     }
 
-    private JPAQuery<UserDetailResponse> selectUserAndSubscribes(Long userId) {
+    private JPAQuery<UserDetailResponse> selectUserWithSubscribes(Long userId) {
         return queryFactory.select(Projections.constructor(UserDetailResponse.class,
                 user,
-                selectIsSubscribed(userId, user.id),
+                isSubscribedExpression(userId, user.id),
                 selectSubscribeCount(user.id)));
+    }
+
+    private BooleanExpression isSubscribedExpression(Long userId, NumberPath<Long> targetUserId) {
+        return new CaseBuilder()
+                .when(selectIsSubscribed(userId, targetUserId).eq(0L))
+                .then(false)
+                .otherwise(true);
     }
 
     private JPQLQuery<Long> selectIsSubscribed(Long userId, NumberPath<Long> targetUserId) {
         return queryFactory.select(count())
-                .from(subscribe)
-                .where(subscribe.subscriber.id.eq(userId)
-                        .and(subscribe.publisher.id.eq(targetUserId)));
+                .from(subscribeForFlag)
+                .where(subscribeForFlag.subscriber.id.eq(userId)
+                        .and(subscribeForFlag.publisher.id.eq(targetUserId)));
     }
 
     private JPQLQuery<Long> selectSubscribeCount(NumberPath<Long> targetUserId) {
         return queryFactory.select(count())
-                .from(subscribe)
-                .where(subscribe.publisher.id.eq(targetUserId));
+                .from(subscribeForCount)
+                .where(subscribeForCount.publisher.id.eq(targetUserId));
     }
 }
