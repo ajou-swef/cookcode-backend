@@ -17,12 +17,10 @@ import com.swef.cookcode.user.dto.response.SignInResponse;
 import com.swef.cookcode.user.dto.response.SignUpResponse;
 import com.swef.cookcode.user.dto.response.UniqueCheckResponse;
 import com.swef.cookcode.user.dto.response.UserDetailResponse;
-import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.service.UserService;
 import com.swef.cookcode.user.service.UserSimpleService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +31,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -111,12 +108,13 @@ public class AccountController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserDetailResponse>> getUserInfo(@CurrentUser User user, @PathVariable("userId") Long userId) {
-        User returnedUser = userSimpleService.getUserById(userId);
-        UserDetailResponse res = UserDetailResponse.from(returnedUser);
+
+        UserDetailResponse data = userSimpleService.getInfoByUserId(user.getId(), userId);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("유저 정보 조회 성공")
                 .status(OK.value())
-                .data(res)
+                .data(data)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -149,8 +147,11 @@ public class AccountController {
                                                                                       @RequestParam(value = "nickname") String nickname,
                                                                                       @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
                                                                                           Pageable pageable) {
-        Slice<User> users = userService.searchUsersWith(nickname, pageable);
-        SliceResponse<UserDetailResponse> response = new SliceResponse<>(users.map(UserDetailResponse::from));
+
+        Slice<UserDetailResponse> users = userService.searchUsersWith(user.getId(), nickname, pageable);
+
+        SliceResponse<UserDetailResponse> response = new SliceResponse<>(users);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("유저 검색 성공")
                 .status(OK.value())
@@ -160,12 +161,12 @@ public class AccountController {
     }
 
     @PostMapping("/subscribe/{createrId}")
-    public ResponseEntity<ApiResponse> createSubscribe(@CurrentUser User user, @PathVariable Long createrId){
+    public ResponseEntity<ApiResponse> toggleSubscribe(@CurrentUser User user, @PathVariable Long createrId){
 
-        userService.createSubscribe(user, createrId);
+        userService.toggleSubscribe(user, createrId);
 
         ApiResponse apiResponse = ApiResponse.builder()
-                .message("크리에이터 구독 성공")
+                .message("크리에이터 구독 상태 변경 성공")
                 .status(OK.value())
                 .build();
 
@@ -173,9 +174,11 @@ public class AccountController {
     }
 
     @GetMapping("/subscribe/subscribers")
-    public ResponseEntity<ApiResponse<List<UserSimpleResponse>>> getSubscribers(@CurrentUser User user){
+    public ResponseEntity<ApiResponse<SliceResponse<UserDetailResponse>>> getSubscribers(
+            @CurrentUser User user, Pageable pageable){
 
-        List<UserSimpleResponse> response = userService.getSubscribers(user);
+        Slice<UserDetailResponse> subscribers = userService.getSubscribers(pageable, user);
+        SliceResponse<UserDetailResponse> response = new SliceResponse<>(subscribers);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("사용자의 구독자 조회 성공")
@@ -187,28 +190,16 @@ public class AccountController {
     }
 
     @GetMapping("/subscribe/publishers")
-    public ResponseEntity<ApiResponse<List<UserSimpleResponse>>> getPublishers(@CurrentUser User user){
+    public ResponseEntity<ApiResponse<SliceResponse<UserDetailResponse>>> getPublishers(
+            @CurrentUser User user, Pageable pageable){
 
-        List<UserSimpleResponse> response = userService.getPublishers(user);
+        Slice<UserDetailResponse> publishers = userService.getPublishers(pageable, user);
+        SliceResponse<UserDetailResponse> response = new SliceResponse<>(publishers);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("구독한 크리에이터 조회 성공")
                 .status(OK.value())
                 .data(response)
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
-    }
-
-    @DeleteMapping("/subscribe/{createrId}")
-    public ResponseEntity<ApiResponse> deleteSubscribe(
-            @CurrentUser User user, @PathVariable Long createrId){
-
-        userService.deleteSubscribe(user, createrId);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .message("구독 취소 성공")
-                .status(OK.value())
                 .build();
 
         return ResponseEntity.ok(apiResponse);
