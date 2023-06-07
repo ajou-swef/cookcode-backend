@@ -45,7 +45,7 @@ public class S3Util {
         }
     }
 
-    public String putInputStreamToS3(InputStream inputStream, String fileName, ObjectMetadata objectMetadata){
+    private String putInputStreamToS3(InputStream inputStream, String fileName, ObjectMetadata objectMetadata){
         amazonS3Client.putObject(
                 new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
         );

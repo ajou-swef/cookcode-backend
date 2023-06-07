@@ -14,7 +14,9 @@ public class CookieCreateRequest {
 
     private String desc;
 
-    private MultipartFile multipartFile;
+    private MultipartFile cookieVideo;
+
+    private MultipartFile thumbnail;
 
     private Long recipeId;
 }
