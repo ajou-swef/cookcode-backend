@@ -4,6 +4,7 @@ import static com.swef.cookcode.common.ErrorCode.USER_NOT_FOUND;
 
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.dto.response.UserDetailResponse;
 import com.swef.cookcode.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,11 @@ public class UserSimpleService {
     }
 
     @Transactional(readOnly = true)
+    public UserDetailResponse getInfoByUserId(Long userId, Long targetUserId) {
+        return userRepository.getInfoByUserId(userId, targetUserId);
+    }
+
+    @Transactional(readOnly = true)
     public boolean checkNicknameUnique(String nickname) {
         return !userRepository.existsByNicknameAndIsQuit(nickname, false);
     }
@@ -29,4 +35,5 @@ public class UserSimpleService {
     public boolean checkUserExists(Long userId) {
         return userRepository.existsByIdAndIsQuit(userId, false);
     }
+
 }
