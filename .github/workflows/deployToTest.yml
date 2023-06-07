@@ -54,4 +54,4 @@ jobs:
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://cookcode-app/test/$PROJECT_NAME/$GITHUB_SHA.zip
 
       - name: Code Deploy to Auto Scaling Group
-        run: aws deploy create-deployment --application-name cookcode-dev-deploy --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name dev --s3-location bucket=cookcode-app, key=test/$PROJECT_NAME/$GITHUB_SHA.zip ,bundleType=zip
+        run: aws deploy create-deployment --application-name cookcode-dev-deploy --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name dev --s3-location bucket=cookcode-app,bundleType=zip,key=test/$PROJECT_NAME/$GITHUB_SHA.zip
