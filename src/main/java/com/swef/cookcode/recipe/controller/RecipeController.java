@@ -178,8 +178,8 @@ public class RecipeController {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 세부 조회 성공")
-                .status(HttpStatus.CREATED.value())
-                .data(recipeService.getRecipeResponseById(recipeId))
+                .status(HttpStatus.OK.value())
+                .data(recipeService.getRecipeResponseById(user, recipeId))
                 .build();
 
         return ResponseEntity.ok(apiResponse);

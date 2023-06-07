@@ -54,9 +54,8 @@ public enum ErrorCode {
   /*
   S3
    */
-  MULTIPART_CONVERT_FAILED(400,"S001", "MultipartFile 변환 실패"),
+  S3_UPLOAD_FAILED(400, "S001", "S3 업로드 실패"),
   INVALID_URL(400, "S002", "올바르지 않은 url이 반환되었습니다."),
-  STREAM_CONVERT_FAILED(400, "S003", "File 스트림으로 변경 실패"),
   /*
   FRIDGE_Domain
    */
@@ -76,7 +75,17 @@ public enum ErrorCode {
    */
   COOKIE_NOT_FOUND(400, "K001", "존재하지 않는 쿠키입니다."),
   COOKIE_COMMENT_NOT_FOUND(400,"K002", "존재하지 않는 쿠키 댓글입니다."),
-  COOKIE_COMMENT_USER_MISSMATCH(400,"K003", "해당 유저의 댓글이 아닙니다.");
+  COOKIE_COMMENT_USER_MISSMATCH(400,"K003", "해당 유저의 댓글이 아닙니다."),
+
+  /*
+  Thumbnail
+   */
+  FFMPEGFRAMEGRABBER_FAILED(400, "T001", "FFmpeg Grabber 썸네일 추출 실패"),
+
+  /*
+  Thumbnail
+   */
+  MULTIPART_GETINPUTSTREAM_FAILED(400,"M001", "MultipartFile getInputStream 실패");
 
   private final int status;
   private final String code;

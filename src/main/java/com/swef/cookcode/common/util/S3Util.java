@@ -17,6 +17,9 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.swef.cookcode.common.ErrorCode.MULTIPART_GETINPUTSTREAM_FAILED;
+import static com.swef.cookcode.common.ErrorCode.S3_UPLOAD_FAILED;
+
 @RequiredArgsConstructor
 @Component
 public class S3Util {
@@ -28,57 +31,28 @@ public class S3Util {
     @Value("${aws.s3.bucketName}")
     private String bucket;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    public String upload(MultipartFile multipartFile, String dirName) {
 
-    public String upload(MultipartFile multipartFile, String dirName){
-        String contentType = multipartFile.getContentType();
-        File uploadFile = convert(multipartFile);
+        String fileName = dirName + "/" + new SimpleDateFormat("yyyyMMddHmsS").format(new Date()) + UUID.randomUUID();
 
-        try {
-            FileInputStream uploadFileStream = new FileInputStream(uploadFile);
-
-            String fileName = dirName + "/" + uploadFile.getName();
-            String uploadImageUrl = putS3(uploadFileStream, fileName, contentType);
-
-            removeNewFile(uploadFile);
-
-            return uploadImageUrl;
-        } catch (FileNotFoundException e) {
-            logger.error("FileNotFoundException has occurred : {}", e.getMessage());
-            throw new S3Exception(ErrorCode.STREAM_CONVERT_FAILED);
-        }
-    }
-
-    private String putS3(FileInputStream uploadFileStream, String fileName, String contentType) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(contentType);
-        amazonS3Client.putObject(
-                new PutObjectRequest(bucket, fileName, uploadFileStream, objectMetadata)
-        );
-        return amazonS3Client.getUrl(bucket, fileName).toString();
-    }
+        objectMetadata.setContentType(multipartFile.getContentType());
+        objectMetadata.setContentLength(multipartFile.getSize());
 
-    private void removeNewFile(File targetFile) {
-        targetFile.delete();
-    }
-
-    private File convert(MultipartFile file) {
         try {
-            String originalFilename = new SimpleDateFormat("yyyyMMddHmsS").format(new Date()) + UUID.randomUUID();
-            File convertFile = new File(originalFilename);
-
-            if(!convertFile.createNewFile()){
-                throw new S3Exception(ErrorCode.MULTIPART_CONVERT_FAILED);
-            }
-
-            FileOutputStream fos = new FileOutputStream(convertFile);
-            fos.write(file.getBytes());
-
-            return convertFile;
+            InputStream inputStream = multipartFile.getInputStream();
+            return putInputStreamToS3(inputStream, fileName, objectMetadata);
         } catch (IOException e) {
-            logger.error("IOException has occurred : {}", e.getMessage());
-            throw new S3Exception(ErrorCode.MULTIPART_CONVERT_FAILED);
+            throw new S3Exception(MULTIPART_GETINPUTSTREAM_FAILED);
         }
+    }
+
+    public String putInputStreamToS3(InputStream fileInputStream, String fileName, ObjectMetadata objectMetadata){
+        amazonS3Client.putObject(
+                new PutObjectRequest(bucket, fileName, fileInputStream, objectMetadata)
+        );
+
+        return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
     public void deleteFile(String url){
