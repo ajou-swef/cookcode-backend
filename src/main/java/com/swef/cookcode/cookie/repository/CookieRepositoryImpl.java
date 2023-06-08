@@ -4,7 +4,6 @@ import static com.swef.cookcode.cookie.domain.QCookie.cookie;
 import static com.swef.cookcode.cookie.domain.QCookieComment.cookieComment;
 import static com.swef.cookcode.cookie.domain.QCookieLike.cookieLike;
 import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
-import static com.swef.cookcode.user.domain.QUser.user;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -47,7 +46,7 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
     @Override
     public Slice<CookieResponse> findByTargetUserId(Pageable pageable, Long targetUserId, Long userId) {
         List<CookieResponse> responses = selectCookieResponseFromCookieUserJoinAndLikeComment(userId)
-                .where(user.id.eq(targetUserId))
+                .where(cookie.user.id.eq(targetUserId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
