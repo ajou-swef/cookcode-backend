@@ -29,8 +29,9 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
     @Override
     public Slice<CookieResponse> searchCookies(String query, Long userId, Pageable pageable) {
         List<CookieResponse> responses = selectCookieResponseFromCookieUserJoinAndLikeComment(userId)
-                .fetchJoin()
                 .where(cookieSearchContains(query))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
         return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
@@ -44,13 +45,12 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
 
     @Override
     public Slice<CookieResponse> findByTargetUserId(Pageable pageable, Long targetUserId, Long userId) {
-        return new SliceImpl<>(
-            selectCookieResponseFromCookieUserJoinAndLikeComment(userId)
+        List<CookieResponse> responses = selectCookieResponseFromCookieUserJoinAndLikeComment(userId)
                 .where(user.id.eq(targetUserId))
-                .offset((long) pageable.getPageNumber() * pageable.getPageSize())
-                .limit(pageable.getPageSize())
-                .fetch()
-        );
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+        return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
     }
 
     @Override
@@ -76,15 +76,16 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
     private JPAQuery<CookieResponse> selectCookieResponseFromCookieUserJoinAndLikeComment(Long userId){
         return queryFactory.select(Projections.constructor(CookieResponse.class,
                         cookie,
-                        selectIsCookiLikedByUser(userId),
+                        selectIsCookieLikedByUser(userId),
                         selectCookieLikeCount(),
                         selectCookieCommentCount()))
                 .from(cookie)
-                .leftJoin(recipe).on(recipe.id.eq(cookie.recipe.id))
-                .join(cookie.user, user);
+                .join(cookie.user)
+                .fetchJoin()
+                .leftJoin(recipe).on(recipe.id.eq(cookie.recipe.id));
     }
 
-    private JPQLQuery<Long> selectIsCookiLikedByUser(Long userId){
+    private JPQLQuery<Long> selectIsCookieLikedByUser(Long userId){
         return JPAExpressions.select(cookieLike.count())
                 .from(cookieLike)
                 .where(cookieLike.cookie.id.eq(cookie.id)

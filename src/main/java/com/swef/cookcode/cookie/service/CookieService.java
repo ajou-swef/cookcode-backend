@@ -17,6 +17,7 @@ import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.service.RecipeService;
 import com.swef.cookcode.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import static com.swef.cookcode.common.ErrorCode.COOKIE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CookieService {
 
     private final CookieRepository cookieRepository;
