@@ -28,13 +28,13 @@ public class CookieResponse {
 
     private final UserSimpleResponse user;
 
-    private final Long isLiked;
+    private final Boolean isLiked;
 
     private final Long likeCount;
 
     private final Long commentCount;
 
-    public CookieResponse(Cookie cookie, Long isLiked, Long likeCount, Long commentCount) {
+    public CookieResponse(Cookie cookie, Boolean isLiked, Long likeCount, Long commentCount) {
         this.cookieId = cookie.getId();
         this.title = cookie.getTitle();
         this.desc = cookie.getDescription();

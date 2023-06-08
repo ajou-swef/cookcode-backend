@@ -1,20 +1,21 @@
 package com.swef.cookcode.cookie.repository;
 
+import static com.swef.cookcode.cookie.domain.QCookie.cookie;
+import static com.swef.cookcode.cookie.domain.QCookieComment.cookieComment;
+import static com.swef.cookcode.cookie.domain.QCookieLike.cookieLike;
+import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
+import static com.swef.cookcode.user.domain.QUser.user;
+
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import static com.swef.cookcode.cookie.domain.QCookie.cookie;
-import static com.swef.cookcode.cookie.domain.QCookieComment.cookieComment;
-import static com.swef.cookcode.cookie.domain.QCookieLike.cookieLike;
-import static com.swef.cookcode.user.domain.QUser.user;
-import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.swef.cookcode.common.Util;
-import java.util.List;
-
 import com.swef.cookcode.cookie.dto.CookieResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -76,13 +77,18 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
     private JPAQuery<CookieResponse> selectCookieResponseFromCookieUserJoinAndLikeComment(Long userId){
         return queryFactory.select(Projections.constructor(CookieResponse.class,
                         cookie,
-                        selectIsCookieLikedByUser(userId),
+                        isLikedExpression(userId),
                         selectCookieLikeCount(),
                         selectCookieCommentCount()))
                 .from(cookie)
                 .join(cookie.user)
                 .fetchJoin()
                 .leftJoin(recipe).on(recipe.id.eq(cookie.recipe.id));
+    }
+
+    private BooleanExpression isLikedExpression(Long userId) {
+        return new CaseBuilder()
+                .when(selectIsCookieLikedByUser(userId).eq(0L)).then(false).otherwise(true);
     }
 
     private JPQLQuery<Long> selectIsCookieLikedByUser(Long userId){
