@@ -1,6 +1,7 @@
 package com.swef.cookcode.common.util;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.swef.cookcode.common.ErrorCode;
@@ -46,10 +47,14 @@ public class S3Util {
     }
 
     private String putInputStreamToS3(InputStream inputStream, String fileName, ObjectMetadata objectMetadata){
-        amazonS3Client.putObject(
-                new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
-        );
-        return amazonS3Client.getUrl(bucket, fileName).toString();
+        try {
+            amazonS3Client.putObject(
+                    new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
+            );
+            return amazonS3Client.getUrl(bucket, fileName).toString();
+        } catch (AmazonS3Exception e) {
+            throw new S3Exception(S3_UPLOAD_FAILED);
+        }
     }
 
     public void deleteFile(String url){
