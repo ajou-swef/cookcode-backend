@@ -47,7 +47,7 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
     @Override
     public Slice<CookieResponse> findByTargetUserId(Pageable pageable, Long targetUserId, Long userId) {
         List<CookieResponse> responses = selectCookieResponseFromCookieUserJoinAndLikeComment(userId)
-                .where(user.id.eq(targetUserId))
+                .where(cookie.user.id.eq(targetUserId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
