@@ -13,7 +13,7 @@ spring:
     issuer: cookcode
     accessToken:
       header: accessToken
-      expiry-seconds: 7200
+      expiry-seconds: 86400
     refreshToken:
       header: refreshToken
       expiry-seconds: 604800
