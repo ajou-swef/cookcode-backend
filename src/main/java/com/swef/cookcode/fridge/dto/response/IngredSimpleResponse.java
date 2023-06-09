@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.swef.cookcode.fridge.domain.Ingredient;
+import com.swef.cookcode.recipe.dto.projection.IngredientProjection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +26,14 @@ public class IngredSimpleResponse {
         return IngredSimpleResponse.builder()
                 .ingredientId(ingredient.getId())
                 .name(ingredient.getName())
+                .build();
+    }
+
+    public static IngredSimpleResponse from(IngredientProjection projection) {
+        return IngredSimpleResponse.builder()
+                .ingredientId(projection.getIngredient().getId())
+                .name(projection.getIngredient().getName())
+                .isLack(projection.getIsLack())
                 .build();
     }
 }

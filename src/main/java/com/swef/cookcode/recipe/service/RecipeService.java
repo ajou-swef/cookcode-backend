@@ -3,14 +3,13 @@ package com.swef.cookcode.recipe.service;
 import static java.util.Objects.isNull;
 
 import com.swef.cookcode.common.ErrorCode;
-import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.common.dto.CommentCreateRequest;
 import com.swef.cookcode.common.dto.CommentResponse;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
+import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.cookie.repository.CookieRepository;
 import com.swef.cookcode.fridge.domain.Ingredient;
-import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeComment;
@@ -31,8 +30,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -41,8 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class RecipeService {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final RecipeRepository recipeRepository;
 
@@ -58,8 +53,6 @@ public class RecipeService {
     private final RecipeLikeRepository recipeLikeRepository;
 
     private final CookieRepository cookieRepository;
-
-    private final FridgeService fridgeService;
 
     private final Util util;
 
