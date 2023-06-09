@@ -3,13 +3,9 @@ package com.swef.cookcode.recipe.dto.response;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
 import com.swef.cookcode.recipe.domain.Recipe;
-import com.swef.cookcode.recipe.domain.RecipeIngred;
-import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

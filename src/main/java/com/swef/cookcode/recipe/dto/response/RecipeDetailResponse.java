@@ -23,6 +23,14 @@ public class RecipeDetailResponse extends RecipeResponse{
         this.optionalIngredients = convert(recipe.getOptionalIngredients());
     }
 
+    public void setIngredients(List<IngredSimpleResponse> ingredients) {
+        this.ingredients = ingredients;
+    }
+
+    public void setOptionalIngredients(List<IngredSimpleResponse> optionalIngredients) {
+        this.optionalIngredients = optionalIngredients;
+    }
+
     private static List<IngredSimpleResponse> convert(List<RecipeIngred> ingreds) {
         return ingreds.stream().map(i -> IngredSimpleResponse.from(i.getIngredient())).toList();
     }
