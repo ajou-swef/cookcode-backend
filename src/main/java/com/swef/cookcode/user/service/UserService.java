@@ -116,6 +116,8 @@ public class UserService {
 
     @Transactional
     public void toggleSubscribe(User user, Long createrId) {
+        if (user.getId().equals(createrId)) throw new InvalidRequestException(SUBSCRIBE_MYSELF);
+
         User publisher = userRepository.getReferenceById(createrId);
 
         Optional<Subscribe> subscribeOptional = subscribeRepository.findBySubscriberAndPublisher(user, publisher);

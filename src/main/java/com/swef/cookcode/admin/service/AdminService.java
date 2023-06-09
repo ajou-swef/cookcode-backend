@@ -4,6 +4,7 @@ import static java.util.Objects.isNull;
 
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.dto.EmailMessage;
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.user.domain.Authority;
@@ -34,6 +35,7 @@ public class AdminService {
     }
     @Transactional
     public void authorizeUser(User user, User targetUser, Boolean isAccept) {
+        if (user.getId().equals(targetUser.getId())) throw new InvalidRequestException(ErrorCode.UPGRADE_MYSELF);
         if (user.getAuthority() != Authority.ADMIN) throw new PermissionDeniedException(ErrorCode.USER_NOT_ALLOWED);
         if (isAccept) {
             userService.validateInitialConditionOfInfluencer(targetUser.getId());
