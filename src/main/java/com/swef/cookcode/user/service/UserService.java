@@ -112,7 +112,7 @@ public class UserService {
 
     @Transactional
     public void toggleSubscribe(User user, Long createrId) {
-        User publisher = userRepository.getReferenceById(createrId);
+        User publisher = userSimpleService.getUserById(createrId);
 
         Optional<Subscribe> subscribeOptional = subscribeRepository.findBySubscriberAndPublisher(user, publisher);
 
