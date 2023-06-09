@@ -4,6 +4,7 @@ import static com.swef.cookcode.common.ErrorCode.INVALID_ACCOUNT_REQUEST;
 import static com.swef.cookcode.common.ErrorCode.INVALID_INPUT_VALUE;
 import static com.swef.cookcode.common.ErrorCode.INVALID_LENGTH;
 import static com.swef.cookcode.common.ErrorCode.MISSING_REQUEST_PARAMETER;
+import static com.swef.cookcode.common.ErrorCode.PASSWORD_CANNOT_BE_SAME;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.swef.cookcode.common.entity.BaseEntity;
@@ -30,11 +31,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Getter
 public class User extends BaseEntity {
 
-    private static final String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+    public static final String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
 
     private static final String NICKNAME_REGEX = "^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,16}$";
 
-    private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$";
+    private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()])[A-Za-z\\d!@#$%^&*()]{8,}$";
     private static final int MAX_EMAIL_LENGTH = 100;
     private static final int MAX_NICKNAME_LENGTH = 10;
     private static final int MAX_PROFILEIMAGE_LENGTH = 300;
@@ -124,6 +125,9 @@ public class User extends BaseEntity {
 
     public void changePassword(PasswordEncoder passwordEncoder, String rawPassword) {
         validatePassword(rawPassword);
+        if (passwordEncoder.matches(rawPassword, password)) {
+            throw new AuthErrorException(PASSWORD_CANNOT_BE_SAME);
+        }
         this.password = passwordEncoder.encode(rawPassword);
     }
 

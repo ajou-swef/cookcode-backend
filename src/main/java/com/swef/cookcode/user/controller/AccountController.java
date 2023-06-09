@@ -1,16 +1,22 @@
 package com.swef.cookcode.user.controller;
 
+import static com.swef.cookcode.common.ErrorCode.INVALID_INPUT_VALUE;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
+import com.swef.cookcode.common.dto.EmailMessage;
 import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.jwt.JwtAuthenticationToken;
 import com.swef.cookcode.common.jwt.JwtPrincipal;
+import com.swef.cookcode.common.util.EmailUtil;
+import com.swef.cookcode.common.util.PasswordUtil;
 import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.dto.request.ChangePasswordRequest;
 import com.swef.cookcode.user.dto.request.UserSignInRequest;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
 import com.swef.cookcode.user.dto.response.SignInResponse;
@@ -21,6 +27,7 @@ import com.swef.cookcode.user.service.UserService;
 import com.swef.cookcode.user.service.UserSimpleService;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +64,8 @@ public class AccountController {
 
     private final UserSimpleService userSimpleService;
 
+    private final EmailUtil emailUtil;
+
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<SignInResponse>> signIn(
             @RequestBody @Valid UserSignInRequest request) {
@@ -69,11 +78,7 @@ public class AccountController {
         ApiResponse response = ApiResponse.builder()
                 .message("로그인 성공하였습니다.")
                 .status(OK.value())
-                .data(SignInResponse.builder()
-                        .userId(principal.getUser().getId())
-                        .accessToken(principal.getAccessToken())
-                        .refreshToken(refreshToken)
-                        .build())
+                .data(SignInResponse.from(principal.getUser().getId(), principal.getAccessToken(), refreshToken))
                 .build();
         return ResponseEntity.ok()
                 .body(response);
@@ -202,6 +207,47 @@ public class AccountController {
                 .data(response)
                 .build();
 
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<ApiResponse> changePassword(@CurrentUser User user, @RequestBody @Valid ChangePasswordRequest request) {
+        userService.changePassword(user, request);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("비밀번호 변경 성공")
+                .status(OK.value())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PostMapping("/email")
+    public ResponseEntity<ApiResponse<String>> authenticateEmail(@RequestParam(value = "email") String email) {
+        if (!Pattern.matches(User.EMAIL_REGEX, email)) throw new InvalidRequestException(INVALID_INPUT_VALUE);
+        String code = PasswordUtil.createNumberCode(6);
+        String title = "[cookcode] 이메일 인증을 위한 인증 코드 발송해드립니다.";
+        String content = "회원가입을 위해 이메일 인증을 진행해주세요.\n하단의 인증코드를 앱에서 입력해주십시오.";
+        EmailMessage message = EmailMessage.createMessage(email, title, content, code);
+        emailUtil.sendMessage(message);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("이메일 인증코드 발송 성공")
+                .status(OK.value())
+                .data(code)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/password")
+    public ResponseEntity<ApiResponse> findPassword(@RequestParam(value = "email") String email){
+        String code = PasswordUtil.generateTemporaryPassword(10);
+        String title = "[cookcode] 임시 비밀번호 발급해드립니다.";
+        String content = "임시 비밀번호를 통해 로그인하여 비밀번호 변경을 해주십시오.";
+        EmailMessage message = EmailMessage.createMessage(email, title, content, code);
+        emailUtil.sendMessage(message);
+        userService.changeToTemporaryPassword(email, code);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("비밀번호 찾기 통한 임시비밀번호 발급 성공")
+                .status(OK.value())
+                .build();
         return ResponseEntity.ok(apiResponse);
     }
 

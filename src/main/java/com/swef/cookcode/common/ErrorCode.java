@@ -27,7 +27,7 @@ public enum ErrorCode {
    */
   USER_NOT_FOUND(400, "U001", "유저가 존재하지 않습니다."),
   INVALID_ACCOUNT_REQUEST(400, "U002", "아이디 및 비밀번호가 올바르지 않습니다."),
-  INVALID_REFRESH_TOKEN_REQUEST(400, "U003", "토큰이 올바르지 않습니다."),
+  INVALID_REFRESH_TOKEN_REQUEST(400, "U003", "리프레시 토큰이 올바르지 않습니다."),
   USER_ALREADY_EXISTS(400, "U004", "유저가 이미 존재합니다."),
   TOKEN_EXPIRED(400, "U005", "토큰이 만료되었습니다."),
   LOGIN_PARAM_REQUIRED(400, "U006", "로그인 파라미터가 누락되었습니다."),
@@ -44,6 +44,8 @@ public enum ErrorCode {
   USER_NOT_ALLOWED(400, "U020", "해당 유저는 권한이 없습니다."),
   USER_IS_NOT_AUTHOR(400, "U021", "해당 유저는 컨텐츠의 작성자가 아닙니다."),
   INVALID_TOKEN_SIGN(400, "U022", "토큰의 서명이 올바르지 않습니다"),
+
+  INVALID_TOKEN_PROCESSING(400, "U023", "올바르지 않은 토큰 형식입니다."),
 
   /*
   Ingredient Domain

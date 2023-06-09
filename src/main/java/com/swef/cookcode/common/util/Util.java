@@ -1,15 +1,18 @@
-package com.swef.cookcode.common;
+package com.swef.cookcode.common.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
-import com.swef.cookcode.common.util.S3Util;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,8 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class Util {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final S3Util s3Util;
+
+    private final ObjectMapper objectMapper;
 
     public static <T> void validateDuplication(List<T> list1, List<T> list2) {
         Set<T> mergedSets = new HashSet<>() {{
@@ -48,4 +52,18 @@ public class Util {
         }
         return hasNext;
     }
+
+    public void setResponse(int status, HttpServletResponse response, Object responseBody) {
+        response.setStatus(status);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        try {
+            String json = objectMapper.writeValueAsString(responseBody);
+            PrintWriter writer = response.getWriter();
+            writer.write(json);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

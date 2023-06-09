@@ -2,6 +2,7 @@ spring:
   profiles:
     include:
       - aws
+      - mail
   application:
     name: cookcode
   jpa:
@@ -13,7 +14,7 @@ spring:
     issuer: cookcode
     accessToken:
       header: accessToken
-      expiry-seconds: 86400
+      expiry-seconds: 10800
     refreshToken:
       header: refreshToken
       expiry-seconds: 604800

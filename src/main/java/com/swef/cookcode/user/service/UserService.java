@@ -14,14 +14,13 @@ import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.user.domain.Authority;
 import com.swef.cookcode.user.domain.Subscribe;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.dto.request.ChangePasswordRequest;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
 import com.swef.cookcode.user.dto.response.UserDetailResponse;
-import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.repository.SubscribeRepository;
 import com.swef.cookcode.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -41,6 +40,9 @@ public class UserService {
     private final SubscribeRepository subscribeRepository;
 
     private final S3Util s3Util;
+
+    private final UserSimpleService userSimpleService;
+
 
     private final static String PROFILEIMAGE_DIRECTORY = "profileImage";
     @Transactional
@@ -72,8 +74,9 @@ public class UserService {
 
     @Transactional
     public User signUp(UserSignUpRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            User existUser = userRepository.findByEmail(request.getEmail()).get();
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        if (userOptional.isPresent()) {
+            User existUser = userOptional.get();
             if (existUser.getIsQuit()) {
                 existUser.rejoin();
                 return userRepository.save(existUser);
@@ -82,8 +85,6 @@ public class UserService {
                 throw new AlreadyExistsException(USER_ALREADY_EXISTS);
             }
         }
-
-        //TODO: 이메일 인증 로직
 
         User.validatePassword(request.getPassword());
 
@@ -138,4 +139,17 @@ public class UserService {
         return userRepository.findPublishers(pageable, user.getId());
     }
 
+    @Transactional
+    public void changePassword(User user, ChangePasswordRequest request) {
+        user.checkPassword(passwordEncoder, request.getPassword());
+        user.changePassword(passwordEncoder, request.getNewPassword());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void changeToTemporaryPassword(String email, String temporaryPassword) {
+        User user = userSimpleService.getUserByEmail(email);
+        user.changePassword(passwordEncoder, temporaryPassword);
+        userRepository.save(user);
+    }
 }

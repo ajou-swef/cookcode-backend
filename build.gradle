@@ -54,6 +54,12 @@ dependencies {
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
 
+    //email
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    //thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
 }
 
 def querydslSrcDir = 'src/main/generated'
@@ -96,6 +102,11 @@ task copyPrivate(type: Copy) {
     copy {
         from './cookcode-secret'
         include "application-aws.yml"
+        into 'src/main/resources'
+    }
+    copy {
+        from './cookcode-secret'
+        include "application-mail.yml"
         into 'src/main/resources'
     }
 }

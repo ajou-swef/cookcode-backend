@@ -27,6 +27,11 @@ public class UserSimpleService {
     }
 
     @Transactional(readOnly = true)
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmailAndIsQuit(email, false).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
     public boolean checkNicknameUnique(String nickname) {
         return !userRepository.existsByNicknameAndIsQuit(nickname, false);
     }
@@ -35,5 +40,4 @@ public class UserSimpleService {
     public boolean checkUserExists(Long userId) {
         return userRepository.existsByIdAndIsQuit(userId, false);
     }
-
 }
