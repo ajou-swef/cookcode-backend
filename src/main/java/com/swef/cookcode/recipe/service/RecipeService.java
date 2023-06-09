@@ -32,6 +32,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,6 +102,7 @@ public class RecipeService {
                 .build();
     }
 
+    @Async
     public void deleteCancelledFiles(RecipeCreateRequest request) {
         util.deleteFilesInS3(request.getDeletedThumbnails());
         request.getSteps().forEach(step -> {
