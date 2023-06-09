@@ -36,7 +36,6 @@ public class AdminService {
     @Transactional
     public void authorizeUser(User user, User targetUser, Boolean isAccept) {
         if (user.getId().equals(targetUser.getId())) throw new InvalidRequestException(ErrorCode.UPGRADE_MYSELF);
-        if (user.getAuthority() != Authority.ADMIN) throw new PermissionDeniedException(ErrorCode.USER_NOT_ALLOWED);
         if (isAccept) {
             userService.validateInitialConditionOfInfluencer(targetUser.getId());
             targetUser.updateAuthority(targetUser.getStatus().getAuthority());
