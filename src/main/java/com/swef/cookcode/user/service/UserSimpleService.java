@@ -4,6 +4,7 @@ import static com.swef.cookcode.common.ErrorCode.USER_NOT_FOUND;
 
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.dto.response.UserDetailResponse;
 import com.swef.cookcode.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,11 @@ public class UserSimpleService {
     @Transactional(readOnly = true)
     public User getUserById(Long userId) {
         return userRepository.findByIdAndIsQuit(userId, false).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public UserDetailResponse getInfoByUserId(Long userId, Long targetUserId) {
+        return userRepository.getInfoByUserId(userId, targetUserId);
     }
 
     @Transactional(readOnly = true)

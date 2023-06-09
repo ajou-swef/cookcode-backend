@@ -16,7 +16,7 @@ import com.swef.cookcode.user.domain.Subscribe;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.request.ChangePasswordRequest;
 import com.swef.cookcode.user.dto.request.UserSignUpRequest;
-import com.swef.cookcode.user.dto.response.UserSimpleResponse;
+import com.swef.cookcode.user.dto.response.UserDetailResponse;
 import com.swef.cookcode.user.repository.SubscribeRepository;
 import com.swef.cookcode.user.repository.UserRepository;
 import java.util.List;
@@ -106,42 +106,37 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<User> searchUsersWith(String searchQuery, Pageable pageable) {
-        return userRepository.findByNicknameContaining(searchQuery, pageable);
+    public Slice<UserDetailResponse> searchUsersWith(Long userId, String searchQuery, Pageable pageable) {
+        return userRepository.findByNicknameContaining(userId, searchQuery, pageable);
     }
 
     @Transactional
-    public void createSubscribe(User user, Long createrId) {
-        User creater = userRepository.getReferenceById(createrId);
+    public void toggleSubscribe(User user, Long createrId) {
+        User publisher = userRepository.getReferenceById(createrId);
 
-        Subscribe subscribe = Subscribe.createEntity(user, creater);
+        Optional<Subscribe> subscribeOptional = subscribeRepository.findBySubscriberAndPublisher(user, publisher);
+
+        subscribeOptional.ifPresentOrElse(this::unSubscribe, () -> subscribe(user, publisher));
+    }
+
+    void subscribe(User user, User publisher) {
+        Subscribe subscribe = Subscribe.createEntity(user, publisher);
 
         subscribeRepository.save(subscribe);
     }
+    void unSubscribe(Subscribe subscribe) {
+        subscribeRepository.delete(subscribe);
+    }
+
 
     @Transactional(readOnly = true)
-    public List<UserSimpleResponse> getSubscribers(User user) {
-        List<Subscribe> subscribes = subscribeRepository.findSubscribers(user);
-
-        return subscribes.stream().map(
-                subscribe -> UserSimpleResponse.from(subscribe.getSubscriber())
-        ).toList();
+    public Slice<UserDetailResponse> getSubscribers(Pageable pageable, User user) {
+        return userRepository.findSubscribers(pageable, user.getId());
     }
 
     @Transactional(readOnly = true)
-    public List<UserSimpleResponse> getPublishers(User user) {
-        List<Subscribe> subscribes = subscribeRepository.findPublishers(user);
-
-        return subscribes.stream().map(
-                subscribe -> UserSimpleResponse.from(subscribe.getPublisher())
-        ).toList();
-    }
-
-    @Transactional
-    public void deleteSubscribe(User user, Long createrId) {
-        User creater = userRepository.getReferenceById(createrId);
-
-        subscribeRepository.deleteByPublisherAndSubscriber(creater, user);
+    public Slice<UserDetailResponse> getPublishers(Pageable pageable, User user) {
+        return userRepository.findPublishers(pageable, user.getId());
     }
 
     @Transactional

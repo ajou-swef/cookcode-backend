@@ -1,6 +1,7 @@
 package com.swef.cookcode.common.util;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.swef.cookcode.common.ErrorCode;
@@ -17,8 +18,7 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.swef.cookcode.common.ErrorCode.MULTIPART_GETINPUTSTREAM_FAILED;
-import static com.swef.cookcode.common.ErrorCode.S3_UPLOAD_FAILED;
+import static com.swef.cookcode.common.ErrorCode.*;
 
 @RequiredArgsConstructor
 @Component
@@ -39,20 +39,22 @@ public class S3Util {
         objectMetadata.setContentType(multipartFile.getContentType());
         objectMetadata.setContentLength(multipartFile.getSize());
 
-        try {
-            InputStream inputStream = multipartFile.getInputStream();
+        try (InputStream inputStream = multipartFile.getInputStream()){
             return putInputStreamToS3(inputStream, fileName, objectMetadata);
         } catch (IOException e) {
             throw new S3Exception(MULTIPART_GETINPUTSTREAM_FAILED);
         }
     }
 
-    public String putInputStreamToS3(InputStream fileInputStream, String fileName, ObjectMetadata objectMetadata){
-        amazonS3Client.putObject(
-                new PutObjectRequest(bucket, fileName, fileInputStream, objectMetadata)
-        );
-
-        return amazonS3Client.getUrl(bucket, fileName).toString();
+    private String putInputStreamToS3(InputStream inputStream, String fileName, ObjectMetadata objectMetadata){
+        try {
+            amazonS3Client.putObject(
+                    new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
+            );
+            return amazonS3Client.getUrl(bucket, fileName).toString();
+        } catch (AmazonS3Exception e) {
+            throw new S3Exception(S3_UPLOAD_FAILED);
+        }
     }
 
     public void deleteFile(String url){

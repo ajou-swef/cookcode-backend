@@ -58,6 +58,7 @@ public enum ErrorCode {
    */
   S3_UPLOAD_FAILED(400, "S001", "S3 업로드 실패"),
   INVALID_URL(400, "S002", "올바르지 않은 url이 반환되었습니다."),
+  INPUTSTREAM_CLOSE_FAILED(400, "S003", "업로드 후 인풋스트림 해제 실패"),
   /*
   FRIDGE_Domain
    */
@@ -83,11 +84,7 @@ public enum ErrorCode {
   Thumbnail
    */
   FFMPEGFRAMEGRABBER_FAILED(400, "T001", "FFmpeg Grabber 썸네일 추출 실패"),
-
-  /*
-  Thumbnail
-   */
-  MULTIPART_GETINPUTSTREAM_FAILED(400,"M001", "MultipartFile getInputStream 실패");
+  MULTIPART_GETINPUTSTREAM_FAILED(400,"T002", "MultipartFile getInputStream 실패");
 
   private final int status;
   private final String code;
