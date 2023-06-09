@@ -26,11 +26,6 @@ public class RecipeResponse {
     private String title;
 
     private String description;
-
-    private List<IngredSimpleResponse> ingredients;
-
-    private List<IngredSimpleResponse> optionalIngredients;
-
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -49,8 +44,6 @@ public class RecipeResponse {
         this.user = UserSimpleResponse.from(recipe.getAuthor());
         this.title = recipe.getTitle();
         this.description = recipe.getDescription();
-        this.ingredients = convert(recipe.getNecessaryIngredients());
-        this.optionalIngredients = convert(recipe.getOptionalIngredients());
         this.createdAt = recipe.getCreatedAt();
         this.updatedAt = recipe.getUpdatedAt();
         this.isCookable = isCookable;
@@ -60,7 +53,4 @@ public class RecipeResponse {
         this.commentCount = commentCount;
     }
 
-    private static List<IngredSimpleResponse> convert(List<RecipeIngred> ingreds) {
-        return ingreds.stream().map(i -> IngredSimpleResponse.from(i.getIngredient())).toList();
-    }
 }
