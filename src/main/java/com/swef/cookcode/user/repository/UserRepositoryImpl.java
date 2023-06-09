@@ -1,5 +1,12 @@
 package com.swef.cookcode.user.repository;
 
+import static com.querydsl.sql.SQLExpressions.count;
+import static com.swef.cookcode.user.domain.QSubscribe.subscribe;
+import static com.swef.cookcode.user.domain.QUser.user;
+import static java.util.Objects.nonNull;
+
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -10,14 +17,13 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.user.domain.QSubscribe;
 import com.swef.cookcode.user.dto.response.UserDetailResponse;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-
-import static com.querydsl.sql.SQLExpressions.count;
-import static com.swef.cookcode.user.domain.QSubscribe.subscribe;
-import static com.swef.cookcode.user.domain.QUser.user;
+import org.springframework.data.domain.Sort;
 
 
 // TODO : NumberPath 매개변수로 엮인 함수끼리의 의존성 refactor
@@ -46,9 +52,20 @@ public class UserRepositoryImpl implements UserCustomRepository{
                         .where(user.nickname.contains(searchQuery))
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())
+                        .orderBy(getOrder(pageable.getSort()))
                         .fetch()
         );
     }
+
+    private OrderSpecifier[] getOrder(Sort sort) {
+        List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
+        if (nonNull(sort.getOrderFor("popular"))) {
+            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, selectSubscribeCount(user.id)));
+        }
+        orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, user.createdAt));
+        return orderSpecifiers.toArray(new OrderSpecifier[0]);
+    }
+
 
     @Override
         public Slice<UserDetailResponse> findSubscribers(Pageable pageable, Long userId){
