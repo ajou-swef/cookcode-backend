@@ -227,7 +227,7 @@ public class AccountController {
         if (!Pattern.matches(User.EMAIL_REGEX, email)) throw new InvalidRequestException(INVALID_INPUT_VALUE);
         String code = PasswordUtil.createNumberCode(6);
         String title = "[cookcode] 이메일 인증을 위한 인증 코드 발송해드립니다.";
-        String content = "회원가입을 위해 이메일 인증을 진행해주세요.\n하단의 인증코드를 앱에서 입력해주십시오.";
+        String content = "회원가입을 위해 이메일 인증을 진행해주세요.<br/>하단의 인증코드를 앱에서 입력해주십시오.";
         EmailMessage message = EmailMessage.createMessage(email, title, content, code);
         emailUtil.sendMessage(message);
         ApiResponse apiResponse = ApiResponse.builder()

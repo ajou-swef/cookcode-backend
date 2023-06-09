@@ -6,10 +6,12 @@ import static com.swef.cookcode.common.ErrorCode.USER_NOT_FOUND;
 import static java.util.Objects.nonNull;
 import static org.springframework.util.StringUtils.hasText;
 
+import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.error.exception.AlreadyExistsException;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
+import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.user.domain.Authority;
 import com.swef.cookcode.user.domain.Status;
@@ -159,5 +161,10 @@ public class UserService {
         if (authority == Authority.INFLUENCER) user.changeStatus(Status.INF_REQUESTED);
         if (authority == Authority.ADMIN) user.changeStatus(Status.ADM_REQUESTED);
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public void validateInitialConditionOfInfluencer(Long userId) {
+        if(!userRepository.fulfillInfluencerCondition(userId)) throw new PermissionDeniedException(ErrorCode.INFLUENCER_FALL);
     }
 }
