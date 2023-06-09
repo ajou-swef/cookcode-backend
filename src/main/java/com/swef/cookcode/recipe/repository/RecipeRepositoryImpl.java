@@ -10,6 +10,8 @@ import static com.swef.cookcode.recipe.domain.QRecipeLike.recipeLike;
 import static com.swef.cookcode.fridge.domain.QFridge.fridge;
 import static java.util.Objects.nonNull;
 
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -18,14 +20,18 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.recipe.domain.QRecipeLike;
 import com.swef.cookcode.recipe.dto.response.RecipeDetailResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
 
 @RequiredArgsConstructor
+@Slf4j
 public class RecipeRepositoryImpl implements RecipeCustomRepository{
 
     private final JPAQueryFactory queryFactory;
@@ -34,15 +40,23 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
 
     @Override
     public Slice<RecipeResponse> findRecipes(Long userId, Boolean isCookable, Integer month, Pageable pageable) {
-
         JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndLike(userId)
                 .groupBy(recipe.id);
         filterIfCookable(isCookable, query);
         filterIfMonth(month, query);
-        List<RecipeResponse> result = query.orderBy(recipe.createdAt.desc()).offset(pageable.getOffset()).limit(
+        List<RecipeResponse> result = query.orderBy(getOrder(pageable.getSort())).offset(pageable.getOffset()).limit(
                 pageable.getPageSize()+1).fetch();
-
         return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
+    }
+
+    private OrderSpecifier[] getOrder(Sort sort) {
+        List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
+        if (nonNull(sort.getOrderFor("popular"))) {
+            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, recipeLike.countDistinct()));
+            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, recipeComment.countDistinct()));
+        }
+        orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, recipe.createdAt));
+        return orderSpecifiers.toArray(new OrderSpecifier[0]);
     }
 
     @Override
