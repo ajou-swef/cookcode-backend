@@ -12,6 +12,7 @@ import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.util.S3Util;
 import com.swef.cookcode.user.domain.Authority;
+import com.swef.cookcode.user.domain.Status;
 import com.swef.cookcode.user.domain.Subscribe;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.request.ChangePasswordRequest;
@@ -150,6 +151,13 @@ public class UserService {
     public void changeToTemporaryPassword(String email, String temporaryPassword) {
         User user = userSimpleService.getUserByEmail(email);
         user.changePassword(passwordEncoder, temporaryPassword);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void requestPermission(User user, Authority authority) {
+        if (authority == Authority.INFLUENCER) user.changeStatus(Status.INF_REQUESTED);
+        if (authority == Authority.ADMIN) user.changeStatus(Status.ADM_REQUESTED);
         userRepository.save(user);
     }
 }
