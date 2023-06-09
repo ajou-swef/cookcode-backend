@@ -4,12 +4,7 @@ import static com.swef.cookcode.cookie.domain.QCookie.cookie;
 import static com.swef.cookcode.cookie.domain.QCookieComment.cookieComment;
 import static com.swef.cookcode.cookie.domain.QCookieLike.cookieLike;
 import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
-import static com.swef.cookcode.recipe.domain.QRecipeComment.recipeComment;
-import static com.swef.cookcode.recipe.domain.QRecipeLike.recipeLike;
-import static java.util.Objects.nonNull;
 
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -17,15 +12,14 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.swef.cookcode.cookie.dto.CookieResponse;
+import com.swef.cookcode.common.util.QueryUtil;
 import com.swef.cookcode.common.util.Util;
-import java.util.ArrayList;
+import com.swef.cookcode.cookie.dto.CookieResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.domain.Sort;
 
 
 @RequiredArgsConstructor
@@ -39,19 +33,9 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
                 .where(cookieSearchContains(query))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
-                .orderBy(getOrder(pageable.getSort()))
+                .orderBy(QueryUtil.getOrderSpecifiers(pageable.getSort(), List.of(selectCookieLikeCount(), selectCookieCommentCount()), cookie.createdAt))
                 .fetch();
         return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
-    }
-
-    private OrderSpecifier[] getOrder(Sort sort) {
-        List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
-        if (nonNull(sort.getOrderFor("popular"))) {
-            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, selectCookieLikeCount()));
-            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, selectCookieCommentCount()));
-        }
-        orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, cookie.createdAt));
-        return orderSpecifiers.toArray(new OrderSpecifier[0]);
     }
 
     private BooleanExpression cookieSearchContains(String query) {
@@ -66,7 +50,7 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
                 .where(cookie.user.id.eq(targetUserId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
-                .orderBy(getOrder(pageable.getSort()))
+                .orderBy(QueryUtil.getOrderSpecifiers(pageable.getSort(), List.of(selectCookieLikeCount(), selectCookieCommentCount()), cookie.createdAt))
                 .fetch();
         return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
     }

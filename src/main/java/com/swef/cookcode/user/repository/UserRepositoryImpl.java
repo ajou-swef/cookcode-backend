@@ -3,11 +3,7 @@ package com.swef.cookcode.user.repository;
 import static com.querydsl.sql.SQLExpressions.count;
 import static com.swef.cookcode.user.domain.QSubscribe.subscribe;
 import static com.swef.cookcode.user.domain.QUser.user;
-import static java.util.Objects.nonNull;
 
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -16,16 +12,15 @@ import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.swef.cookcode.common.util.QueryUtil;
 import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.user.domain.QSubscribe;
 import com.swef.cookcode.user.dto.response.UserDetailResponse;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.domain.Sort;
 
 
 // TODO : NumberPath 매개변수로 엮인 함수끼리의 의존성 refactor
@@ -53,18 +48,9 @@ public class UserRepositoryImpl implements UserCustomRepository{
                         .where(user.nickname.contains(searchQuery))
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize()+1)
-                        .orderBy(getOrder(pageable.getSort(), selectSubscribeCount(user.id), user.createdAt))
+                        .orderBy(QueryUtil.getOrderSpecifiers(pageable.getSort(), List.of(selectSubscribeCount(user.id)), user.createdAt))
                         .fetch();
         return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
-    }
-
-    private OrderSpecifier[] getOrder(Sort sort, Expression popular, Expression recent) {
-        List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
-        if (nonNull(sort.getOrderFor("popular"))) {
-            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, popular));
-        }
-        orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, recent));
-        return orderSpecifiers.toArray(new OrderSpecifier[0]);
     }
 
 
@@ -80,7 +66,7 @@ public class UserRepositoryImpl implements UserCustomRepository{
                         .where(subscribe.publisher.id.eq(userId))
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize()+1)
-                        .orderBy(getOrder(pageable.getSort(), selectSubscribeCount(user.id), subscribe.createdAt))
+                        .orderBy(QueryUtil.getOrderSpecifiers(pageable.getSort(), List.of(selectSubscribeCount(user.id)), subscribe.createdAt))
                         .fetch();
         return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
     }
@@ -97,7 +83,7 @@ public class UserRepositoryImpl implements UserCustomRepository{
                     .where(subscribe.subscriber.id.eq(userId))
                     .offset(pageable.getOffset())
                     .limit(pageable.getPageSize()+1)
-                    .orderBy(getOrder(pageable.getSort(), selectSubscribeCount(user.id), subscribe.createdAt))
+                    .orderBy(QueryUtil.getOrderSpecifiers(pageable.getSort(), List.of(selectSubscribeCount(user.id)), subscribe.createdAt))
                     .fetch();
         return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
     }

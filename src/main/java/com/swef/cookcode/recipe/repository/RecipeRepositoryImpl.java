@@ -2,6 +2,7 @@ package com.swef.cookcode.recipe.repository;
 
 
 import static com.swef.cookcode.common.util.Util.hasNextInSlice;
+import static com.swef.cookcode.cookie.domain.QCookie.cookie;
 import static com.swef.cookcode.fridge.domain.QFridgeIngredient.fridgeIngredient;
 import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
 import static com.swef.cookcode.recipe.domain.QRecipeComment.recipeComment;
@@ -17,6 +18,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.swef.cookcode.common.util.QueryUtil;
 import com.swef.cookcode.recipe.domain.QRecipeLike;
 import com.swef.cookcode.recipe.dto.response.RecipeDetailResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
@@ -44,8 +46,12 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                 .groupBy(recipe.id);
         filterIfCookable(isCookable, query);
         filterIfMonth(month, query);
-        List<RecipeResponse> result = query.orderBy(getOrder(pageable.getSort())).offset(pageable.getOffset()).limit(
-                pageable.getPageSize()+1).fetch();
+        List<RecipeResponse> result = query.orderBy(
+                QueryUtil.getOrderSpecifiers(
+                        pageable.getSort(), List.of(recipeLike.countDistinct(), recipeComment.countDistinct()), recipe.createdAt
+                ))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()+1).fetch();
         return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
     }
 
@@ -64,8 +70,12 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
         JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndLike(userId)
                 .where(recipe.author.id.eq(targetUserId))
                 .groupBy(recipe.id);
-        List<RecipeResponse> result = query.orderBy(getOrder(pageable.getSort())).offset(pageable.getOffset()).limit(
-                pageable.getPageSize()+1).fetch();
+        List<RecipeResponse> result = query.orderBy(
+                        QueryUtil.getOrderSpecifiers(
+                                pageable.getSort(), List.of(recipeLike.countDistinct(), recipeComment.countDistinct()), recipe.createdAt
+                        ))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()+1).fetch();
         return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
     }
 
@@ -84,8 +94,12 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                 .where(recipeSearchContains(searchQuery))
                 .groupBy(recipe.id);
         filterIfCookable(isCookable, query);
-        List<RecipeResponse> result = query.orderBy(getOrder(pageable.getSort())).offset(pageable.getOffset()).limit(
-                pageable.getPageSize()+1).fetch();
+        List<RecipeResponse> result = query.orderBy(
+                        QueryUtil.getOrderSpecifiers(
+                                pageable.getSort(), List.of(recipeLike.countDistinct(), recipeComment.countDistinct()), recipe.createdAt
+                        ))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()+1).fetch();
 
         return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
     }
