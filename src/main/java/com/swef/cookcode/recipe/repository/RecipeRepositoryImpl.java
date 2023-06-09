@@ -15,6 +15,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
+import com.swef.cookcode.fridge.repository.IngredientRepository;
 import com.swef.cookcode.recipe.domain.QRecipeLike;
 import com.swef.cookcode.recipe.dto.response.RecipeDetailResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
@@ -31,6 +33,8 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     private final JPAQueryFactory queryFactory;
 
     private final QRecipeLike recipeLikeForIsLike = new QRecipeLike("recipeLikeForIsLike");
+
+    private final IngredientRepository ingredientRepository;
 
     @Override
     public Slice<RecipeResponse> findRecipes(Long userId, Boolean isCookable, Pageable pageable) {
@@ -55,12 +59,14 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     }
 
     @Override
-    public Optional<RecipeResponse> findRecipeById(Long userId, Long recipeId) {
-        RecipeResponse response = selectDetailRecipeWithCookableAndLike(userId)
+    public Optional<RecipeDetailResponse> findRecipeById(Long userId, Long recipeId) {
+        RecipeDetailResponse response = selectDetailRecipeWithCookableAndLike(userId)
                 .where(recipe.id.eq(recipeId))
                 .groupBy(recipe.id)
                 .fetchFirst();
-        return Optional.ofNullable(response);
+        Optional<RecipeDetailResponse> recipeResponse = Optional.ofNullable(response);
+        recipeResponse.ifPresent(r -> r.setIngredients(ingredientRepository.getNecessaryIngredientsForRecipe(userId, recipeId)));
+        return recipeResponse;
     }
 
     @Override
