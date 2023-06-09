@@ -48,6 +48,8 @@ public enum ErrorCode {
   INVALID_TOKEN_PROCESSING(400, "U023", "올바르지 않은 토큰 형식입니다."),
   INVALID_AUTHORITY(400, "U024", "알 수 없는 권한입니다."),
   INFLUENCER_FALL(400, "U025", "인플루언서 초기 권한 미달입니다."),
+  SUBSCRIBE_MYSELF(400, "U026", "본인을 구독할 수 없습니다."),
+  UPGRADE_MYSELF(400, "U027", "본인을 승인할 수 없습니다."),
 
   /*
   Ingredient Domain

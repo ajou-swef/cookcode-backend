@@ -1,6 +1,7 @@
 package com.swef.cookcode.user.service;
 
 import static com.swef.cookcode.common.ErrorCode.LOGIN_PARAM_REQUIRED;
+import static com.swef.cookcode.common.ErrorCode.SUBSCRIBE_MYSELF;
 import static com.swef.cookcode.common.ErrorCode.USER_ALREADY_EXISTS;
 import static com.swef.cookcode.common.ErrorCode.USER_NOT_FOUND;
 import static java.util.Objects.nonNull;
@@ -158,7 +159,10 @@ public class UserService {
 
     @Transactional
     public void requestPermission(User user, Authority authority) {
-        if (authority == Authority.INFLUENCER) user.changeStatus(Status.INF_REQUESTED);
+        if (authority == Authority.INFLUENCER) {
+            validateInitialConditionOfInfluencer(user.getId());
+            user.changeStatus(Status.INF_REQUESTED);
+        }
         if (authority == Authority.ADMIN) user.changeStatus(Status.ADM_REQUESTED);
         userRepository.save(user);
     }
