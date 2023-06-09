@@ -10,9 +10,11 @@ import static com.swef.cookcode.recipe.domain.QRecipeLike.recipeLike;
 import static com.swef.cookcode.fridge.domain.QFridge.fridge;
 import static java.util.Objects.nonNull;
 
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.recipe.domain.QRecipeLike;
@@ -76,21 +78,29 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     }
 
     private JPAQuery<RecipeResponse> selectRecipesWithCookableAndLike(Long userId) {
-        return selectRecipesWithCookableAndLike(userId, RecipeResponse.class);
+        Expression<RecipeResponse> selectExpression = Projections.constructor(RecipeResponse.class,
+                recipe,
+                isCookableExpression().as("isCookable"),
+                recipeLike.countDistinct().as("likeCount"),
+                isLikedExpression(userId).as("isLiked"),
+                recipeComment.id.countDistinct().as("commentCount")
+        );
+        return selectRecipesWithCookableAndLike(selectExpression, userId);
     }
 
     private JPAQuery<RecipeDetailResponse> selectDetailRecipeWithCookableAndLike(Long userId) {
-        return selectRecipesWithCookableAndLike(userId, RecipeDetailResponse.class);
+        Expression<RecipeDetailResponse> selectExpression = Projections.constructor(RecipeDetailResponse.class,
+                recipe,
+                isCookableExpression().as("isCookable"),
+                recipeLike.countDistinct().as("likeCount"),
+                isLikedExpression(userId).as("isLiked"),
+                recipeComment.id.countDistinct().as("commentCount")
+        );
+        return selectRecipesWithCookableAndLike(selectExpression, userId);
     }
 
-    private <T> JPAQuery<T> selectRecipesWithCookableAndLike(Long userId, Class<T> tClass) {
-        return queryFactory.select(Projections.constructor(tClass,
-                        recipe,
-                        isCookableExpression().as("isCookable"),
-                        recipeLike.countDistinct().as("likeCount"),
-                        isLikedExpression(userId).as("isLiked"),
-                        recipeComment.id.countDistinct().as("commentCount")
-                ))
+    private <T> JPAQuery<T> selectRecipesWithCookableAndLike(Expression<T> expression, Long userId) {
+        return queryFactory.select(expression)
                 .from(recipe)
                 .join(recipe.author)
                 .fetchJoin()
