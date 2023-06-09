@@ -1,5 +1,6 @@
 package com.swef.cookcode.user.domain;
 
+import com.swef.cookcode.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,7 +28,7 @@ import lombok.NoArgsConstructor;
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Subscribe {
+public class Subscribe extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

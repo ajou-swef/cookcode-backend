@@ -5,6 +5,7 @@ import static com.swef.cookcode.user.domain.QSubscribe.subscribe;
 import static com.swef.cookcode.user.domain.QUser.user;
 import static java.util.Objects.nonNull;
 
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -15,6 +16,7 @@ import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.user.domain.QSubscribe;
 import com.swef.cookcode.user.dto.response.UserDetailResponse;
 import java.util.ArrayList;
@@ -46,55 +48,58 @@ public class UserRepositoryImpl implements UserCustomRepository{
 
     @Override
     public Slice<UserDetailResponse> findByNicknameContaining(Long userId, String searchQuery, Pageable pageable) {
-        return new SliceImpl<>(
-                selectUserWithSubscribes(userId)
+          List<UserDetailResponse> responses = selectUserWithSubscribes(userId)
                         .from(user)
                         .where(user.nickname.contains(searchQuery))
                         .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
-                        .orderBy(getOrder(pageable.getSort()))
-                        .fetch()
-        );
+                        .limit(pageable.getPageSize()+1)
+                        .orderBy(getOrder(pageable.getSort(), selectSubscribeCount(user.id), user.createdAt))
+                        .fetch();
+        return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
     }
 
-    private OrderSpecifier[] getOrder(Sort sort) {
+    private OrderSpecifier[] getOrder(Sort sort, Expression popular, Expression recent) {
         List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
         if (nonNull(sort.getOrderFor("popular"))) {
-            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, selectSubscribeCount(user.id)));
+            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, popular));
         }
-        orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, user.createdAt));
+        orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, recent));
         return orderSpecifiers.toArray(new OrderSpecifier[0]);
     }
 
 
     @Override
         public Slice<UserDetailResponse> findSubscribers(Pageable pageable, Long userId){
-        return new SliceImpl<>(
-                queryFactory.select(Projections.constructor(UserDetailResponse.class,
-                            user,
-                            isSubscribedExpression(userId, user.id),
-                            selectSubscribeCount(user.id)))
-                    .from(subscribe)
-                    .join(user)
-                    .on(user.id.eq(subscribe.subscriber.id))
-                    .where(subscribe.publisher.id.eq(userId))
-                    .fetch()
-        );
+        List<UserDetailResponse> responses = queryFactory.select(Projections.constructor(UserDetailResponse.class,
+                                user,
+                                isSubscribedExpression(userId, user.id),
+                                selectSubscribeCount(user.id)))
+                        .from(subscribe)
+                        .join(user)
+                        .on(user.id.eq(subscribe.subscriber.id))
+                        .where(subscribe.publisher.id.eq(userId))
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize()+1)
+                        .orderBy(getOrder(pageable.getSort(), selectSubscribeCount(user.id), subscribe.createdAt))
+                        .fetch();
+        return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
     }
 
     @Override
     public Slice<UserDetailResponse> findPublishers(Pageable pageable, Long userId){
-        return new SliceImpl<>(
-            queryFactory.select(Projections.constructor(UserDetailResponse.class,
+        List<UserDetailResponse> responses =  queryFactory.select(Projections.constructor(UserDetailResponse.class,
                             user,
                             Expressions.TRUE,
-                            selectSubscribeCount(subscribe.publisher.id)))
+                            selectSubscribeCount(user.id)))
                     .from(subscribe)
                     .join(user)
                     .on(user.id.eq(subscribe.publisher.id))
                     .where(subscribe.subscriber.id.eq(userId))
-                    .fetch()
-        );
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize()+1)
+                    .orderBy(getOrder(pageable.getSort(), selectSubscribeCount(user.id), subscribe.createdAt))
+                    .fetch();
+        return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
     }
 
     private JPAQuery<UserDetailResponse> selectUserWithSubscribes(Long userId) {
