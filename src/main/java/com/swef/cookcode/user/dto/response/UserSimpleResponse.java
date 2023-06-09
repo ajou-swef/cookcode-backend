@@ -17,11 +17,14 @@ public class UserSimpleResponse {
 
     private String nickname;
 
+    private Boolean isQuit;
+
     public static UserSimpleResponse from(User user) {
         return UserSimpleResponse.builder()
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .profileImage(hasText(user.getProfileImage()) ? user.getProfileImage() : null)
+                .isQuit(user.getIsQuit())
                 .build();
     }
 }
