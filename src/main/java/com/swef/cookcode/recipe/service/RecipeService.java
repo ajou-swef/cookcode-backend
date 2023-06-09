@@ -1,8 +1,10 @@
 package com.swef.cookcode.recipe.service;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import com.swef.cookcode.common.ErrorCode;
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.common.dto.CommentCreateRequest;
 import com.swef.cookcode.common.dto.CommentResponse;
@@ -148,10 +150,6 @@ public class RecipeService {
         return recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
     }
 
-    @Transactional(readOnly = true)
-    void validateRecipeById(Long recipeId) {
-        recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
-    }
 
     //TODO : Refactor : 여러 스텝, 여러 비디오, 사진들 한번에 삭제. 일일히 hibernate가 delete 쿼리 보내고 있음. 개선할 방법은?
     // batch query or 비동기 처리.
@@ -174,7 +172,8 @@ public class RecipeService {
 
     @Transactional(readOnly = true)
     public Slice<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
-        Slice<RecipeResponse> responses = recipeRepository.findRecipes(user.getId(), isCookable, pageable);
+        if (nonNull(month) && (month < 1 || month > 12)) throw new InvalidRequestException(ErrorCode.INVALID_INPUT_VALUE);
+        Slice<RecipeResponse> responses = recipeRepository.findRecipes(user.getId(), isCookable, month, pageable);
         return responses;
     }
 

@@ -33,11 +33,12 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     private final QRecipeLike recipeLikeForIsLike = new QRecipeLike("recipeLikeForIsLike");
 
     @Override
-    public Slice<RecipeResponse> findRecipes(Long userId, Boolean isCookable, Pageable pageable) {
+    public Slice<RecipeResponse> findRecipes(Long userId, Boolean isCookable, Integer month, Pageable pageable) {
 
         JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndLike(userId)
                 .groupBy(recipe.id);
         filterIfCookable(isCookable, query);
+        filterIfMonth(month, query);
         List<RecipeResponse> result = query.orderBy(recipe.createdAt.desc()).offset(pageable.getOffset()).limit(
                 pageable.getPageSize()+1).fetch();
 
@@ -108,6 +109,12 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     private void filterIfCookable(Boolean isCookable, JPAQuery<RecipeResponse> query) {
         if (nonNull(isCookable) && isCookable) {
             query.having(isCookableExpression().eq(true));
+        }
+    }
+
+    private void filterIfMonth(Integer month, JPAQuery<RecipeResponse> query) {
+        if (nonNull(month)) {
+            query.having(recipe.createdAt.month().eq(month));
         }
     }
 
