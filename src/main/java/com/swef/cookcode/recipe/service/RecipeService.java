@@ -1,10 +1,12 @@
 package com.swef.cookcode.recipe.service;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.dto.CommentCreateRequest;
 import com.swef.cookcode.common.dto.CommentResponse;
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.common.util.Util;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.scheduling.annotation.Async;
@@ -38,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
@@ -82,7 +86,7 @@ public class RecipeService {
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
-
+        // TODO : recipe fetch
         Recipe recipe = getRecipeById(recipeId);
         if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) {
             throw new PermissionDeniedException(ErrorCode.ACCESS_DENIED);
@@ -92,9 +96,9 @@ public class RecipeService {
         recipeIngredRepository.deleteByRecipeId(recipe.getId());
         saveNecessaryIngredientsOfRecipe(recipe, requiredIngredients);
         saveOptionalIngredientsOfRecipe(recipe, optionalIngredients);
-
-        // TODO : jpa를 통한 delete query 단건 조회로 발생 추후 성능
+        // TODO : steps 에 대한 lazy loading
         recipe.clearSteps();
+        // TODO : step photo, step video에 대한 lazy loading
         stepService.saveStepsForRecipe(recipe, request.getSteps());
 
         return RecipeResponse.builder()
@@ -143,10 +147,6 @@ public class RecipeService {
         return recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
     }
 
-    @Transactional(readOnly = true)
-    void validateRecipeById(Long recipeId) {
-        recipeRepository.findById(recipeId).orElseThrow(() ->  new NotFoundException(ErrorCode.RECIPE_NOT_FOUND));
-    }
 
     //TODO : Refactor : 여러 스텝, 여러 비디오, 사진들 한번에 삭제. 일일히 hibernate가 delete 쿼리 보내고 있음. 개선할 방법은?
     // batch query or 비동기 처리.
@@ -169,7 +169,8 @@ public class RecipeService {
 
     @Transactional(readOnly = true)
     public Slice<RecipeResponse> getRecipeResponses(User user, Boolean isCookable, Integer month, Pageable pageable) {
-        Slice<RecipeResponse> responses = recipeRepository.findRecipes(user.getId(), isCookable, pageable);
+        if (nonNull(month) && (month < 1 || month > 12)) throw new InvalidRequestException(ErrorCode.INVALID_INPUT_VALUE);
+        Slice<RecipeResponse> responses = recipeRepository.findRecipes(user.getId(), isCookable, month, pageable);
         return responses;
     }
 

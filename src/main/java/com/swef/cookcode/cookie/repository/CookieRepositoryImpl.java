@@ -12,8 +12,9 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.swef.cookcode.cookie.dto.CookieResponse;
+import com.swef.cookcode.common.util.QueryUtil;
 import com.swef.cookcode.common.util.Util;
+import com.swef.cookcode.cookie.dto.CookieResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -32,8 +33,8 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
                 .where(cookieSearchContains(query))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
+                .orderBy(QueryUtil.getOrderSpecifiers(pageable.getSort(), List.of(selectCookieLikeCount(), selectCookieCommentCount()), cookie.createdAt))
                 .fetch();
-
         return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
     }
 
@@ -49,6 +50,7 @@ public class CookieRepositoryImpl implements CookieCustomRepository{
                 .where(cookie.user.id.eq(targetUserId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
+                .orderBy(QueryUtil.getOrderSpecifiers(pageable.getSort(), List.of(selectCookieLikeCount(), selectCookieCommentCount()), cookie.createdAt))
                 .fetch();
         return new SliceImpl<>(responses, pageable, Util.hasNextInSlice(responses, pageable));
     }

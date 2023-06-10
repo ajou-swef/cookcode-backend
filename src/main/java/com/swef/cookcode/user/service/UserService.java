@@ -26,6 +26,7 @@ import com.swef.cookcode.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final PasswordEncoder passwordEncoder;
@@ -118,7 +120,7 @@ public class UserService {
     public void toggleSubscribe(User user, Long createrId) {
         if (user.getId().equals(createrId)) throw new InvalidRequestException(SUBSCRIBE_MYSELF);
 
-        User publisher = userRepository.getReferenceById(createrId);
+        User publisher = userSimpleService.getUserById(createrId);
 
         Optional<Subscribe> subscribeOptional = subscribeRepository.findBySubscriberAndPublisher(user, publisher);
 
@@ -161,15 +163,17 @@ public class UserService {
 
     @Transactional
     public void requestPermission(User user, Authority authority) {
+        Status status;
+        if (authority.getPriority() - user.getAuthority().getPriority() <= 0) throw new InvalidRequestException(ErrorCode.UPGRADE_LOWER_AUTHORITY);
         if (authority == Authority.INFLUENCER) {
             validateInitialConditionOfInfluencer(user.getId());
-            user.changeStatus(Status.INF_REQUESTED);
+            status = Status.INF_REQUESTED;
         }
-        if (authority == Authority.ADMIN) user.changeStatus(Status.ADM_REQUESTED);
-        userRepository.save(user);
+        else if (authority == Authority.ADMIN) status = Status.ADM_REQUESTED;
+        else throw new InvalidRequestException(ErrorCode.INVALID_INPUT_VALUE);
+        userRepository.updateUserStatus(status, user.getId());
     }
 
-    @Transactional(readOnly = true)
     public void validateInitialConditionOfInfluencer(Long userId) {
         if(!userRepository.fulfillInfluencerCondition(userId)) throw new PermissionDeniedException(ErrorCode.INFLUENCER_FALL);
     }

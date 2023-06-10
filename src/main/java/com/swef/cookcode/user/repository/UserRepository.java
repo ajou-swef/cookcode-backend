@@ -1,11 +1,11 @@
 package com.swef.cookcode.user.repository;
 
+import com.swef.cookcode.user.domain.Status;
 import com.swef.cookcode.user.domain.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import java.util.Optional;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface UserRepository extends JpaRepository<User, Long>, UserCustomRepository {
@@ -15,7 +15,11 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
 
     Optional<User> findByEmail(@Param("email") String email);
 
-    @Query("select case when count(s.id) > 10 then true else false end from Subscribe s where s.publisher.id = :userId")
+    @Query("update User u set u.status = :status where u.id = :userId")
+    @Modifying
+    void updateUserStatus(@Param("status") Status status, @Param("userId") Long userId);
+
+    @Query("select case when count(s.id) >= 2 then true else false end from Subscribe s where s.publisher.id = :userId")
     boolean fulfillInfluencerCondition(@Param("userId") Long userId);
 
     boolean existsByEmailAndIsQuit(@Param("email") String email, @Param("isQuit") Boolean isQuit);

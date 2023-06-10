@@ -17,6 +17,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.RoleHierarchyVoter;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
@@ -85,12 +87,14 @@ public class WebSecurityConfig {
             AccessDeniedHandler accessDeniedHandler,
             AuthenticationEntryPoint authenticationEntryPoint
     ) throws Exception {
+        AuthorityAuthorizationManager<RequestAuthorizationContext> auth = AuthorityAuthorizationManager.hasRole("USER");
+        auth.setRoleHierarchy(roleHierarchy());
         return http.authorizeHttpRequests(requests -> {
                     requests
                     .requestMatchers(HttpMethod.GET, "/api/v1/account/password").permitAll()
                     .requestMatchers("/api/v1/account/signin", "/api/v1/account/signup", "/api/v1/account/check", "/health", "/api/v1/account/email").permitAll()
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                    .anyRequest().hasRole("USER");
+                    .anyRequest().access(auth);
                 }).cors(it -> {})
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
