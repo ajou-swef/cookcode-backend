@@ -5,7 +5,7 @@ buildscript {
 }
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.0.5'
+    id 'org.springframework.boot' version '3.1.0'
     id 'io.spring.dependency-management' version '1.1.0'
 }
 
@@ -59,6 +59,7 @@ dependencies {
 
     //thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
 
 }
 

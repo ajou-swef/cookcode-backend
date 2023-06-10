@@ -15,6 +15,9 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
 
     Optional<User> findByEmail(@Param("email") String email);
 
+    @Query("select case when count(s.id) > 10 then true else false end from Subscribe s where s.publisher.id = :userId")
+    boolean fulfillInfluencerCondition(@Param("userId") Long userId);
+
     boolean existsByEmailAndIsQuit(@Param("email") String email, @Param("isQuit") Boolean isQuit);
 
     boolean existsByNicknameAndIsQuit(@Param("nickname") String nickname, @Param("isQuit") Boolean isQuit);

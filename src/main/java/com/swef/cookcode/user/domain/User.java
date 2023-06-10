@@ -131,6 +131,10 @@ public class User extends BaseEntity {
         this.password = passwordEncoder.encode(rawPassword);
     }
 
+    public void changeStatus(Status status) {
+        this.status = status;
+    }
+
     public void quit() {
         this.isQuit = true;
         this.status = Status.QUIT;

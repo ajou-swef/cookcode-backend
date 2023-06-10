@@ -15,6 +15,8 @@ import com.swef.cookcode.common.jwt.JwtPrincipal;
 import com.swef.cookcode.common.util.EmailUtil;
 import com.swef.cookcode.common.util.PasswordUtil;
 import com.swef.cookcode.fridge.service.FridgeService;
+import com.swef.cookcode.user.domain.Authority;
+import com.swef.cookcode.user.domain.Status;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.dto.request.ChangePasswordRequest;
 import com.swef.cookcode.user.dto.request.UserSignInRequest;
@@ -225,7 +227,7 @@ public class AccountController {
         if (!Pattern.matches(User.EMAIL_REGEX, email)) throw new InvalidRequestException(INVALID_INPUT_VALUE);
         String code = PasswordUtil.createNumberCode(6);
         String title = "[cookcode] 이메일 인증을 위한 인증 코드 발송해드립니다.";
-        String content = "회원가입을 위해 이메일 인증을 진행해주세요.\n하단의 인증코드를 앱에서 입력해주십시오.";
+        String content = "회원가입을 위해 이메일 인증을 진행해주세요.<br/>하단의 인증코드를 앱에서 입력해주십시오.";
         EmailMessage message = EmailMessage.createMessage(email, title, content, code);
         emailUtil.sendMessage(message);
         ApiResponse apiResponse = ApiResponse.builder()
@@ -246,6 +248,17 @@ public class AccountController {
         userService.changeToTemporaryPassword(email, code);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("비밀번호 찾기 통한 임시비밀번호 발급 성공")
+                .status(OK.value())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PatchMapping("/authority/{authority}")
+    public ResponseEntity<ApiResponse> upgradeAuthority(@CurrentUser User user, @PathVariable(value = "authority")
+                                                        Authority authority) {
+        userService.requestPermission(user, authority);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("권한 신청 완료")
                 .status(OK.value())
                 .build();
         return ResponseEntity.ok(apiResponse);
