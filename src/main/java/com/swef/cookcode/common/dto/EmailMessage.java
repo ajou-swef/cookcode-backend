@@ -14,11 +14,16 @@ public class EmailMessage {
     private String buttonValue;
 
     public static EmailMessage createMessage(String receiver, String title, String content, String specialContent) {
+        EmailMessage message = createMessage(receiver, title, content);
+        message.setButtonValue(specialContent);
+        return message;
+    }
+
+    public static EmailMessage createMessage(String receiver, String title, String content) {
         return EmailMessage.builder()
                 .receiver(receiver)
                 .title(title)
                 .content(content)
-                .buttonValue(specialContent)
                 .build();
     }
 }

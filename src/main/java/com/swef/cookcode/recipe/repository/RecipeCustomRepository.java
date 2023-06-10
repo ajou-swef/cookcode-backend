@@ -1,5 +1,6 @@
 package com.swef.cookcode.recipe.repository;
 
+import com.swef.cookcode.recipe.dto.response.RecipeDetailResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -13,5 +14,5 @@ public interface RecipeCustomRepository {
 
     Slice<RecipeResponse> findRecipesOfUser(Long userId, Long targetUserId, Pageable pageable);
 
-    Optional<RecipeResponse> findRecipeById(Long userId, Long recipeId);
+    Optional<RecipeDetailResponse> findRecipeById(Long userId, Long recipeId);
 }

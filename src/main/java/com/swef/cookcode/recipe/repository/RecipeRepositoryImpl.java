@@ -2,17 +2,15 @@ package com.swef.cookcode.recipe.repository;
 
 
 import static com.swef.cookcode.common.util.Util.hasNextInSlice;
-import static com.swef.cookcode.cookie.domain.QCookie.cookie;
+import static com.swef.cookcode.fridge.domain.QFridge.fridge;
 import static com.swef.cookcode.fridge.domain.QFridgeIngredient.fridgeIngredient;
+import static com.swef.cookcode.fridge.domain.QIngredient.ingredient;
 import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
 import static com.swef.cookcode.recipe.domain.QRecipeComment.recipeComment;
 import static com.swef.cookcode.recipe.domain.QRecipeIngred.recipeIngred;
 import static com.swef.cookcode.recipe.domain.QRecipeLike.recipeLike;
-import static com.swef.cookcode.fridge.domain.QFridge.fridge;
 import static java.util.Objects.nonNull;
 
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -20,20 +18,17 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.common.util.QueryUtil;
 import com.swef.cookcode.recipe.domain.QRecipeLike;
+import com.swef.cookcode.recipe.dto.projection.IngredientProjection;
 import com.swef.cookcode.recipe.dto.response.RecipeDetailResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.domain.Sort;
 
 @RequiredArgsConstructor
-@Slf4j
 public class RecipeRepositoryImpl implements RecipeCustomRepository{
 
     private final JPAQueryFactory queryFactory;
@@ -55,16 +50,6 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
         return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
     }
 
-    private OrderSpecifier[] getOrder(Sort sort) {
-        List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
-        if (nonNull(sort.getOrderFor("popular"))) {
-            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, recipeLike.countDistinct()));
-            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, recipeComment.countDistinct()));
-        }
-        orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, recipe.createdAt));
-        return orderSpecifiers.toArray(new OrderSpecifier[0]);
-    }
-
     @Override
     public Slice<RecipeResponse> findRecipesOfUser(Long userId, Long targetUserId, Pageable pageable) {
         JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndLike(userId)
@@ -80,12 +65,14 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     }
 
     @Override
-    public Optional<RecipeResponse> findRecipeById(Long userId, Long recipeId) {
-        RecipeResponse response = selectDetailRecipeWithCookableAndLike(userId)
+    public Optional<RecipeDetailResponse> findRecipeById(Long userId, Long recipeId) {
+        RecipeDetailResponse response = selectDetailRecipeWithCookableAndLike(userId)
                 .where(recipe.id.eq(recipeId))
                 .groupBy(recipe.id)
                 .fetchFirst();
-        return Optional.ofNullable(response);
+        Optional<RecipeDetailResponse> recipeResponse = Optional.ofNullable(response);
+        recipeResponse.ifPresent(r -> r.setIngredients(getIngredientsForRecipe(userId, recipeId)));
+        return recipeResponse;
     }
 
     @Override
@@ -117,7 +104,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                         recipe,
                         isCookableExpression().as("isCookable"),
                         recipeLike.countDistinct().as("likeCount"),
-                        isLikedExpression(userId).as("isLiked"),
+                        isLikedExpression().as("isLiked"),
                         recipeComment.id.countDistinct().as("commentCount")
                 ))
                 .from(recipe)
@@ -132,6 +119,22 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                 .leftJoin(recipeLikeForIsLike).on(recipeLikeForIsLike.recipe.id.eq(recipe.id).and(recipeLikeForIsLike.user.id.eq(userId)))
                 .leftJoin(recipeComment).on(recipeComment.recipe.id.eq(recipe.id));
 
+    }
+
+    private List<IngredientProjection> getIngredientsForRecipe(Long userId, Long recipeId) {
+        return queryFactory.select(
+                        Projections.constructor(IngredientProjection.class,
+                                ingredient,
+                                isLackExpression(),
+                                recipeIngred.isNecessary))
+                .from(recipeIngred).distinct()
+                .join(ingredient).on(recipeIngred.ingredient.id.eq(ingredient.id))
+                .fetchJoin()
+                .leftJoin(fridgeIngredient)
+                .on(fridgeIngredient.fridge.id.eq(getFridgeIdOfUser(userId))
+                        .and(fridgeIngredient.ingred.id.eq(recipeIngred.ingredient.id)))
+                .where(recipeIngred.recipe.id.eq(recipeId))
+                .fetch();
     }
 
     private void filterIfCookable(Boolean isCookable, JPAQuery<RecipeResponse> query) {
@@ -157,11 +160,18 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                 .or(recipe.author.nickname.containsIgnoreCase(searchQuery));
     }
 
-    private BooleanExpression isLikedExpression(Long userId) {
+    private BooleanExpression isLackExpression() {
         return new CaseBuilder()
-                .when(recipeLikeForIsLike.user.id.eq(userId))
+                .when(fridgeIngredient.id.isNull())
                 .then(true)
                 .otherwise(false);
+    }
+
+    private BooleanExpression isLikedExpression() {
+        return new CaseBuilder()
+                .when(recipeLikeForIsLike.id.isNull())
+                .then(false)
+                .otherwise(true);
     }
 
     private BooleanExpression isCookableExpression() {

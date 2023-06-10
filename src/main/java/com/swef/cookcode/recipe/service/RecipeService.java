@@ -4,15 +4,14 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.swef.cookcode.common.ErrorCode;
-import com.swef.cookcode.common.error.exception.InvalidRequestException;
-import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.common.dto.CommentCreateRequest;
 import com.swef.cookcode.common.dto.CommentResponse;
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
+import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.cookie.repository.CookieRepository;
 import com.swef.cookcode.fridge.domain.Ingredient;
-import com.swef.cookcode.fridge.service.FridgeService;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeComment;
@@ -33,18 +32,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RecipeService {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final RecipeRepository recipeRepository;
 
@@ -60,8 +58,6 @@ public class RecipeService {
     private final RecipeLikeRepository recipeLikeRepository;
 
     private final CookieRepository cookieRepository;
-
-    private final FridgeService fridgeService;
 
     private final Util util;
 
@@ -90,7 +86,7 @@ public class RecipeService {
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
-
+        // TODO : recipe fetch
         Recipe recipe = getRecipeById(recipeId);
         if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) {
             throw new PermissionDeniedException(ErrorCode.ACCESS_DENIED);
@@ -100,9 +96,9 @@ public class RecipeService {
         recipeIngredRepository.deleteByRecipeId(recipe.getId());
         saveNecessaryIngredientsOfRecipe(recipe, requiredIngredients);
         saveOptionalIngredientsOfRecipe(recipe, optionalIngredients);
-
-        // TODO : jpa를 통한 delete query 단건 조회로 발생 추후 성능
+        // TODO : steps 에 대한 lazy loading
         recipe.clearSteps();
+        // TODO : step photo, step video에 대한 lazy loading
         stepService.saveStepsForRecipe(recipe, request.getSteps());
 
         return RecipeResponse.builder()
@@ -110,6 +106,7 @@ public class RecipeService {
                 .build();
     }
 
+    @Async
     public void deleteCancelledFiles(RecipeCreateRequest request) {
         util.deleteFilesInS3(request.getDeletedThumbnails());
         request.getSteps().forEach(step -> {
