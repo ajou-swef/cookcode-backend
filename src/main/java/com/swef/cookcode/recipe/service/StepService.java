@@ -1,5 +1,8 @@
 package com.swef.cookcode.recipe.service;
 
+import static com.swef.cookcode.common.ErrorCode.STEP_FILES_NECESSARY;
+
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.Step;
 import com.swef.cookcode.recipe.domain.StepPhoto;
@@ -20,6 +23,7 @@ public class StepService {
     public List<StepResponse> saveStepsForRecipe(Recipe recipe, List<StepCreateRequest> stepRequests) {
         List<StepResponse> responses = new ArrayList<>();
         stepRequests.forEach(request -> {
+            if (request.getPhotos().size() + request.getVideos().size() == 0) throw new InvalidRequestException(STEP_FILES_NECESSARY);
             Step step = Step.builder()
                     .title(request.getTitle())
                     .description(request.getDescription())

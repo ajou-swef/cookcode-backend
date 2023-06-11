@@ -172,6 +172,23 @@ class RecipeServiceTest {
             @Test
             @DisplayName("레시피 스텝 파일이 없는 경우")
             void successWhenStepFilesExist() {
+                StepCreateRequest stepCreateRequest = StepCreateRequest.builder()
+                        .deletedPhotos(List.of("deletedPhoto"))
+                        .deletedVideos(List.of("deletedVideo"))
+                        .seq(1L)
+                        .title("스텝 제목")
+                        .description("스텝 설명").build();
+
+                RecipeCreateRequest createRequest = RecipeCreateRequest.builder()
+                        .title(recipe.getTitle())
+                        .description(recipe.getDescription())
+                        .ingredients(List.of(1L))
+                        .optionalIngredients(List.of(2L))
+                        .deletedThumbnails(List.of("deletedThumbnail"))
+                        .steps(List.of(stepCreateRequest))
+                        .thumbnail(recipe.getThumbnail())
+                        .build();
+
                 List<Ingredient> ingredients = List.of(ingredient);
                 List<Ingredient> optionalIngredients = List.of(optionalIngredient);
 
