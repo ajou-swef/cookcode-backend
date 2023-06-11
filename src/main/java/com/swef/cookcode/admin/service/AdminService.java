@@ -2,6 +2,7 @@ package com.swef.cookcode.admin.service;
 
 import static java.util.Objects.isNull;
 
+import com.swef.cookcode.admin.dto.PermissionResponse;
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.dto.EmailMessage;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
@@ -13,6 +14,7 @@ import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.repository.UserRepository;
 import com.swef.cookcode.user.service.UserService;
 import com.swef.cookcode.user.service.UserSimpleService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -55,5 +57,11 @@ public class AdminService {
             content = receiver.getNickname() + "님, 죄송합니다.<br/>귀하는 " + authority + " 권한 심사에서 탈락되었습니다.<br/>";
         }
         return EmailMessage.createMessage(receiver.getEmail(), title, content);
+    }
+
+    @Transactional
+    public List<PermissionResponse> getPermissions() {
+        List<User> users = userRepository.getUsersByStatus();
+        return users.stream().map(PermissionResponse::from).toList();
     }
 }

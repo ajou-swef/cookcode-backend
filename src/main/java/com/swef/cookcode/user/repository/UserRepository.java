@@ -3,6 +3,7 @@ package com.swef.cookcode.user.repository;
 import com.swef.cookcode.user.domain.Status;
 import com.swef.cookcode.user.domain.User;
 import io.lettuce.core.dynamic.annotation.Param;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,6 +22,9 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
 
     @Query("select case when count(s.id) >= 2 then true else false end from Subscribe s where s.publisher.id = :userId")
     boolean fulfillInfluencerCondition(@Param("userId") Long userId);
+
+    @Query("select u from User u where u.status = 'INF_REQUESTED' or u.status = 'ADM_REQUESTED' order by u.updatedAt desc")
+    List<User> getUsersByStatus();
 
     boolean existsByEmailAndIsQuit(@Param("email") String email, @Param("isQuit") Boolean isQuit);
 
