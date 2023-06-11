@@ -35,6 +35,8 @@ public class RecipeResponse {
 
     private String thumbnail;
 
+    private Boolean isPremium;
+
     public RecipeResponse(Recipe recipe, Boolean isCookable, Long likeCount, Boolean isLiked, Long commentCount) {
         this.recipeId = recipe.getId();
         this.user = UserSimpleResponse.from(recipe.getAuthor());
@@ -47,6 +49,7 @@ public class RecipeResponse {
         this.likeCount = likeCount;
         this.isLiked = isLiked;
         this.commentCount = commentCount;
+        this.isPremium = recipe.getIsPremium();
     }
 
 }
