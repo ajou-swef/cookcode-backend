@@ -10,6 +10,7 @@ import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
+import com.swef.cookcode.recipe.dto.response.UpdateResponse;
 import com.swef.cookcode.recipe.service.RecipeService;
 import com.swef.cookcode.user.domain.User;
 import java.util.List;
@@ -42,10 +43,10 @@ public class RecipeController {
     private final Util util;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<RecipeResponse>> createRecipe(@CurrentUser User user, @RequestBody RecipeCreateRequest recipeCreateRequest){
+    public ResponseEntity<ApiResponse<UpdateResponse>> createRecipe(@CurrentUser User user, @RequestBody RecipeCreateRequest recipeCreateRequest){
 
         recipeService.deleteCancelledFiles(recipeCreateRequest);
-        RecipeResponse response = recipeService.createRecipe(user, recipeCreateRequest);
+        UpdateResponse response = recipeService.createRecipe(user, recipeCreateRequest);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 생성 성공")
@@ -130,10 +131,10 @@ public class RecipeController {
     }
 
     @PatchMapping("/{recipeId}")
-    public ResponseEntity<ApiResponse<RecipeResponse>> updateRecipe(@CurrentUser User user, @PathVariable("recipeId") Long recipeId, @RequestBody RecipeUpdateRequest recipeUpdateRequest){
+    public ResponseEntity<ApiResponse<UpdateResponse>> updateRecipe(@CurrentUser User user, @PathVariable("recipeId") Long recipeId, @RequestBody RecipeUpdateRequest recipeUpdateRequest){
 
         recipeService.deleteCancelledFiles(recipeUpdateRequest);
-        RecipeResponse response = recipeService.updateRecipe(user, recipeId, recipeUpdateRequest);
+        UpdateResponse response = recipeService.updateRecipe(user, recipeId, recipeUpdateRequest);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 수정 성공")
@@ -186,7 +187,7 @@ public class RecipeController {
     }
 
     @DeleteMapping("/{recipeId}")
-    public ResponseEntity<ApiResponse<RecipeResponse>> deleteRecipeById(@CurrentUser User user, @PathVariable("recipeId") Long recipeId) {
+    public ResponseEntity<ApiResponse> deleteRecipeById(@CurrentUser User user, @PathVariable("recipeId") Long recipeId) {
 
 
         recipeService.deleteRecipeById(user, recipeId);

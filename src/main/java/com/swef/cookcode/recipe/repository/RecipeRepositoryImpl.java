@@ -9,6 +9,7 @@ import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
 import static com.swef.cookcode.recipe.domain.QRecipeComment.recipeComment;
 import static com.swef.cookcode.recipe.domain.QRecipeIngred.recipeIngred;
 import static com.swef.cookcode.recipe.domain.QRecipeLike.recipeLike;
+import static com.swef.cookcode.membership.domain.QMembershipJoin.membershipJoin;
 import static java.util.Objects.nonNull;
 
 import com.querydsl.core.types.Projections;
@@ -105,8 +106,9 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                         isCookableExpression().as("isCookable"),
                         recipeLike.countDistinct().as("likeCount"),
                         isLikedExpression().as("isLiked"),
-                        recipeComment.id.countDistinct().as("commentCount")
-                ))
+                        recipeComment.id.countDistinct().as("commentCount"),
+                        isAccessibleExpression(userId).as("isAccessbileExpression"))
+                )
                 .from(recipe)
                 .join(recipe.author)
                 .fetchJoin()
@@ -153,11 +155,28 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
         return queryFactory.select(fridge.id).from(fridge).where(fridge.owner.id.eq(userId));
     }
 
+    private JPAQuery<Long> getMembershipCount(Long userId) {
+        return queryFactory.select(membershipJoin.countDistinct())
+                .from(membershipJoin)
+                .where(membershipJoin.subscriber.id.eq(userId)
+                        .and(membershipJoin.membership.creater.id.eq(recipe.author.id)));
+    }
+
     private BooleanExpression recipeSearchContains(String searchQuery) {
         return  recipe.title.containsIgnoreCase(searchQuery)
                 .or(recipe.description.containsIgnoreCase(searchQuery))
                 .or(recipeIngred.ingredient.name.containsIgnoreCase(searchQuery))
                 .or(recipe.author.nickname.containsIgnoreCase(searchQuery));
+    }
+
+    private BooleanExpression isAccessibleExpression(Long userId) {
+        return new CaseBuilder().when(recipe.isPremium.isNull()
+                .or(recipe.isPremium.isFalse()
+                    .or(recipe.isPremium.isTrue().and(
+                        new CaseBuilder().when(
+                                getMembershipCount(userId).eq(0L)
+                        ).then(false).otherwise(true)
+                )))).then(true).otherwise(false);
     }
 
     private BooleanExpression isLackExpression() {

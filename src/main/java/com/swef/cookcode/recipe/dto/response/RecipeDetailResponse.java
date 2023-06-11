@@ -1,5 +1,8 @@
 package com.swef.cookcode.recipe.dto.response;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.swef.cookcode.fridge.dto.response.IngredSimpleResponse;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.domain.RecipeIngred;
@@ -8,6 +11,7 @@ import java.util.List;
 import lombok.Getter;
 
 @Getter
+@JsonInclude(NON_NULL)
 public class RecipeDetailResponse extends RecipeResponse{
 
     private final List<StepResponse> steps;
@@ -18,7 +22,7 @@ public class RecipeDetailResponse extends RecipeResponse{
 
 
     public RecipeDetailResponse(Recipe recipe, Boolean isCookable, Long likeCount, Boolean isLiked, Long commentCount) {
-        super(recipe, isCookable, likeCount, isLiked, commentCount);
+        super(recipe, isCookable, likeCount, isLiked, commentCount, true);
         this.steps = recipe.getSteps().stream().map(s -> StepResponse.from(s, s.getPhotos(), s.getVideos())).toList();
     }
 
