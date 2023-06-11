@@ -12,7 +12,6 @@ import lombok.Getter;
 
 @Getter
 @Builder
-@JsonInclude(NON_NULL)
 @AllArgsConstructor
 public class RecipeResponse {
     private Long recipeId;
@@ -37,7 +36,9 @@ public class RecipeResponse {
 
     private Boolean isPremium;
 
-    public RecipeResponse(Recipe recipe, Boolean isCookable, Long likeCount, Boolean isLiked, Long commentCount) {
+    private Boolean isAccessible;
+
+    public RecipeResponse(Recipe recipe, Boolean isCookable, Long likeCount, Boolean isLiked, Long commentCount, Boolean isAccessible) {
         this.recipeId = recipe.getId();
         this.user = UserSimpleResponse.from(recipe.getAuthor());
         this.title = recipe.getTitle();
@@ -50,6 +51,7 @@ public class RecipeResponse {
         this.isLiked = isLiked;
         this.commentCount = commentCount;
         this.isPremium = recipe.getIsPremium();
+        this.isAccessible = isAccessible;
     }
 
 }

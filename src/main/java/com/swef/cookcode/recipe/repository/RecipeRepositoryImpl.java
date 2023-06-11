@@ -170,11 +170,13 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     }
 
     private BooleanExpression isAccessibleExpression(Long userId) {
-        return new CaseBuilder().when(recipe.isPremium.isTrue().and(
-                new CaseBuilder().when(
-                        getMembershipCount(userId).eq(0L)
-                ).then(true).otherwise(false)
-            )).then(true).otherwise(false);
+        return new CaseBuilder().when(recipe.isPremium.isNull()
+                .or(recipe.isPremium.isFalse()
+                    .or(recipe.isPremium.isTrue().and(
+                        new CaseBuilder().when(
+                                getMembershipCount(userId).eq(0L)
+                        ).then(false).otherwise(true)
+                )))).then(true).otherwise(false);
     }
 
     private BooleanExpression isLackExpression() {
