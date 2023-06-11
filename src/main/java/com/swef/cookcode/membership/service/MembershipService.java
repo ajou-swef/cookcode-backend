@@ -2,6 +2,7 @@ package com.swef.cookcode.membership.service;
 
 import com.swef.cookcode.membership.domain.Membership;
 import com.swef.cookcode.membership.domain.MembershipJoin;
+import com.swef.cookcode.membership.dto.JoiningMembershipResponse;
 import com.swef.cookcode.membership.dto.MembershipCreateRequest;
 import com.swef.cookcode.membership.dto.MembershipResponse;
 import com.swef.cookcode.membership.repository.MembershipJoinRepository;
@@ -50,11 +51,11 @@ public class MembershipService {
     }
 
     @Transactional
-    public List<UserSimpleResponse> getJoiningMemberships(User user) {
+    public List<JoiningMembershipResponse> getJoiningMemberships(User user) {
         List<MembershipJoin> joiningMemberships = membershipJoinRepository.findBySubscriber(user);
 
         return joiningMemberships.stream()
-                .map(join -> UserSimpleResponse.from(join.getMembership().getCreater()))
+                .map(join -> JoiningMembershipResponse.from(join.getMembership()))
                 .toList();
     }
 }

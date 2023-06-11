@@ -3,6 +3,7 @@ package com.swef.cookcode.membership.controller;
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.membership.domain.Membership;
+import com.swef.cookcode.membership.dto.JoiningMembershipResponse;
 import com.swef.cookcode.membership.dto.MembershipCreateRequest;
 import com.swef.cookcode.membership.dto.MembershipResponse;
 import com.swef.cookcode.membership.service.MembershipService;
@@ -66,10 +67,10 @@ public class MembershipController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<UserSimpleResponse>>> getJoiningMemberships(
+    public ResponseEntity<ApiResponse<List<JoiningMembershipResponse>>> getJoiningMemberships(
             @CurrentUser User user){
 
-        List<UserSimpleResponse> membershipList = membershipService.getJoiningMemberships(user);
+        List<JoiningMembershipResponse> membershipList = membershipService.getJoiningMemberships(user);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("가입 멤버십 조회 성공")
