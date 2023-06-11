@@ -12,6 +12,7 @@ import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import com.swef.cookcode.recipe.service.RecipeService;
 import com.swef.cookcode.user.domain.User;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +43,7 @@ public class RecipeController {
     private final Util util;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<RecipeResponse>> createRecipe(@CurrentUser User user, @RequestBody RecipeCreateRequest recipeCreateRequest){
+    public ResponseEntity<ApiResponse<RecipeResponse>> createRecipe(@CurrentUser User user, @Valid @RequestBody RecipeCreateRequest recipeCreateRequest){
 
         recipeService.deleteCancelledFiles(recipeCreateRequest);
         RecipeResponse response = recipeService.createRecipe(user, recipeCreateRequest);
