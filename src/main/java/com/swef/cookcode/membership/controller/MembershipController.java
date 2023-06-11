@@ -4,6 +4,7 @@ import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
 import com.swef.cookcode.membership.domain.Membership;
 import com.swef.cookcode.membership.dto.MembershipCreateRequest;
+import com.swef.cookcode.membership.dto.MembershipResponse;
 import com.swef.cookcode.membership.service.MembershipService;
 import com.swef.cookcode.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +16,16 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/membeship")
+@RequestMapping("/api/v1/membership")
 public class MembershipController {
 
     private final MembershipService membershipService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<List<Membership>>> getMembership(
-            @CurrentUser User user){
+    @GetMapping("/{createrId}")
+    public ResponseEntity<ApiResponse<List<MembershipResponse>>> getMembership(
+            @CurrentUser User user, @PathVariable Long createrId){
 
-        List<Membership> membershipList = membershipService.getMembership(user);
+        List<MembershipResponse> membershipList = membershipService.getMembership(createrId);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("멤버십 조회 성공")

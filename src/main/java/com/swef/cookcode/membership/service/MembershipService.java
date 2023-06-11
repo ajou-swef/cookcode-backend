@@ -3,9 +3,11 @@ package com.swef.cookcode.membership.service;
 import com.swef.cookcode.membership.domain.Membership;
 import com.swef.cookcode.membership.domain.MembershipJoin;
 import com.swef.cookcode.membership.dto.MembershipCreateRequest;
+import com.swef.cookcode.membership.dto.MembershipResponse;
 import com.swef.cookcode.membership.repository.MembershipJoinRepository;
 import com.swef.cookcode.membership.repository.MembershipRepository;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.service.UserSimpleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MembershipService {
+
+    private final UserSimpleService userSimpleService;
 
     private final MembershipRepository membershipRepository;
 
@@ -28,8 +32,11 @@ public class MembershipService {
     }
 
     @Transactional(readOnly = true)
-    public List<Membership> getMembership(User user) {
-        return membershipRepository.findByCreater(user);
+    public List<MembershipResponse> getMembership(Long createrId) {
+        User creater = userSimpleService.getUserById(createrId);
+
+        List<Membership> membershipList = membershipRepository.findByCreater(creater);
+        return membershipList.stream().map(MembershipResponse::from).toList();
     }
 
     @Transactional

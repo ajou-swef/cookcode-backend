@@ -19,7 +19,6 @@ public class Membership extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "creater")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creater_id")
     private User creater;
