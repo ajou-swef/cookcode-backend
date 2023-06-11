@@ -64,7 +64,7 @@ public class AdminService {
         return EmailMessage.createMessage(emailUser.getEmail(), title, content);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PermissionResponse> getPermissions() {
         List<User> users = userRepository.getUsersByStatus();
         return users.stream().map(PermissionResponse::from).toList();
