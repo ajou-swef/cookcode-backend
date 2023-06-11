@@ -7,6 +7,7 @@ import com.swef.cookcode.membership.dto.MembershipResponse;
 import com.swef.cookcode.membership.repository.MembershipJoinRepository;
 import com.swef.cookcode.membership.repository.MembershipRepository;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import com.swef.cookcode.user.service.UserSimpleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class MembershipService {
     }
 
     @Transactional(readOnly = true)
-    public List<MembershipResponse> getMembership(Long createrId) {
+    public List<MembershipResponse> getCreaterMembership(Long createrId) {
         User creater = userSimpleService.getUserById(createrId);
 
         List<Membership> membershipList = membershipRepository.findByCreater(creater);
@@ -46,5 +47,14 @@ public class MembershipService {
         MembershipJoin membershipJoin = MembershipJoin.createEntity(membership, user);
 
         membershipJoinRepository.save(membershipJoin);
+    }
+
+    @Transactional
+    public List<UserSimpleResponse> getJoiningMemberships(User user) {
+        List<MembershipJoin> joiningMemberships = membershipJoinRepository.findBySubscriber(user);
+
+        return joiningMemberships.stream()
+                .map(join -> UserSimpleResponse.from(join.getMembership().getCreater()))
+                .toList();
     }
 }

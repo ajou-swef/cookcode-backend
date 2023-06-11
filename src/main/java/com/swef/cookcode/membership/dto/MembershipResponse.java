@@ -3,7 +3,6 @@ package com.swef.cookcode.membership.dto;
 import com.swef.cookcode.membership.domain.Membership;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor

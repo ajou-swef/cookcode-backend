@@ -7,6 +7,7 @@ import com.swef.cookcode.membership.dto.MembershipCreateRequest;
 import com.swef.cookcode.membership.dto.MembershipResponse;
 import com.swef.cookcode.membership.service.MembershipService;
 import com.swef.cookcode.user.domain.User;
+import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +23,10 @@ public class MembershipController {
     private final MembershipService membershipService;
 
     @GetMapping("/{createrId}")
-    public ResponseEntity<ApiResponse<List<MembershipResponse>>> getMembership(
+    public ResponseEntity<ApiResponse<List<MembershipResponse>>> getCreaterMembership(
             @CurrentUser User user, @PathVariable Long createrId){
 
-        List<MembershipResponse> membershipList = membershipService.getMembership(createrId);
+        List<MembershipResponse> membershipList = membershipService.getCreaterMembership(createrId);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("멤버십 조회 성공")
@@ -59,6 +60,21 @@ public class MembershipController {
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("멤버십 가입 성공")
                 .status(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<UserSimpleResponse>>> getJoiningMemberships(
+            @CurrentUser User user){
+
+        List<UserSimpleResponse> membershipList = membershipService.getJoiningMemberships(user);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("가입 멤버십 조회 성공")
+                .status(HttpStatus.OK.value())
+                .data(membershipList)
                 .build();
 
         return ResponseEntity.ok().body(apiResponse);
