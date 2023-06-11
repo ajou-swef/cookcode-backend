@@ -81,4 +81,18 @@ public class MembershipController {
         return ResponseEntity.ok().body(apiResponse);
     }
 
+    @DeleteMapping("/{membershipId}")
+    public ResponseEntity<ApiResponse> deleteJoiningMembership(
+            @CurrentUser User user, @PathVariable Long membershipId){
+
+        membershipService.deleteJoiningMembership(user, membershipId);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("가입 멤버십 탈퇴 성공")
+                .status(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
 }

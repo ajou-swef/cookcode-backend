@@ -58,4 +58,11 @@ public class MembershipService {
                 .map(join -> JoiningMembershipResponse.from(join.getMembership()))
                 .toList();
     }
+
+    @Transactional
+    public void deleteJoiningMembership(User user, Long membershipId) {
+        Membership membership = membershipRepository.getReferenceById(membershipId);
+
+        membershipJoinRepository.deleteBySubscriberAndMembership(user, membership);
+    }
 }

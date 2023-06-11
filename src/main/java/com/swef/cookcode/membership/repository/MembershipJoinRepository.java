@@ -1,5 +1,6 @@
 package com.swef.cookcode.membership.repository;
 
+import com.swef.cookcode.membership.domain.Membership;
 import com.swef.cookcode.membership.domain.MembershipJoin;
 import com.swef.cookcode.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,5 @@ public interface MembershipJoinRepository extends JpaRepository<MembershipJoin, 
     @Query("select mj from MembershipJoin mj join fetch mj.membership m join fetch m.creater where mj.subscriber = :user")
     List<MembershipJoin> findBySubscriber(User user);
 
+    void deleteBySubscriberAndMembership(User user, Membership membership);
 }
