@@ -49,4 +49,18 @@ public class MembershipController {
         return ResponseEntity.ok().body(apiResponse);
     }
 
+    @PostMapping("/{membershipId}")
+    public ResponseEntity<ApiResponse> joinMembership(
+            @CurrentUser User user, @PathVariable Long membershipId){
+
+        membershipService.joinMembership(user, membershipId);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("멤버십 가입 성공")
+                .status(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
 }
