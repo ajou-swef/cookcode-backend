@@ -1,5 +1,6 @@
 package com.swef.cookcode.admin.controller;
 
+import com.swef.cookcode.admin.dto.EmailUser;
 import com.swef.cookcode.admin.dto.PermissionResponse;
 import com.swef.cookcode.admin.service.AdminService;
 import com.swef.cookcode.common.ApiResponse;
@@ -32,10 +33,8 @@ public class AdminController {
 
     @PatchMapping("/authorization/{userId}/{isAccept}")
     public ResponseEntity<ApiResponse> authorizePermissionOfUser(@CurrentUser User user, @PathVariable(value = "userId") Long userId, @PathVariable(value = "isAccept") Boolean isAccept) {
-        User targetUser = userSimpleService.getUserById(userId);
-        adminService.validateUserAuthorityForRequest(targetUser);
+        EmailUser targetUser = adminService.authorizeUser(user, userId, isAccept);
         EmailMessage message = adminService.createMessageForNotification(targetUser, isAccept);
-        adminService.authorizeUser(user, targetUser, isAccept);
         emailUtil.sendMessage(message);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("권한 처리 성공")

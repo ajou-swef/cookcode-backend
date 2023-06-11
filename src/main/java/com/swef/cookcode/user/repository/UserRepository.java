@@ -16,14 +16,14 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
 
     Optional<User> findByEmail(@Param("email") String email);
 
-    @Query("update User u set u.status = :status where u.id = :userId")
+    @Query("update User u set u.status = :status, u.authorityRequestedAt = CURRENT_TIMESTAMP where u.id = :userId")
     @Modifying
     void updateUserStatus(@Param("status") Status status, @Param("userId") Long userId);
 
     @Query("select case when count(s.id) >= 2 then true else false end from Subscribe s where s.publisher.id = :userId")
     boolean fulfillInfluencerCondition(@Param("userId") Long userId);
 
-    @Query("select u from User u where u.status = 'INF_REQUESTED' or u.status = 'ADM_REQUESTED' order by u.updatedAt desc")
+    @Query("select u from User u where u.status = 'INF_REQUESTED' or u.status = 'ADM_REQUESTED' order by u.authorityRequestedAt desc")
     List<User> getUsersByStatus();
 
     boolean existsByEmailAndIsQuit(@Param("email") String email, @Param("isQuit") Boolean isQuit);
