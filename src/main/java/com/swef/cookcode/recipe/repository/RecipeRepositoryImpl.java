@@ -5,10 +5,14 @@ import static com.swef.cookcode.common.util.Util.hasNextInSlice;
 import static com.swef.cookcode.fridge.domain.QFridge.fridge;
 import static com.swef.cookcode.fridge.domain.QFridgeIngredient.fridgeIngredient;
 import static com.swef.cookcode.fridge.domain.QIngredient.ingredient;
+import static com.swef.cookcode.membership.domain.QMembership.membership;
+import static com.swef.cookcode.membership.domain.QMembershipJoin.membershipJoin;
 import static com.swef.cookcode.recipe.domain.QRecipe.recipe;
 import static com.swef.cookcode.recipe.domain.QRecipeComment.recipeComment;
 import static com.swef.cookcode.recipe.domain.QRecipeIngred.recipeIngred;
 import static com.swef.cookcode.recipe.domain.QRecipeLike.recipeLike;
+import static com.swef.cookcode.user.domain.QSubscribe.subscribe;
+import static com.swef.cookcode.user.domain.QUser.user;
 import static java.util.Objects.nonNull;
 
 import com.querydsl.core.types.Projections;
@@ -23,6 +27,8 @@ import com.swef.cookcode.recipe.dto.response.RecipeDetailResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import java.util.List;
 import java.util.Optional;
+
+import com.swef.cookcode.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -39,8 +45,10 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     public Slice<RecipeResponse> findRecipes(Long userId, Boolean isCookable, Integer month, Pageable pageable) {
         JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndLike(userId)
                 .groupBy(recipe.id);
+
         filterIfCookable(isCookable, query);
         filterIfMonth(month, query);
+
         List<RecipeResponse> result = query.orderBy(
                 QueryUtil.getOrderSpecifiers(
                         pageable.getSort(), List.of(recipeLike.countDistinct(), recipeComment.countDistinct()), recipe.createdAt
@@ -49,6 +57,65 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
                 .limit(pageable.getPageSize()+1).fetch();
         return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
     }
+
+    @Override
+    public Slice<RecipeResponse> findRecipesOfPublishers(Long userId, Boolean isCookable, Integer month, Pageable pageable) {
+        JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndLike(userId)
+                .where(recipe.author.id.in(selectPublishers(userId)))
+                .groupBy(recipe.id);
+
+        filterIfCookable(isCookable, query);
+        filterIfMonth(month, query);
+
+        List<RecipeResponse> result = query.orderBy(
+                        QueryUtil.getOrderSpecifiers(
+                                pageable.getSort(), List.of(recipeLike.countDistinct(), recipeComment.countDistinct()), recipe.createdAt
+                        ))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()+1).fetch();
+
+        return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
+    }
+
+    private List<Long> selectPublishers(Long userId){
+        return queryFactory.select(
+                        user.id
+                )
+                .from(user)
+                .innerJoin(subscribe).on(subscribe.subscriber.id.eq(userId))
+                .fetch();
+    }
+
+
+    @Override
+    public Slice<RecipeResponse> findRecipesOfMemberships(Long userId, Boolean isCookable, Integer month, Pageable pageable) {
+        JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndLike(userId)
+                .where(recipe.author.id.in(selectMemberships(userId)))
+                .groupBy(recipe.id);
+
+        filterIfCookable(isCookable, query);
+        filterIfMonth(month, query);
+
+        List<RecipeResponse> result = query.orderBy(
+                        QueryUtil.getOrderSpecifiers(
+                                pageable.getSort(), List.of(recipeLike.countDistinct(), recipeComment.countDistinct()), recipe.createdAt
+                        ))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()+1).fetch();
+
+        return new SliceImpl<>(result, pageable, hasNextInSlice(result, pageable));
+    }
+
+    private List<Long> selectMemberships(Long userId) {
+        return queryFactory.select(membership.creater.id)
+                .from(membership)
+                .leftJoin(membershipJoin)
+                .on(membership.id.eq(membershipJoin.membership.id))
+                .where(membershipJoin.subscriber.id.eq(userId))
+                .groupBy(membership.creater)
+                .fetch();
+    }
+
 
     @Override
     public Slice<RecipeResponse> findRecipesOfUser(Long userId, Long targetUserId, Pageable pageable) {
