@@ -92,6 +92,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     public Slice<RecipeResponse> findRecipesOfMemberships(Long userId, Boolean isCookable, Integer month, Pageable pageable) {
         JPAQuery<RecipeResponse> query = selectRecipesWithCookableAndLike(userId)
                 .where(recipe.author.id.in(selectMemberships(userId)))
+                .where(recipe.isPremium.eq(true))
                 .groupBy(recipe.id);
 
         filterIfCookable(isCookable, query);
