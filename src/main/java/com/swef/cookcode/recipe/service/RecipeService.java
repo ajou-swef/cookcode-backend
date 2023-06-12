@@ -176,6 +176,20 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
+    public Slice<RecipeResponse> getRecipeOfPublishers(User user, Boolean isCookable, Integer month, Pageable pageable) {
+        if (nonNull(month) && (month < 1 || month > 12)) throw new InvalidRequestException(ErrorCode.INVALID_INPUT_VALUE);
+        Slice<RecipeResponse> responses = recipeRepository.findRecipesOfPublishers(user.getId(), isCookable, month, pageable);
+        return responses;
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<RecipeResponse> getRecipeOfMemberships(User user, Boolean isCookable, Integer month, Pageable pageable) {
+        if (nonNull(month) && (month < 1 || month > 12)) throw new InvalidRequestException(ErrorCode.INVALID_INPUT_VALUE);
+        Slice<RecipeResponse> responses = recipeRepository.findRecipesOfMemberships(user.getId(), isCookable, month, pageable);
+        return responses;
+    }
+
+    @Transactional(readOnly = true)
     public Slice<RecipeResponse> getRecipeResponsesOfUser(User user, Long targetUserId, Pageable pageable) {
         userSimpleService.checkUserExists(targetUserId);
         Slice<RecipeResponse> responses = recipeRepository.findRecipesOfUser(user.getId(), targetUserId, pageable);
@@ -225,6 +239,5 @@ public class RecipeService {
     void unlikeRecipe(RecipeLike recipeLike) {
         recipeLikeRepository.delete(recipeLike);
     }
-
 
 }

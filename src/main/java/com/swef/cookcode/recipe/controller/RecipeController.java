@@ -161,6 +161,38 @@ public class RecipeController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @GetMapping("/publisher")
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipeOfPublishers(@CurrentUser User user,
+                                                                                            @RequestParam(value = "cookable", required = false) Boolean isCookable,
+                                                                                            @RequestParam(value = "month", required = false) Integer month,
+                                                                                            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+                                                                                            Pageable pageable)
+    {
+        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.getRecipeOfPublishers(user, isCookable, month, pageable));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("구독한 크리에이터의 레시피 다건 조회 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/membership")
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipeOfMemberships(@CurrentUser User user,
+                                                                                            @RequestParam(value = "cookable", required = false) Boolean isCookable,
+                                                                                            @RequestParam(value = "month", required = false) Integer month,
+                                                                                            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+                                                                                                    Pageable pageable)
+    {
+        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.getRecipeOfMemberships(user, isCookable, month, pageable));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("멤버십 크리에이터의 레시피 다건 조회 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
     @GetMapping("/user/{targetUserId}")
     public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipesOfUser(@CurrentUser User user, @PathVariable(value = "targetUserId") Long userId,
                                                                                        @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)

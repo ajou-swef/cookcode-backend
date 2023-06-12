@@ -93,6 +93,7 @@ public class WebSecurityConfig {
                     requests
                     .requestMatchers(HttpMethod.GET, "/api/v1/account/password").permitAll()
                     .requestMatchers("/api/v1/account/signin", "/api/v1/account/signup", "/api/v1/account/check", "/health", "/api/v1/account/email").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/membership").hasRole("INFLUENCER")
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                     .anyRequest().access(auth);
                 }).cors(it -> {})
