@@ -61,14 +61,17 @@ public class Recipe extends BaseEntity {
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.LAZY)
     private List<RecipeIngred> ingredients = new ArrayList<>();
 
+    private Boolean isPremium = null;
+
 
     // TODO : Recipe Field Validation
     @Builder
-    public Recipe(String title, String description, String thumbnail, User user) {
+    public Recipe(String title, String description, String thumbnail, User user, Boolean isPremium) {
         this.title = title;
         this.description = description;
         this.thumbnail = thumbnail;
         this.author = user;
+        this.isPremium = isPremium;
     }
 
     public void addStep(Step step) {
@@ -90,6 +93,8 @@ public class Recipe extends BaseEntity {
         this.description = description;
     }
 
+    public void setIsPremium(Boolean isPremium) { this.isPremium = isPremium; }
+
     public void clearSteps() {
         this.steps.clear();
     }
@@ -100,6 +105,7 @@ public class Recipe extends BaseEntity {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .thumbnail(request.getThumbnail())
+                .isPremium(request.getIsPremium())
                 .build();
     }
 
@@ -107,6 +113,7 @@ public class Recipe extends BaseEntity {
         recipe.setTitle(request.getTitle());
         recipe.setDescription(request.getDescription());
         recipe.setThumbnail(request.getThumbnail());
+        recipe.setIsPremium(request.getIsPremium());
         return recipe;
     }
 

@@ -22,4 +22,6 @@ public class RecipeCreateRequest {
     protected String thumbnail;
 
     protected List<String> deletedThumbnails;
+
+    protected Boolean isPremium;
 }

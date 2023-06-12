@@ -22,6 +22,7 @@ import com.swef.cookcode.recipe.domain.StepVideo;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
+import com.swef.cookcode.recipe.dto.response.UpdateResponse;
 import com.swef.cookcode.recipe.repository.RecipeCommentRepository;
 import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
 import com.swef.cookcode.recipe.repository.RecipeLikeRepository;
@@ -62,7 +63,7 @@ public class RecipeService {
     private final Util util;
 
     @Transactional
-    public RecipeResponse createRecipe(User user, RecipeCreateRequest request) {
+    public UpdateResponse createRecipe(User user, RecipeCreateRequest request) {
         Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
@@ -75,13 +76,13 @@ public class RecipeService {
 
         stepService.saveStepsForRecipe(recipe, request.getSteps());
 
-        return RecipeResponse.builder()
+        return UpdateResponse.builder()
                 .recipeId(recipe.getId())
                 .build();
     }
 
     @Transactional
-    public RecipeResponse updateRecipe(User user, Long recipeId, RecipeUpdateRequest request) {
+    public UpdateResponse updateRecipe(User user, Long recipeId, RecipeUpdateRequest request) {
         Util.validateDuplication(request.getIngredients(), request.getOptionalIngredients());
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
@@ -101,7 +102,7 @@ public class RecipeService {
         // TODO : step photo, step video에 대한 lazy loading
         stepService.saveStepsForRecipe(recipe, request.getSteps());
 
-        return RecipeResponse.builder()
+        return UpdateResponse.builder()
                 .recipeId(recipe.getId())
                 .build();
     }
