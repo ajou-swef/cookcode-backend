@@ -16,12 +16,15 @@ import static com.swef.cookcode.user.domain.QUser.user;
 import static com.swef.cookcode.membership.domain.QMembershipJoin.membershipJoin;
 import static java.util.Objects.nonNull;
 
+import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.common.util.QueryUtil;
+import com.swef.cookcode.recipe.domain.QRecipe;
 import com.swef.cookcode.recipe.domain.QRecipeLike;
 import com.swef.cookcode.recipe.dto.projection.IngredientProjection;
 import com.swef.cookcode.recipe.dto.response.RecipeDetailResponse;
@@ -41,6 +44,8 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
     private final JPAQueryFactory queryFactory;
 
     private final QRecipeLike recipeLikeForIsLike = new QRecipeLike("recipeLikeForIsLike");
+
+    private final QRecipe recipeForSubscribe = new QRecipe("recipeForSubscribe");
 
     @Override
     public Slice<RecipeResponse> findRecipes(Long userId, Boolean isCookable, Integer month, Pageable pageable) {
@@ -80,7 +85,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository{
 
     private List<Long> selectPublishers(Long userId){
         return queryFactory.select(
-                        user.id
+                        subscribe.publisher.id
                 )
                 .from(user)
                 .innerJoin(subscribe).on(subscribe.subscriber.id.eq(userId))
