@@ -1,6 +1,7 @@
 package com.swef.cookcode.recipe.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -64,6 +65,7 @@ class RecipeServiceTest {
     @Mock
     private CookieRepository cookieRepository;
 
+    @Mock
     private Util util;
     @Spy
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -151,10 +153,9 @@ class RecipeServiceTest {
             void successWhenStepFilesExist() {
                 List<Ingredient> ingredients = List.of(ingredient);
                 List<Ingredient> optionalIngredients = List.of(optionalIngredient);
-
-                doReturn(ingredients).when(ingredientSimpleService).getIngredientsByIds(createRequest.getIngredients());
-                doReturn(optionalIngredients).when(ingredientSimpleService).getIngredientsByIds(createRequest.getOptionalIngredients());
-                doReturn(recipe).when(recipeRepository).save(any());
+                given(ingredientSimpleService.getIngredientsByIds(createRequest.getIngredients())).willReturn(ingredients);
+                given(ingredientSimpleService.getIngredientsByIds(createRequest.getOptionalIngredients())).willReturn(optionalIngredients);
+                given(recipeRepository.save(any())).willReturn(recipe);
 
                 //when
                 recipeService.createRecipe(user, createRequest);
