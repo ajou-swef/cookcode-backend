@@ -13,14 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class StepService {
 
-    @Transactional
-    public List<StepResponse> saveStepsForRecipe(Recipe recipe, List<StepCreateRequest> stepRequests) {
+    List<StepResponse> saveStepsForRecipe(Recipe recipe, List<StepCreateRequest> stepRequests) {
         List<StepResponse> responses = new ArrayList<>();
         stepRequests.forEach(request -> {
             if (request.getPhotos().size() + request.getVideos().size() == 0) throw new InvalidRequestException(STEP_FILES_NECESSARY);
@@ -38,7 +36,6 @@ public class StepService {
         return responses;
     }
 
-    @Transactional
     List<StepPhoto> savePhotoUrlsForStep(Step step, List<String> photos) {
         photos.forEach(url -> {
             StepPhoto photo = StepPhoto.builder()
@@ -50,7 +47,6 @@ public class StepService {
         return step.getPhotos();
     }
 
-    @Transactional
     List<StepVideo> saveVideoUrlsForStep(Step step, List<String> videos) {
         videos.forEach(url -> {
             StepVideo video = StepVideo.builder()

@@ -1,11 +1,16 @@
 package com.swef.cookcode.recipe.service;
 
+import static com.swef.cookcode.common.ErrorCode.STEP_FILES_NECESSARY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.swef.cookcode.common.error.exception.InvalidRequestException;
+import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.cookie.repository.CookieRepository;
 import com.swef.cookcode.fridge.domain.Category;
@@ -21,6 +26,7 @@ import com.swef.cookcode.recipe.repository.RecipeRepository;
 import com.swef.cookcode.user.domain.Authority;
 import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.service.UserSimpleService;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -163,23 +169,24 @@ class RecipeServiceTest {
                 //then
                 verify(recipeRepository).save(any());
                 verify(recipeIngredRepository, times(2)).saveAll(any());
-                verify(stepService).saveStepsForRecipe(recipe, createRequest.getSteps());
+                verify(stepService, only()).saveStepsForRecipe(recipe, createRequest.getSteps());
             }
         }
 
         @Nested
-        @DisplayName("레시피 생성 실패")
+        @DisplayName("실패하는 경우")
         class Failure {
             @Test
             @DisplayName("레시피 스텝 파일이 없는 경우")
-            void successWhenStepFilesExist() {
+            void failWhenStepFilesEmpty() {
                 StepCreateRequest stepCreateRequest = StepCreateRequest.builder()
                         .deletedPhotos(List.of("deletedPhoto"))
                         .deletedVideos(List.of("deletedVideo"))
+                        .photos(Collections.emptyList())
+                        .videos(Collections.emptyList())
                         .seq(1L)
                         .title("스텝 제목")
                         .description("스텝 설명").build();
-
                 RecipeCreateRequest createRequest = RecipeCreateRequest.builder()
                         .title(recipe.getTitle())
                         .description(recipe.getDescription())
@@ -190,20 +197,11 @@ class RecipeServiceTest {
                         .thumbnail(recipe.getThumbnail())
                         .build();
 
-                List<Ingredient> ingredients = List.of(ingredient);
-                List<Ingredient> optionalIngredients = List.of(optionalIngredient);
+                given(stepService.saveStepsForRecipe(recipe, createRequest.getSteps())).willCallRealMethod();
 
-                doReturn(ingredients).when(ingredientSimpleService).getIngredientsByIds(createRequest.getIngredients());
-                doReturn(optionalIngredients).when(ingredientSimpleService).getIngredientsByIds(createRequest.getOptionalIngredients());
-                doReturn(recipe).when(recipeRepository).save(any());
-
-                //when
-                recipeService.createRecipe(user, createRequest);
-
-                //then
-                verify(recipeRepository).save(any());
-                verify(recipeIngredRepository, times(2)).saveAll(any());
-                verify(stepService).saveStepsForRecipe(recipe, createRequest.getSteps());
+                assertThatThrownBy(() -> {stepService.saveStepsForRecipe(recipe, createRequest.getSteps());})
+                        .isInstanceOf(InvalidRequestException.class)
+                        .hasMessageContaining(STEP_FILES_NECESSARY.getMessage());
             }
 
         }
