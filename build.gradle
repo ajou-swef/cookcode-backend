@@ -113,4 +113,16 @@ task copyPrivate(type: Copy) {
         include "application-mail.yml"
         into 'src/main/resources'
     }
+
+    copy {
+        from './cookcode-secret'
+        include "application-mail.yml"
+        into 'src/test/resources'
+    }
+
+    copy {
+        from './cookcode-secret'
+        include "application-aws.yml"
+        into 'src/test/resources'
+    }
 }
