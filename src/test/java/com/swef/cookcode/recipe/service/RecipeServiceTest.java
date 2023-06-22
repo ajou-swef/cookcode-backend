@@ -206,4 +206,22 @@ class RecipeServiceTest {
 
         }
     }
+
+    @Test
+    @DisplayName("레시피 수정할 때")
+    void testRecipeUploads(){
+
+    }
+
+    @Test
+    @DisplayName("레시피 삭제할 때")
+    void testRecipeDelete(){
+
+    }
+
+    @Test
+    @DisplayName("레시피 조회할 때")
+    void testRecipeReads(){
+
+    }
 }

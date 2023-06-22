@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
@@ -65,6 +66,8 @@ class S3UtilTest {
     private final String FILE_CONTENT_TYPE = "text/plain";
     private String S3_URL;
 
+    private final String testText = "Hello";
+
     @BeforeAll
     void setUp(@Autowired S3Mock s3Mock, @Autowired AmazonS3 amazonS3) {
         S3_URL = "http://localhost:8001/"+BUCKET_NAME+"/"+DIR_NAME;
@@ -83,7 +86,7 @@ class S3UtilTest {
         String contentType = "text/plain";
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(contentType);
-        return new PutObjectRequest(BUCKET_NAME, path, new ByteArrayInputStream("".getBytes(
+        return new PutObjectRequest(BUCKET_NAME, path, new ByteArrayInputStream(testText.getBytes(
                 StandardCharsets.UTF_8)), objectMetadata);
     }
 
@@ -99,14 +102,14 @@ class S3UtilTest {
 
         // then
         assertThat(s3Object.getObjectMetadata().getContentType()).isEqualTo(putObjectRequest.getMetadata().getContentType());
-        assertThat(new String(FileCopyUtils.copyToByteArray(s3Object.getObjectContent()))).isEqualTo("");
+        assertThat(new String(FileCopyUtils.copyToByteArray(s3Object.getObjectContent()))).isEqualTo(testText);
     }
 
     @Test
     @DisplayName("파일 업로드 테스트")
     void upload() {
         // given
-        byte[] fileContent = "Hello, S3!".getBytes();
+        byte[] fileContent = testText.getBytes();
         MultipartFile multipartFile = new MockMultipartFile(FILE_NAME, FILE_NAME, FILE_CONTENT_TYPE, fileContent);
 
         // when
@@ -119,5 +122,14 @@ class S3UtilTest {
     @Test
     @DisplayName("파일 삭제 테스트")
     void deleteFile() {
+        // given
+        byte[] fileContent = testText.getBytes();
+        MultipartFile multipartFile = new MockMultipartFile(FILE_NAME, FILE_NAME, FILE_CONTENT_TYPE, fileContent);
+        String result = s3Util.upload(multipartFile, DIR_NAME);
+        String key = result.split("http://localhost:8001/"+BUCKET_NAME+"/")[1];
+        // when
+        amazonS3.deleteObject(BUCKET_NAME, key);
+        // then
+        assertThatThrownBy(() -> amazonS3.getObject(BUCKET_NAME, key)).isInstanceOf(AmazonS3Exception.class);
     }
 }
