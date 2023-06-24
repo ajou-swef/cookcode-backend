@@ -353,6 +353,13 @@ class RecipeServiceTest {
             @Test
             @DisplayName("존재하지 않는 레시피를 삭제하려는 경우")
             void failWhenNonExist() {
+                // given
+                given(recipeRepository.findById(1L)).willReturn(Optional.empty());
+
+                // when then
+                assertThatThrownBy(() -> recipeService.deleteRecipeById(user, 1L)).isInstanceOf(
+                                NotFoundException.class)
+                        .hasMessageContaining(RECIPE_NOT_FOUND.getMessage());
 
             }
             @Test
