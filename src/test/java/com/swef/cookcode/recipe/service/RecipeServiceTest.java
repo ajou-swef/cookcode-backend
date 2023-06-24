@@ -1,17 +1,15 @@
 package com.swef.cookcode.recipe.service;
 
 import static com.swef.cookcode.common.ErrorCode.STEP_FILES_NECESSARY;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.only;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
-import com.swef.cookcode.common.error.exception.NotFoundException;
-import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.cookie.repository.CookieRepository;
 import com.swef.cookcode.fridge.domain.Category;
 import com.swef.cookcode.fridge.domain.Ingredient;
@@ -29,8 +27,8 @@ import com.swef.cookcode.user.service.UserSimpleService;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -70,9 +68,6 @@ class RecipeServiceTest {
 
     @Mock
     private CookieRepository cookieRepository;
-
-    @Mock
-    private Util util;
     @Spy
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -204,24 +199,116 @@ class RecipeServiceTest {
                         .hasMessageContaining(STEP_FILES_NECESSARY.getMessage());
             }
 
+            @Test
+            @DisplayName("필수 재료 선택 재료 중복인 경우")
+            void failWhenIngredientsDuplicated() {
+                //given
+                List<Long> ingredientIds = List.of(1L, 2L, 3L);
+                List<Long> optionalIngredientIds = List.of(4L, 5L, 1L, 6L);
+                RecipeCreateRequest duplicatedRequest = RecipeCreateRequest.builder()
+                        .title(recipe.getTitle())
+                        .description(recipe.getDescription())
+                        .ingredients(ingredientIds)
+                        .optionalIngredients(optionalIngredientIds)
+                        .deletedThumbnails(List.of("deletedThumbnail"))
+                        .steps(List.of(stepCreateRequest))
+                        .thumbnail(recipe.getThumbnail())
+                        .build();
+
+                //then
+                assertThatThrownBy(() -> recipeService.createRecipe(user, duplicatedRequest))
+                        .isInstanceOf(InvalidRequestException.class)
+                        .hasMessageContaining(ErrorCode.DUPLICATED.getMessage());
+            }
+
         }
     }
 
-    @Test
     @DisplayName("레시피 수정할 때")
-    void testRecipeUploads(){
+    @Nested
+    class RecipeUpdateTest {
 
+        @Nested
+        @DisplayName("실패하는 경우")
+        class Failure{
+            @Test
+            @DisplayName("존재하지 않는 레시피를 수정하려는 경우")
+            void failWhenNonExist() {
+
+            }
+            @Test
+            @DisplayName("레시피 수정하려는 사람이 글쓴이가 아닌 경우")
+            void failWhenAuthorIsNotUser() {
+
+            }
+
+            @Test
+            @DisplayName("필수 재료 선택 재료 중복인 경우")
+            void failWhenIngredientsDuplicated() {
+
+            }
+        }
+
+        @Nested
+        @DisplayName("성공하는 경우")
+        class Success{
+            @Test
+            @DisplayName("정상적으로 수정됨")
+            void success() {
+
+            }
+        }
     }
 
-    @Test
+    @Nested
     @DisplayName("레시피 삭제할 때")
-    void testRecipeDelete(){
+    class RecipeDeletionTest{
+        @Nested
+        @DisplayName("실패하는 경우")
+        class Failure{
+            @Test
+            @DisplayName("존재하지 않는 레시피를 삭제하려는 경우")
+            void failWhenNonExist() {
 
+            }
+            @Test
+            @DisplayName("레시피 삭제하려는 사람이 글쓴이가 아닌 경우")
+            void failWhenAuthorIsNotUser() {
+
+            }
+        }
+
+        @Nested
+        @DisplayName("성공하는 경우")
+        class Success{
+            @Test
+            @DisplayName("정상적으로 삭제됨")
+            void success() {
+
+            }
+        }
     }
 
-    @Test
+    @Nested
     @DisplayName("레시피 조회할 때")
-    void testRecipeReads(){
+    class RecipeReadTest{
+        @Test
+        @DisplayName("레시피 상세 조회 성공")
+        void testGetDetailRecipe() {
+
+        }
+
+        @Test
+        @DisplayName("레시피 상세 조회 실패 : 존재하지 않는 레시피")
+        void failWhenNonExistRecipe() {
+
+        }
+
+        @Test
+        @DisplayName("레시피 다건 조회 성공")
+        void testGetRecipeLists() {
+
+        }
 
     }
 }
