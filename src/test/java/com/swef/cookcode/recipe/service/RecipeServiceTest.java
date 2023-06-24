@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
@@ -270,8 +271,20 @@ class RecipeServiceTest {
             @Test
             @DisplayName("레시피 수정하려는 사람이 글쓴이가 아닌 경우")
             void failWhenAuthorIsNotUser() {
+                // given
+                User anotherUser = Mockito.mock(User.class);
+                User author = Mockito.mock(User.class);
+                Recipe recipe = Recipe.builder()
+                        .user(author)
+                        .title("레시피 제목입니다.")
+                        .description("레시피 설명입니다.")
+                        .thumbnail("thumbnailUrl")
+                        .build();
+                given(anotherUser.getId()).willReturn(1L);
+                given(author.getId()).willReturn(2L);
+                given(recipeRepository.findById(1L)).willReturn(Optional.of(recipe));
 
-                assertThatThrownBy(() -> recipeService.updateRecipe(user, 1L, updateRequest))
+                assertThatThrownBy(() -> recipeService.updateRecipe(anotherUser, 1L, updateRequest))
                         .isInstanceOf(PermissionDeniedException.class)
                         .hasMessageContaining(USER_IS_NOT_AUTHOR.getMessage());
             }
