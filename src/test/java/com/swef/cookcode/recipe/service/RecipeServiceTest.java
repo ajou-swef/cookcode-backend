@@ -1,6 +1,8 @@
 package com.swef.cookcode.recipe.service;
 
+import static com.swef.cookcode.common.ErrorCode.RECIPE_NOT_FOUND;
 import static com.swef.cookcode.common.ErrorCode.STEP_FILES_NECESSARY;
+import static com.swef.cookcode.common.ErrorCode.USER_IS_NOT_AUTHOR;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -10,12 +12,15 @@ import static org.mockito.Mockito.verify;
 
 import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
+import com.swef.cookcode.common.error.exception.NotFoundException;
+import com.swef.cookcode.common.error.exception.PermissionDeniedException;
 import com.swef.cookcode.cookie.repository.CookieRepository;
 import com.swef.cookcode.fridge.domain.Category;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
+import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.request.StepCreateRequest;
 import com.swef.cookcode.recipe.repository.RecipeCommentRepository;
 import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
@@ -26,6 +31,7 @@ import com.swef.cookcode.user.domain.User;
 import com.swef.cookcode.user.service.UserSimpleService;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -231,15 +237,43 @@ class RecipeServiceTest {
         @Nested
         @DisplayName("실패하는 경우")
         class Failure{
+            StepCreateRequest stepUpdateRequest = StepCreateRequest.builder()
+                    .deletedPhotos(List.of("deletedPhoto"))
+                    .deletedVideos(List.of("deletedVideo"))
+                    .photos(List.of("photos"))
+                    .videos(List.of("videos"))
+                    .seq(1L)
+                    .title("스텝 제목")
+                    .description("스텝 설명").build();
+
+            RecipeUpdateRequest updateRequest = RecipeUpdateRequest.builder()
+                    .title(recipe.getTitle())
+                    .description(recipe.getDescription())
+                    .ingredients(List.of(1L, 2L, 3L))
+                    .optionalIngredients(List.of(4L, 5L, 6L))
+                    .deletedThumbnails(List.of("deletedThumbnail"))
+                    .steps(List.of(stepUpdateRequest))
+                    .thumbnail(recipe.getThumbnail())
+                    .build();
+
             @Test
             @DisplayName("존재하지 않는 레시피를 수정하려는 경우")
             void failWhenNonExist() {
+                // given
+                given(recipeRepository.findById(1L)).willReturn(Optional.empty());
 
+                // when then
+                assertThatThrownBy(() -> recipeService.updateRecipe(user, 1L, updateRequest)).isInstanceOf(
+                        NotFoundException.class)
+                        .hasMessageContaining(RECIPE_NOT_FOUND.getMessage());
             }
             @Test
             @DisplayName("레시피 수정하려는 사람이 글쓴이가 아닌 경우")
             void failWhenAuthorIsNotUser() {
 
+                assertThatThrownBy(() -> recipeService.updateRecipe(user, 1L, updateRequest))
+                        .isInstanceOf(PermissionDeniedException.class)
+                        .hasMessageContaining(USER_IS_NOT_AUTHOR.getMessage());
             }
 
             @Test

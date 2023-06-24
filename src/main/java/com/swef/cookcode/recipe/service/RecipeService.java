@@ -86,11 +86,8 @@ public class RecipeService {
 
         List<Ingredient> requiredIngredients = ingredientSimpleService.getIngredientsByIds(request.getIngredients());
         List<Ingredient> optionalIngredients = ingredientSimpleService.getIngredientsByIds(request.getOptionalIngredients());
-        // TODO : recipe fetch
         Recipe recipe = getRecipeById(recipeId);
-        if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) {
-            throw new PermissionDeniedException(ErrorCode.ACCESS_DENIED);
-        }
+        validateCurrentUserIsAuthor(recipe, user);
         recipe = Recipe.updateEntity(recipe, request);
 
         recipeIngredRepository.deleteByRecipeId(recipe.getId());
@@ -132,7 +129,6 @@ public class RecipeService {
         recipeIngredRepository.saveAll(recipeIngredList);
     }
 
-    @Transactional
     void validateCurrentUserIsAuthor(Recipe recipe, User user) {
         if (!Objects.equals(user.getId(), recipe.getAuthor().getId())) throw new PermissionDeniedException(ErrorCode.USER_IS_NOT_AUTHOR);
     }
