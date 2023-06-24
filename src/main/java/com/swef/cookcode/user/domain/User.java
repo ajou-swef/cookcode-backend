@@ -18,6 +18,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -65,6 +66,8 @@ public class User extends BaseEntity {
 
     @Column(length = MAX_PASSWORD_LENGTH)
     private String password;
+
+    private LocalDateTime authorityRequestedAt;
 
     @Builder
     public User(String email, String nickname, String encodedPassword, Authority authority) {

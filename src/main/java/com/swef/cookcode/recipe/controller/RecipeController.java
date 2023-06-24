@@ -2,17 +2,17 @@ package com.swef.cookcode.recipe.controller;
 
 import com.swef.cookcode.common.ApiResponse;
 import com.swef.cookcode.common.SliceResponse;
-import com.swef.cookcode.common.dto.UrlResponse;
-import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.common.dto.CommentCreateRequest;
 import com.swef.cookcode.common.dto.CommentResponse;
+import com.swef.cookcode.common.dto.UrlResponse;
 import com.swef.cookcode.common.entity.CurrentUser;
+import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
+import com.swef.cookcode.recipe.dto.response.UpdateResponse;
 import com.swef.cookcode.recipe.service.RecipeService;
 import com.swef.cookcode.user.domain.User;
-import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -43,10 +43,10 @@ public class RecipeController {
     private final Util util;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<RecipeResponse>> createRecipe(@CurrentUser User user, @Valid @RequestBody RecipeCreateRequest recipeCreateRequest){
+    public ResponseEntity<ApiResponse<UpdateResponse>> createRecipe(@CurrentUser User user, @RequestBody RecipeCreateRequest recipeCreateRequest){
 
         recipeService.deleteCancelledFiles(recipeCreateRequest);
-        RecipeResponse response = recipeService.createRecipe(user, recipeCreateRequest);
+        UpdateResponse response = recipeService.createRecipe(user, recipeCreateRequest);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 생성 성공")
@@ -131,10 +131,10 @@ public class RecipeController {
     }
 
     @PatchMapping("/{recipeId}")
-    public ResponseEntity<ApiResponse<RecipeResponse>> updateRecipe(@CurrentUser User user, @PathVariable("recipeId") Long recipeId, @RequestBody RecipeUpdateRequest recipeUpdateRequest){
+    public ResponseEntity<ApiResponse<UpdateResponse>> updateRecipe(@CurrentUser User user, @PathVariable("recipeId") Long recipeId, @RequestBody RecipeUpdateRequest recipeUpdateRequest){
 
         recipeService.deleteCancelledFiles(recipeUpdateRequest);
-        RecipeResponse response = recipeService.updateRecipe(user, recipeId, recipeUpdateRequest);
+        UpdateResponse response = recipeService.updateRecipe(user, recipeId, recipeUpdateRequest);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 수정 성공")
@@ -155,6 +155,38 @@ public class RecipeController {
         SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.getRecipeResponses(user, isCookable, month, pageable));
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("레시피 다건 조회 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/publisher")
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipeOfPublishers(@CurrentUser User user,
+                                                                                            @RequestParam(value = "cookable", required = false) Boolean isCookable,
+                                                                                            @RequestParam(value = "month", required = false) Integer month,
+                                                                                            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+                                                                                            Pageable pageable)
+    {
+        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.getRecipeOfPublishers(user, isCookable, month, pageable));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("구독한 크리에이터의 레시피 다건 조회 성공")
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/membership")
+    public ResponseEntity<ApiResponse<SliceResponse<RecipeResponse>>> getRecipeOfMemberships(@CurrentUser User user,
+                                                                                            @RequestParam(value = "cookable", required = false) Boolean isCookable,
+                                                                                            @RequestParam(value = "month", required = false) Integer month,
+                                                                                            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+                                                                                                    Pageable pageable)
+    {
+        SliceResponse<RecipeResponse> response = new SliceResponse<>(recipeService.getRecipeOfMemberships(user, isCookable, month, pageable));
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("멤버십 크리에이터의 레시피 다건 조회 성공")
                 .status(HttpStatus.OK.value())
                 .data(response)
                 .build();
@@ -187,7 +219,7 @@ public class RecipeController {
     }
 
     @DeleteMapping("/{recipeId}")
-    public ResponseEntity<ApiResponse<RecipeResponse>> deleteRecipeById(@CurrentUser User user, @PathVariable("recipeId") Long recipeId) {
+    public ResponseEntity<ApiResponse> deleteRecipeById(@CurrentUser User user, @PathVariable("recipeId") Long recipeId) {
 
 
         recipeService.deleteRecipeById(user, recipeId);

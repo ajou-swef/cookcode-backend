@@ -7,7 +7,6 @@ import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -36,7 +35,11 @@ public class RecipeResponse {
 
     private String thumbnail;
 
-    public RecipeResponse(Recipe recipe, Boolean isCookable, Long likeCount, Boolean isLiked, Long commentCount) {
+    private Boolean isPremium;
+
+    private Boolean isAccessible;
+
+    public RecipeResponse(Recipe recipe, Boolean isCookable, Long likeCount, Boolean isLiked, Long commentCount, Boolean isAccessible) {
         this.recipeId = recipe.getId();
         this.user = UserSimpleResponse.from(recipe.getAuthor());
         this.title = recipe.getTitle();
@@ -48,6 +51,8 @@ public class RecipeResponse {
         this.likeCount = likeCount;
         this.isLiked = isLiked;
         this.commentCount = commentCount;
+        this.isPremium = recipe.getIsPremium();
+        this.isAccessible = isAccessible;
     }
 
 }

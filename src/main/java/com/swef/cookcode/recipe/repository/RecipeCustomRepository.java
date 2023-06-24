@@ -10,9 +10,14 @@ import org.springframework.data.domain.Slice;
 public interface RecipeCustomRepository {
     Slice<RecipeResponse> findRecipes(Long userId, Boolean isCookable, Integer month, Pageable pageable);
 
+    Slice<RecipeResponse> findRecipesOfPublishers(Long id, Boolean isCookable, Integer month, Pageable pageable);
+
     Slice<RecipeResponse> searchRecipes(Long userId, String query, Boolean isCookable, Pageable pageable);
+
+    Slice<RecipeResponse> findRecipesOfMemberships(Long userId, Boolean isCookable, Integer month, Pageable pageable);
 
     Slice<RecipeResponse> findRecipesOfUser(Long userId, Long targetUserId, Pageable pageable);
 
     Optional<RecipeDetailResponse> findRecipeById(Long userId, Long recipeId);
+
 }
