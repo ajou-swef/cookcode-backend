@@ -8,6 +8,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.only;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -83,6 +85,9 @@ class RecipeServiceTest {
 
     @InjectMocks
     private RecipeService recipeService;
+
+    @Mock
+    private Util util;
 
     private Ingredient ingredient = Ingredient.builder()
             .name("삼겹살")
@@ -322,24 +327,26 @@ class RecipeServiceTest {
             @DisplayName("정상적으로 수정됨")
             void success() {
                 //given
-                given(author.getId()).willReturn(1L);
                 List<Ingredient> ingredients = List.of(ingredient);
                 List<Ingredient> optionalIngredients = List.of(optionalIngredient);
+                Recipe spyRecipe = spy(recipeWithMockAuthor);
+                given(author.getId()).willReturn(1L);
                 given(ingredientSimpleService.getIngredientsByIds(updateRequest.getIngredients())).willReturn(ingredients);
                 given(ingredientSimpleService.getIngredientsByIds(updateRequest.getOptionalIngredients())).willReturn(optionalIngredients);
-                given(recipeRepository.findById(1L)).willReturn(Optional.of(recipeWithMockAuthor));
+                given(recipeRepository.findById(1L)).willReturn(Optional.of(spyRecipe));
 
                 //when
                 recipeService.updateRecipe(author, 1L, updateRequest);
 
                 //then
-                assertThat(recipeWithMockAuthor.getTitle()).isEqualTo(updateRequest.getTitle());
-                assertThat(recipeWithMockAuthor.getDescription()).isEqualTo(updateRequest.getDescription());
-                assertThat(recipeWithMockAuthor.getThumbnail()).isEqualTo(updateRequest.getThumbnail());
+                assertThat(spyRecipe.getTitle()).isEqualTo(updateRequest.getTitle());
+                assertThat(spyRecipe.getDescription()).isEqualTo(updateRequest.getDescription());
+                assertThat(spyRecipe.getThumbnail()).isEqualTo(updateRequest.getThumbnail());
 
-                verify(recipeIngredRepository).deleteByRecipeId(recipeWithMockAuthor.getId());
+                verify(recipeIngredRepository).deleteByRecipeId(spyRecipe.getId());
                 verify(recipeIngredRepository, times(2)).saveAll(any());
-                verify(stepService, only()).saveStepsForRecipe(recipeWithMockAuthor, updateRequest.getSteps());
+                verify(stepService, only()).saveStepsForRecipe(spyRecipe, updateRequest.getSteps());
+                verify(spyRecipe).clearSteps();
             }
         }
     }
