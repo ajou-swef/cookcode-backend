@@ -424,7 +424,17 @@ class RecipeServiceTest {
         @Test
         @DisplayName("레시피 상세 조회 성공")
         void testGetDetailRecipe() {
+            // given
+            Recipe spyRecipe = spy(recipeWithMockAuthor);
+            given(spyRecipe.getId()).willReturn(1L);
+            given(recipeRepository.findById(1L)).willReturn(Optional.of(spyRecipe));
 
+            // when
+            Recipe recipe = recipeService.getRecipeById(1L);
+
+            // then
+            assertThat(recipe.getId()).isEqualTo(spyRecipe.getId());
+            verify(recipeRepository).findById(1L);
         }
 
         @Test
