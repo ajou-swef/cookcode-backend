@@ -1,5 +1,6 @@
 package com.swef.cookcode.recipe.service;
 
+import static com.swef.cookcode.common.ErrorCode.INVALID_INPUT_VALUE;
 import static com.swef.cookcode.common.ErrorCode.RECIPE_NOT_FOUND;
 import static com.swef.cookcode.common.ErrorCode.STEP_FILES_NECESSARY;
 import static com.swef.cookcode.common.ErrorCode.USER_IS_NOT_AUTHOR;
@@ -39,16 +40,23 @@ import com.swef.cookcode.user.service.UserSimpleService;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.expression.spel.ast.OpInc;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -74,9 +82,6 @@ class RecipeServiceTest {
 
     @Mock
     private IngredientSimpleService ingredientSimpleService;
-
-    @Mock
-    private UserSimpleService userSimpleService;
 
     @Mock
     private RecipeLikeRepository recipeLikeRepository;
@@ -122,32 +127,6 @@ class RecipeServiceTest {
             .description("레시피 설명입니다.")
             .thumbnail("thumbnailUrl")
             .build();
-
-    private List<MultipartFile> photoFiles = List.of(
-            new MockMultipartFile(
-                    "test1",
-                    "test1.png",
-                    MediaType.MULTIPART_FORM_DATA_VALUE,
-                    "test1".getBytes()),
-            new MockMultipartFile(
-                    "test2",
-                    "test2.jpeg",
-                    MediaType.MULTIPART_FORM_DATA_VALUE,
-                    "test2".getBytes())
-    );
-
-    private List<MultipartFile> videoFiles = List.of(
-            new MockMultipartFile(
-                    "test1",
-                    "test1.mp4",
-                    MediaType.MULTIPART_FORM_DATA_VALUE,
-                    "test1".getBytes()),
-            new MockMultipartFile(
-                    "test2",
-                    "test2.mov",
-                    MediaType.MULTIPART_FORM_DATA_VALUE,
-                    "test2".getBytes())
-    );
 
     @DisplayName("레시피 생성할 때")
     @Nested
@@ -453,10 +432,49 @@ class RecipeServiceTest {
                     .hasMessageContaining(RECIPE_NOT_FOUND.getMessage());
         }
 
-        @Test
-        @DisplayName("레시피 다건 조회 성공")
-        void testGetRecipeLists() {
 
+        @DisplayName("레시피 다건 조회 성공")
+        @ParameterizedTest
+        @MethodSource("successParametersOfGettingRecipeList")
+        void testGetRecipeListsSuccess(Boolean isCookable, Integer month) {
+            // given
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Direction.DESC, "createdAt"));
+            given(author.getId()).willReturn(1L);
+            // when
+            recipeService.getRecipeResponses(author, isCookable, month, pageable);
+
+            verify(recipeRepository).findRecipes(author.getId(), isCookable, month, pageable);
+        }
+
+
+        @DisplayName("레시피 다건 조회 실패")
+        @ParameterizedTest
+        @MethodSource("failParametersOfGettingRecipeList")
+        void testGetRecipeListsFailure(Boolean isCookable, Integer month) {
+            // given
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Direction.DESC, "createdAt"));
+            given(author.getId()).willReturn(1L);
+
+            // when then
+            assertThatThrownBy(() -> recipeService.getRecipeResponses(author, isCookable, month, pageable))
+                    .isInstanceOf(InvalidRequestException.class)
+                    .hasMessageContaining(INVALID_INPUT_VALUE.getMessage());
+        }
+
+        static private Stream<Arguments> successParametersOfGettingRecipeList() {
+            return Stream.of(
+                    Arguments.of(false, null),
+                    Arguments.of(true, null),
+                    Arguments.of(null, null),
+                    Arguments.of(true, 5)
+            );
+        }
+
+        static private Stream<Arguments> failParametersOfGettingRecipeList() {
+            return Stream.of(
+                    Arguments.of(null, 0),
+                    Arguments.of(null, 13)
+            );
         }
 
     }
