@@ -41,6 +41,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.expression.spel.ast.OpInc;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -256,6 +257,14 @@ class RecipeServiceTest {
                     .steps(List.of(stepUpdateRequest))
                     .thumbnail(recipe.getThumbnail())
                     .build();
+            User author = Mockito.mock(User.class);
+            Recipe recipeWithMockAuthor = Recipe.builder()
+                    .user(author)
+                    .title("레시피 제목입니다.")
+                    .description("레시피 설명입니다.")
+                    .thumbnail("thumbnailUrl")
+                    .build();
+
 
             @Test
             @DisplayName("존재하지 않는 레시피를 수정하려는 경우")
@@ -273,16 +282,9 @@ class RecipeServiceTest {
             void failWhenAuthorIsNotUser() {
                 // given
                 User anotherUser = Mockito.mock(User.class);
-                User author = Mockito.mock(User.class);
-                Recipe recipe = Recipe.builder()
-                        .user(author)
-                        .title("레시피 제목입니다.")
-                        .description("레시피 설명입니다.")
-                        .thumbnail("thumbnailUrl")
-                        .build();
                 given(anotherUser.getId()).willReturn(1L);
                 given(author.getId()).willReturn(2L);
-                given(recipeRepository.findById(1L)).willReturn(Optional.of(recipe));
+                given(recipeRepository.findById(1L)).willReturn(Optional.of(recipeWithMockAuthor));
 
                 assertThatThrownBy(() -> recipeService.updateRecipe(anotherUser, 1L, updateRequest))
                         .isInstanceOf(PermissionDeniedException.class)
@@ -292,7 +294,23 @@ class RecipeServiceTest {
             @Test
             @DisplayName("필수 재료 선택 재료 중복인 경우")
             void failWhenIngredientsDuplicated() {
+                //given
+                List<Long> ingredientIds = List.of(1L, 2L, 3L);
+                List<Long> optionalIngredientIds = List.of(4L, 5L, 1L, 6L);
+                RecipeUpdateRequest duplicatedRequest = RecipeUpdateRequest.builder()
+                        .title(recipe.getTitle())
+                        .description(recipe.getDescription())
+                        .ingredients(ingredientIds)
+                        .optionalIngredients(optionalIngredientIds)
+                        .deletedThumbnails(List.of("deletedThumbnail"))
+                        .steps(List.of(stepUpdateRequest))
+                        .thumbnail(recipe.getThumbnail())
+                        .build();
 
+                //when then
+                assertThatThrownBy(() -> recipeService.updateRecipe(user, 1L, duplicatedRequest))
+                        .isInstanceOf(InvalidRequestException.class)
+                        .hasMessageContaining(ErrorCode.DUPLICATED.getMessage());
             }
         }
 
