@@ -6,8 +6,10 @@ import com.swef.cookcode.recipe.domain.RecipeIngred;
 import com.swef.cookcode.recipe.dto.projection.IngredientProjection;
 import java.util.List;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
+@SuperBuilder
 public class RecipeDetailResponse extends RecipeResponse{
 
     private final List<StepResponse> steps;

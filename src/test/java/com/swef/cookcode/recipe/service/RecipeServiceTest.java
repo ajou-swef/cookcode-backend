@@ -27,6 +27,8 @@ import com.swef.cookcode.recipe.domain.Step;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.request.StepCreateRequest;
+import com.swef.cookcode.recipe.dto.response.RecipeDetailResponse;
+import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import com.swef.cookcode.recipe.repository.RecipeCommentRepository;
 import com.swef.cookcode.recipe.repository.RecipeIngredRepository;
 import com.swef.cookcode.recipe.repository.RecipeLikeRepository;
@@ -425,22 +427,30 @@ class RecipeServiceTest {
         @DisplayName("레시피 상세 조회 성공")
         void testGetDetailRecipe() {
             // given
-            Recipe spyRecipe = spy(recipeWithMockAuthor);
-            given(spyRecipe.getId()).willReturn(1L);
-            given(recipeRepository.findById(1L)).willReturn(Optional.of(spyRecipe));
+            RecipeDetailResponse detailResponse = RecipeDetailResponse.builder()
+                            .recipeId(1L)
+                            .title(recipeWithMockAuthor.getTitle())
+                            .description(recipeWithMockAuthor.getDescription())
+                            .thumbnail(recipeWithMockAuthor.getThumbnail())
+                            .build();
+            given(author.getId()).willReturn(1L);
+            given(recipeRepository.findRecipeById(author.getId(), 1L)).willReturn(Optional.of(detailResponse));
 
             // when
-            Recipe recipe = recipeService.getRecipeById(1L);
+            RecipeResponse response = recipeService.getRecipeResponseById(author, 1L);
 
             // then
-            assertThat(recipe.getId()).isEqualTo(spyRecipe.getId());
-            verify(recipeRepository).findById(1L);
+            assertThat(response).isInstanceOf(RecipeDetailResponse.class);
+            verify(recipeRepository).findRecipeById(author.getId(), 1L);
         }
 
         @Test
         @DisplayName("레시피 상세 조회 실패 : 존재하지 않는 레시피")
         void failWhenNonExistRecipe() {
-
+            // when then
+            assertThatThrownBy(() -> recipeService.getRecipeResponseById(author, 1L)).isInstanceOf(
+                            NotFoundException.class)
+                    .hasMessageContaining(RECIPE_NOT_FOUND.getMessage());
         }
 
         @Test
