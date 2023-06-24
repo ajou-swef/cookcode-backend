@@ -23,6 +23,7 @@ import com.swef.cookcode.fridge.domain.Category;
 import com.swef.cookcode.fridge.domain.Ingredient;
 import com.swef.cookcode.fridge.service.IngredientSimpleService;
 import com.swef.cookcode.recipe.domain.Recipe;
+import com.swef.cookcode.recipe.domain.Step;
 import com.swef.cookcode.recipe.dto.request.RecipeCreateRequest;
 import com.swef.cookcode.recipe.dto.request.RecipeUpdateRequest;
 import com.swef.cookcode.recipe.dto.request.StepCreateRequest;
@@ -391,16 +392,28 @@ class RecipeServiceTest {
             @Test
             @DisplayName("정상적으로 삭제됨")
             void success() {
+                Recipe spyRecipe = spy(recipeWithMockAuthor);
+                Step step = Step.builder()
+                        .recipe(spyRecipe)
+                        .description("스텝 설명")
+                        .title("스텝 제목")
+                        .seq(1L)
+                        .build();
+
                 // given
-                given(recipeRepository.findById(1L)).willReturn(Optional.of(recipeWithMockAuthor));
+                given(recipeRepository.findById(1L)).willReturn(Optional.of(spyRecipe));
+                given(spyRecipe.getSteps()).willReturn(List.of(step));
                 doNothing().when(util).deleteFilesInS3(any());
+
                 // when
                 recipeService.deleteRecipeById(author, 1L);
+
                 // then
                 verify(recipeCommentRepository).deleteAllByRecipeId(1L);
                 verify(recipeLikeRepository).deleteAllByRecipeId(1L);
                 verify(cookieRepository).updateCookieWhenRecipeDeleted(1L);
-                verify(recipeRepository).delete(recipeWithMockAuthor);
+                verify(recipeRepository).delete(spyRecipe);
+                verify(util, times(3)).deleteFilesInS3(any());
             }
         }
     }
