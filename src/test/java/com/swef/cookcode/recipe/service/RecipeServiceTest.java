@@ -391,7 +391,16 @@ class RecipeServiceTest {
             @Test
             @DisplayName("정상적으로 삭제됨")
             void success() {
-
+                // given
+                given(recipeRepository.findById(1L)).willReturn(Optional.of(recipeWithMockAuthor));
+                doNothing().when(util).deleteFilesInS3(any());
+                // when
+                recipeService.deleteRecipeById(author, 1L);
+                // then
+                verify(recipeCommentRepository).deleteAllByRecipeId(1L);
+                verify(recipeLikeRepository).deleteAllByRecipeId(1L);
+                verify(cookieRepository).updateCookieWhenRecipeDeleted(1L);
+                verify(recipeRepository).delete(recipeWithMockAuthor);
             }
         }
     }
