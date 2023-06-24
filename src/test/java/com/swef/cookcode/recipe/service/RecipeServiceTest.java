@@ -107,6 +107,14 @@ class RecipeServiceTest {
             .thumbnail("thumbnailUrl")
             .build();
 
+    User author = Mockito.mock(User.class);
+    Recipe recipeWithMockAuthor = Recipe.builder()
+            .user(author)
+            .title("레시피 제목입니다.")
+            .description("레시피 설명입니다.")
+            .thumbnail("thumbnailUrl")
+            .build();
+
     private List<MultipartFile> photoFiles = List.of(
             new MockMultipartFile(
                     "test1",
@@ -255,14 +263,6 @@ class RecipeServiceTest {
                 .steps(List.of(stepUpdateRequest))
                 .thumbnail("수정 썸네일")
                 .build();
-
-        User author = Mockito.mock(User.class);
-        Recipe recipeWithMockAuthor = Recipe.builder()
-                .user(author)
-                .title("레시피 제목입니다.")
-                .description("레시피 설명입니다.")
-                .thumbnail("thumbnailUrl")
-                .build();
         @Nested
         @DisplayName("실패하는 경우")
         class Failure{
@@ -365,6 +365,15 @@ class RecipeServiceTest {
             @Test
             @DisplayName("레시피 삭제하려는 사람이 글쓴이가 아닌 경우")
             void failWhenAuthorIsNotUser() {
+                // given
+                User anotherUser = Mockito.mock(User.class);
+                given(anotherUser.getId()).willReturn(1L);
+                given(author.getId()).willReturn(2L);
+                given(recipeRepository.findById(1L)).willReturn(Optional.of(recipeWithMockAuthor));
+
+                assertThatThrownBy(() -> recipeService.deleteRecipeById(anotherUser, 1L))
+                        .isInstanceOf(PermissionDeniedException.class)
+                        .hasMessageContaining(USER_IS_NOT_AUTHOR.getMessage());
 
             }
         }
