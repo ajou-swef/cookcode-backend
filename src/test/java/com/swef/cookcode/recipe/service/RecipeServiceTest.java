@@ -3,6 +3,7 @@ package com.swef.cookcode.recipe.service;
 import static com.swef.cookcode.common.ErrorCode.RECIPE_NOT_FOUND;
 import static com.swef.cookcode.common.ErrorCode.STEP_FILES_NECESSARY;
 import static com.swef.cookcode.common.ErrorCode.USER_IS_NOT_AUTHOR;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -14,6 +15,7 @@ import com.swef.cookcode.common.ErrorCode;
 import com.swef.cookcode.common.error.exception.InvalidRequestException;
 import com.swef.cookcode.common.error.exception.NotFoundException;
 import com.swef.cookcode.common.error.exception.PermissionDeniedException;
+import com.swef.cookcode.common.util.Util;
 import com.swef.cookcode.cookie.repository.CookieRepository;
 import com.swef.cookcode.fridge.domain.Category;
 import com.swef.cookcode.fridge.domain.Ingredient;
@@ -235,36 +237,35 @@ class RecipeServiceTest {
     @DisplayName("레시피 수정할 때")
     @Nested
     class RecipeUpdateTest {
+        StepCreateRequest stepUpdateRequest = StepCreateRequest.builder()
+                .deletedPhotos(List.of("deletedPhoto"))
+                .deletedVideos(List.of("deletedVideo"))
+                .photos(List.of("photos"))
+                .videos(List.of("videos"))
+                .seq(1L)
+                .title("스텝 제목")
+                .description("스텝 설명").build();
 
+        RecipeUpdateRequest updateRequest = RecipeUpdateRequest.builder()
+                .title("수정 제목")
+                .description("수정 설명")
+                .ingredients(List.of(1L))
+                .optionalIngredients(List.of(2L))
+                .deletedThumbnails(List.of("deletedThumbnail"))
+                .steps(List.of(stepUpdateRequest))
+                .thumbnail("수정 썸네일")
+                .build();
+
+        User author = Mockito.mock(User.class);
+        Recipe recipeWithMockAuthor = Recipe.builder()
+                .user(author)
+                .title("레시피 제목입니다.")
+                .description("레시피 설명입니다.")
+                .thumbnail("thumbnailUrl")
+                .build();
         @Nested
         @DisplayName("실패하는 경우")
         class Failure{
-            StepCreateRequest stepUpdateRequest = StepCreateRequest.builder()
-                    .deletedPhotos(List.of("deletedPhoto"))
-                    .deletedVideos(List.of("deletedVideo"))
-                    .photos(List.of("photos"))
-                    .videos(List.of("videos"))
-                    .seq(1L)
-                    .title("스텝 제목")
-                    .description("스텝 설명").build();
-
-            RecipeUpdateRequest updateRequest = RecipeUpdateRequest.builder()
-                    .title(recipe.getTitle())
-                    .description(recipe.getDescription())
-                    .ingredients(List.of(1L, 2L, 3L))
-                    .optionalIngredients(List.of(4L, 5L, 6L))
-                    .deletedThumbnails(List.of("deletedThumbnail"))
-                    .steps(List.of(stepUpdateRequest))
-                    .thumbnail(recipe.getThumbnail())
-                    .build();
-            User author = Mockito.mock(User.class);
-            Recipe recipeWithMockAuthor = Recipe.builder()
-                    .user(author)
-                    .title("레시피 제목입니다.")
-                    .description("레시피 설명입니다.")
-                    .thumbnail("thumbnailUrl")
-                    .build();
-
 
             @Test
             @DisplayName("존재하지 않는 레시피를 수정하려는 경우")
@@ -320,7 +321,25 @@ class RecipeServiceTest {
             @Test
             @DisplayName("정상적으로 수정됨")
             void success() {
+                //given
+                given(author.getId()).willReturn(1L);
+                List<Ingredient> ingredients = List.of(ingredient);
+                List<Ingredient> optionalIngredients = List.of(optionalIngredient);
+                given(ingredientSimpleService.getIngredientsByIds(updateRequest.getIngredients())).willReturn(ingredients);
+                given(ingredientSimpleService.getIngredientsByIds(updateRequest.getOptionalIngredients())).willReturn(optionalIngredients);
+                given(recipeRepository.findById(1L)).willReturn(Optional.of(recipeWithMockAuthor));
 
+                //when
+                recipeService.updateRecipe(author, 1L, updateRequest);
+
+                //then
+                assertThat(recipeWithMockAuthor.getTitle()).isEqualTo(updateRequest.getTitle());
+                assertThat(recipeWithMockAuthor.getDescription()).isEqualTo(updateRequest.getDescription());
+                assertThat(recipeWithMockAuthor.getThumbnail()).isEqualTo(updateRequest.getThumbnail());
+
+                verify(recipeIngredRepository).deleteByRecipeId(recipeWithMockAuthor.getId());
+                verify(recipeIngredRepository, times(2)).saveAll(any());
+                verify(stepService, only()).saveStepsForRecipe(recipeWithMockAuthor, updateRequest.getSteps());
             }
         }
     }
