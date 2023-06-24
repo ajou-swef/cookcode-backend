@@ -13,14 +13,11 @@ import static com.swef.cookcode.recipe.domain.QRecipeIngred.recipeIngred;
 import static com.swef.cookcode.recipe.domain.QRecipeLike.recipeLike;
 import static com.swef.cookcode.user.domain.QSubscribe.subscribe;
 import static com.swef.cookcode.user.domain.QUser.user;
-import static com.swef.cookcode.membership.domain.QMembershipJoin.membershipJoin;
 import static java.util.Objects.nonNull;
 
-import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swef.cookcode.common.util.QueryUtil;
@@ -31,8 +28,6 @@ import com.swef.cookcode.recipe.dto.response.RecipeDetailResponse;
 import com.swef.cookcode.recipe.dto.response.RecipeResponse;
 import java.util.List;
 import java.util.Optional;
-
-import com.swef.cookcode.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

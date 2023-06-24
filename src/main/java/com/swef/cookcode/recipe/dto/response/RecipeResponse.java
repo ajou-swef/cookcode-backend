@@ -7,11 +7,12 @@ import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.user.dto.response.UserSimpleResponse;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
+@SuperBuilder
+@JsonInclude(NON_NULL)
 @AllArgsConstructor
 public class RecipeResponse {
     private Long recipeId;

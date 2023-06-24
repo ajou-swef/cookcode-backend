@@ -14,6 +14,7 @@ ingredient_init.sql
 ./cookcode-secret/*
 /logs
 **/src/main/generated/
+*.pem
 
 ### STS ###
 .apt_generated

@@ -8,8 +8,10 @@ import com.swef.cookcode.recipe.domain.Recipe;
 import com.swef.cookcode.recipe.dto.projection.IngredientProjection;
 import java.util.List;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
+@SuperBuilder
 @JsonInclude(NON_NULL)
 public class RecipeDetailResponse extends RecipeResponse{
 

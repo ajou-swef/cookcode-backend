@@ -79,6 +79,8 @@ public enum ErrorCode {
   RECIPE_COMMENT_NOT_FOUND(400, "R002", "존재하지 않는 레시피 댓글입니다."),
   RECIPE_COMMENT_USER_MISSMATCH(400,"R003", "해당 유저의 댓글이 아닙니다."),
 
+  STEP_FILES_NECESSARY(400, "R004", "스텝 파일이 적어도 하나 필요합니다."),
+
   /*
   Cookie Domain
    */
