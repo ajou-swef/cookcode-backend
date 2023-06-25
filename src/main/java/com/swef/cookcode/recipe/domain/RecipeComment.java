@@ -2,6 +2,8 @@ package com.swef.cookcode.recipe.domain;
 
 import com.swef.cookcode.common.entity.Comment;
 import com.swef.cookcode.user.domain.User;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -13,6 +15,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "recipe_comment")
+@AttributeOverride(
+        name = "id",
+        column = @Column(name = "recipe_comment_id")
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class RecipeComment extends Comment {
